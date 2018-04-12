@@ -1,8 +1,15 @@
 package com.wangjiegulu.rapidooo.library.compiler.objs;
 
-import java.util.HashMap;
+import com.wangjiegulu.rapidooo.api.OOO;
+import com.wangjiegulu.rapidooo.api.OOOConversion;
+import com.wangjiegulu.rapidooo.library.compiler.util.AnnoUtil;
+
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 import javax.lang.model.element.Element;
+import javax.lang.model.element.ElementKind;
 
 /**
  * Author: wangjie
@@ -10,22 +17,71 @@ import javax.lang.model.element.Element;
  * Date: 11/04/2018.
  */
 public class FromElement {
+    private OOO oooAnno;
+
     private Element element;
     private String fromSuffix;
     private String suffix;
 
     /**
-     * key: field
+     * key: field name
      */
-    private HashMap<String, FromFieldConversion> specialFromConversions = new HashMap<>();
+    private Map<String, FromField> allFromFields = new LinkedHashMap<>();
+
+
+    public void setElement(Element element) {
+        this.element = element;
+        parse();
+    }
+
+    private void parse() {
+        List<? extends Element> eles = element.getEnclosedElements();
+        for (Element e : eles) {
+            if (ElementKind.FIELD == e.getKind()) {
+                FromField fromField = new FromField();
+                fromField.setFieldOriginElement(e);
+                allFromFields.put(e.getSimpleName().toString(), fromField);
+            }
+        }
+    }
+
+    public void setOooAnno(OOO oooAnno) {
+        this.oooAnno = oooAnno;
+        parseExtra();
+    }
+
+    private void parseExtra() {
+        String specialSuffix = oooAnno.suffix();
+        if (!AnnoUtil.oooParamIsNotSet(specialSuffix)) {
+            suffix = specialSuffix;
+        }
+
+        String specialFromSuffix = oooAnno.fromSuffix();
+        if (!AnnoUtil.oooParamIsNotSet(specialFromSuffix)) {
+            fromSuffix = specialFromSuffix;
+        }
+
+        OOOConversion[] oooConversions = oooAnno.conversion();
+        for (OOOConversion oooConversion : oooConversions) {
+            FromFieldConversion fromFieldConversion = new FromFieldConversion();
+            fromFieldConversion.setOooConversionAnno(oooConversion);
+            String fieldName = oooConversion.fieldName();
+            FromField fromField = allFromFields.get(fieldName);
+            if (null == fromField) {
+                throw new RuntimeException("Field[" + fieldName + "] is not exist.");
+            }
+
+            fromField.setFromFieldConversion(fromFieldConversion);
+            fromField.parse();
+        }
+
+    }
+
 
     public Element getElement() {
         return element;
     }
 
-    public void setElement(Element element) {
-        this.element = element;
-    }
 
     public String getSuffix() {
         return suffix;
@@ -43,8 +99,15 @@ public class FromElement {
         this.fromSuffix = fromSuffix;
     }
 
-    public HashMap<String, FromFieldConversion> getSpecialFromConversions() {
-        return specialFromConversions;
+    public OOO getOooAnno() {
+        return oooAnno;
     }
 
+    public Map<String, FromField> getAllFromFields() {
+        return allFromFields;
+    }
+
+    public void setAllFromFields(Map<String, FromField> allFromFields) {
+        this.allFromFields = allFromFields;
+    }
 }

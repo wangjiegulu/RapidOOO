@@ -5,6 +5,7 @@ import com.google.auto.common.MoreElements;
 import java.util.List;
 
 import javax.lang.model.element.VariableElement;
+import javax.lang.model.type.TypeMirror;
 
 /**
  * Author: wangjie
@@ -40,4 +41,20 @@ public class ElementUtil {
 
         return true;
     }
+
+    public static boolean isSameType(TypeMirror type1, TypeMirror typ22) {
+        return GlobalEnvironment.getProcessingEnv().getTypeUtils().isSameType(type1, typ22);
+    }
+
+    public static boolean isSameType(TypeMirror type1, Class<?> type2) {
+        return GlobalEnvironment.getProcessingEnv().getTypeUtils().isSameType(type1, GlobalEnvironment.getProcessingEnv().getElementUtils().getTypeElement(type2.getCanonicalName()).asType());
+    }
+
+    public static boolean isSameType(Class<?> type1, Class<?> type2) {
+        return GlobalEnvironment.getProcessingEnv().getTypeUtils().isSameType(
+                GlobalEnvironment.getProcessingEnv().getElementUtils().getTypeElement(type2.getCanonicalName()).asType(),
+                GlobalEnvironment.getProcessingEnv().getElementUtils().getTypeElement(type2.getCanonicalName()).asType()
+        );
+    }
+
 }

@@ -13,10 +13,12 @@ import com.squareup.javapoet.TypeSpec;
 import com.wangjiegulu.rapidooo.api.OOO;
 import com.wangjiegulu.rapidooo.api.OOOConstants;
 import com.wangjiegulu.rapidooo.api.OOOs;
+import com.wangjiegulu.rapidooo.library.compiler.base.contract.ElementStuff;
+import com.wangjiegulu.rapidooo.library.compiler.base.contract.IElementStuff;
+import com.wangjiegulu.rapidooo.library.compiler.util.AnnoUtil;
 import com.wangjiegulu.rapidooo.library.compiler.util.GlobalEnvironment;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -26,7 +28,6 @@ import java.util.Set;
 
 import javax.annotation.processing.Filer;
 import javax.lang.model.element.Element;
-import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.MirroredTypeException;
@@ -53,7 +54,6 @@ public class OOOProcess {
 
 
     public void brewJava(Filer filer) throws Throwable {
-        fromEntry.parse();
 
         for (Map.Entry<String, FromElement> from : fromEntry.getAllFromElements().entrySet()) {
             FromElement fromElement = from.getValue();
@@ -91,51 +91,46 @@ public class OOOProcess {
                 }
             }
 
-            List<Element> fieldList = new ArrayList<>();
-            List<? extends Element> eles = fromClassElement.getEnclosedElements();
-            for (Element e : eles) {
-                if (ElementKind.FIELD == e.getKind()) {
-                    String fieldName = e.getSimpleName().toString();
-//                    // TODO: 11/04/2018 wangjie
-//                    FromFieldConversion fromFieldConversion = fromElement.getSpecialFromConversions().get(fieldName);
-//                    if (null == fromFieldConversion) {
-//
-//                    } else {
-//
-//                    }
+            Map<String, FromField> allFromFields = fromElement.getAllFromFields();
+            for (Map.Entry<String, FromField> item : allFromFields.entrySet()) {
+                FromField fromField = item.getValue();
 
-                    FieldSpec.Builder fieldSpecBuilder = FieldSpec.builder(ClassName.get(e.asType()), fieldName, getModifiersArray(e))
+                IElementStuff realFieldElementStuff;
+                FromFieldConversion fromFieldConversion = fromField.getFromFieldConversion();
+
+                // copy all origin from fields
+                if (null == fromFieldConversion || !fromFieldConversion.isReplace()) {
+                    Element fieldElement = fromField.getFieldOriginElement();
+                    String fieldName = fieldElement.getSimpleName().toString();
+
+                    FieldSpec.Builder fieldSpecBuilder = FieldSpec.builder(ClassName.get(fieldElement.asType()), fieldName, getModifiersArray(fieldElement))
                             .addJavadoc("field name: {@link $T#$L}\n",
                                     fromClassTypeName,
-                                    e.getSimpleName().toString()
+                                    fieldElement.getSimpleName().toString()
                             );
                     result.addField(fieldSpecBuilder.build());
-                    fieldList.add(e);
-
+                    realFieldElementStuff = new ElementStuff(fieldElement);
                     // getter / setter method
-                    if (MoreElements.hasModifiers(Modifier.PRIVATE).apply(e)
-                            || MoreElements.hasModifiers(Modifier.PROTECTED).apply(e)
-                            ) {
-                        addGetterSetterMethods(result, e);
+                    if (MoreElements.hasModifiers(Modifier.PRIVATE).apply(fieldElement)
+                            || MoreElements.hasModifiers(Modifier.PROTECTED).apply(fieldElement)) {
+                        addGetterSetterMethods(result, realFieldElementStuff, fromFieldConversion, false);
                     }
-
-                } else if (ElementKind.METHOD == e.getKind()) {
-//                    MethodSpec.Builder methodSpecBuilder = MethodSpec.methodBuilder(e.getSimpleName().toString());
-//
-//                    ExecutableType executableType = MoreTypes.asExecutable(e.asType());
-//                    // parameters
-//                    for(TypeMirror paramTypeMirror : executableType.getParameterTypes()){
-//                        methodSpecBuilder.addParameter(
-//                                ParameterSpec.get(MoreElements.asVariable(MoreTypes.asElement(paramTypeMirror)))
-//                        );
-//                    }
-//
-//                    // return type
-//                    methodSpecBuilder.returns(ClassName.get(executableType.getReturnType()));
-//
-//                    MoreElements.asExecutable(e).
-
                 }
+
+                // build extra conversion fields
+                if (null != fromFieldConversion) {
+                    realFieldElementStuff = fromField.getTargetElementStuff();
+                    // TODO: 12/04/2018 wangjie modifiers ?
+                    FieldSpec.Builder fieldSpecBuilder = FieldSpec.builder(ClassName.get(fromFieldConversion.getTargetType()), fromFieldConversion.getTargetFieldName(), Modifier.PRIVATE)
+                            .addJavadoc("field name conversion : {@link $T}\n",
+                                    ClassName.get(generatorClassEl.asType())
+                            );
+                    result.addField(fieldSpecBuilder.build());
+                    // getter / setter method
+                    addGetterSetterMethods(result, realFieldElementStuff, fromFieldConversion, true);
+                }
+
+
             }
 
             // Constructor method
@@ -150,11 +145,28 @@ public class OOOProcess {
             MethodSpec.Builder constructorMethod = MethodSpec.constructorBuilder()
                     .addModifiers(Modifier.PUBLIC)
                     .addParameter(fromClassTypeName, fromParamName);
-            for (Element fieldElement : fieldList) {
-                GetterSetterMethodNames getterSetterMethodNames = generateGetterSetterMethodName(fieldElement);
+            for (Map.Entry<String, FromField> item : allFromFields.entrySet()) {
+                FromField fromField = item.getValue();
+                Element fieldElement = fromField.getFieldOriginElement();
+                GetterSetterMethodNames getterSetterMethodNames = generateGetterSetterMethodName(new ElementStuff(fieldElement));
 
-                // TODO: 11/04/2018 wangjie conversion
-                constructorMethod.addStatement(firstCharLower(fieldElement.getSimpleName().toString()) + " = " + fromParamName + "." + getterSetterMethodNames.getGetterMethodName() + "()");
+                FromFieldConversion fromFieldConversion = fromField.getFromFieldConversion();
+                if (null == fromFieldConversion) {
+                    constructorMethod.addStatement(firstCharLower(fieldElement.getSimpleName().toString()) + " = " + fromParamName + "." + getterSetterMethodNames.getGetterMethodName() + "()");
+                } else {
+                    if (!fromFieldConversion.isReplace()) {
+                        constructorMethod.addStatement(firstCharLower(fieldElement.getSimpleName().toString()) + " = " + fromParamName + "." + getterSetterMethodNames.getGetterMethodName() + "()");
+                    }
+
+                    TypeMirror conversionMethodType = fromFieldConversion.getConversionMethodType(generatorClassEl.asType());
+                    constructorMethod.addStatement(
+                            fromFieldConversion.getTargetFieldName() + " = $T." + fromFieldConversion.getConversionMethodName() + "(this, " + fromParamName + "." + getterSetterMethodNames.getGetterMethodName() + "())",
+                            ClassName.get(conversionMethodType)
+                    );
+
+                }
+
+
             }
             result.addMethod(constructorMethod.build());
 
@@ -163,18 +175,28 @@ public class OOOProcess {
                     .addModifiers(Modifier.PUBLIC)
                     .returns(fromClassTypeName)
                     .addStatement(fromClassName + " " + fromParamName + " = new " + fromClassName + "()");
-            for (Element fieldElement : fieldList) {
-                GetterSetterMethodNames getterSetterMethodNames = generateGetterSetterMethodName(fieldElement);
-                // TODO: 12/04/2018 wangjie conversion
-                toFromMethod.addStatement(fromParamName + "." + getterSetterMethodNames.getSetterMethodName() + "(" + fieldElement.getSimpleName().toString() + ")");
+            for (Map.Entry<String, FromField> item : allFromFields.entrySet()) {
+                FromField fromField = item.getValue();
+                Element fieldElement = fromField.getFieldOriginElement();
+                String fromFieldName = fieldElement.getSimpleName().toString();
+                GetterSetterMethodNames getterSetterMethodNames = generateGetterSetterMethodName(new ElementStuff(fieldElement));
+
+                FromFieldConversion fromFieldConversion = fromField.getFromFieldConversion();
+
+                if (null == fromFieldConversion || !fromFieldConversion.isReplace()) {
+                    toFromMethod.addStatement(fromParamName + "." + getterSetterMethodNames.getSetterMethodName() + "(" + fromFieldName + ")");
+                } else {
+                    toFromMethod.addComment("Skipped field: " + fromFieldName);
+                }
+
             }
             toFromMethod.addStatement("return " + fromParamName);
             result.addMethod(toFromMethod.build());
 
-            // TODO: 11/04/2018 wangjie
+            // TODO: 11/04/2018 wangjie, need copy methods here from `from pojo`?
 
             JavaFile.builder(targetPackage, result.build())
-                    .addFileComment("GENERATED CODE BY RapidOOO. DO NOT MODIFY! $S\nPOJOGenerator: $S",
+                    .addFileComment("GENERATED CODE BY RapidOOO. DO NOT MODIFY! $S, POJOGenerator: $S",
                             DATE_FORMAT.format(new Date(System.currentTimeMillis())),
                             generatorClassEl.asType().toString())
                     .skipJavaLangImports(true)
@@ -186,11 +208,11 @@ public class OOOProcess {
     }
 
 
-    private void addGetterSetterMethods(TypeSpec.Builder typeSpecBuilder, Element fieldElement) {
+    private void addGetterSetterMethods(TypeSpec.Builder typeSpecBuilder, IElementStuff fieldElement, FromFieldConversion fromFieldConversion, boolean inverse) {
         GetterSetterMethodNames getterSetterMethodNames = generateGetterSetterMethodName(fieldElement);
 
         TypeName fieldTypeName = ClassName.get(fieldElement.asType());
-        String fieldName = fieldElement.getSimpleName().toString();
+        String fieldName = fieldElement.getSimpleName();
 
         MethodSpec.Builder getterMethodSpecBuilder = MethodSpec.methodBuilder(getterSetterMethodNames.getGetterMethodName())
                 .addModifiers(Modifier.PUBLIC)
@@ -200,20 +222,33 @@ public class OOOProcess {
         typeSpecBuilder.addMethod(getterMethodSpecBuilder.build());
 
 
-        MethodSpec.Builder setterMethodSpecBuilder = MethodSpec.methodBuilder(getterSetterMethodNames.getSetterMethodName())
-                .addModifiers(Modifier.PUBLIC)
-                .addParameter(fieldTypeName, fieldName)
-                .returns(void.class)
-                .addStatement("this." + fieldName + " = " + fieldName);
+        if (null == fromFieldConversion || !fromFieldConversion.isReplace()) {
+            MethodSpec.Builder setterMethodSpecBuilder = MethodSpec.methodBuilder(getterSetterMethodNames.getSetterMethodName())
+                    .addModifiers(Modifier.PUBLIC)
+                    .addParameter(fieldTypeName, fieldName)
+                    .returns(void.class)
+                    .addStatement("this." + fieldName + " = " + fieldName);
 
-        typeSpecBuilder.addMethod(setterMethodSpecBuilder.build());
+            if (null != fromFieldConversion) {
+                String conversionMethodName = inverse ? fromFieldConversion.getInverseConversionMethodName() : fromFieldConversion.getConversionMethodName();
+                if (!AnnoUtil.oooParamIsNotSet(conversionMethodName)) {
+                    setterMethodSpecBuilder.addStatement(
+                            "this." + (inverse ? fromFieldConversion.getFieldName() : fromFieldConversion.getTargetFieldName()) + " = $T." + conversionMethodName + "(this, " + fieldName + ")",
+                            ClassName.get(fromFieldConversion.getConversionMethodType(generatorClassEl.asType()))
+                    );
+                }
+            }
+
+            typeSpecBuilder.addMethod(setterMethodSpecBuilder.build());
+        }
+
 
     }
 
-    private GetterSetterMethodNames generateGetterSetterMethodName(Element fieldElement) {
+    private GetterSetterMethodNames generateGetterSetterMethodName(IElementStuff fieldElement) {
         GetterSetterMethodNames getterSetterMethodNames = new GetterSetterMethodNames();
 
-        String fieldName = fieldElement.getSimpleName().toString();
+        String fieldName = fieldElement.getSimpleName();
         String firstCharUpperFieldName = firstCharUpper(fieldName);
 
         if (ClassName.get(fieldElement.asType()) == TypeName.BOOLEAN) {

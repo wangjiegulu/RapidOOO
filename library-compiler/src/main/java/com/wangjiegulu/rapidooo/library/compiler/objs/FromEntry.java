@@ -3,14 +3,12 @@ package com.wangjiegulu.rapidooo.library.compiler.objs;
 import com.google.auto.common.MoreTypes;
 
 import com.wangjiegulu.rapidooo.api.OOO;
-import com.wangjiegulu.rapidooo.api.OOOConstants;
-import com.wangjiegulu.rapidooo.api.OOOConversion;
 import com.wangjiegulu.rapidooo.api.OOOIgnore;
 import com.wangjiegulu.rapidooo.api.OOOs;
 import com.wangjiegulu.rapidooo.library.compiler.util.GlobalEnvironment;
 
 import java.util.Arrays;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -26,16 +24,18 @@ import javax.lang.model.type.TypeMirror;
  */
 public class FromEntry {
     private OOOs ooosAnno;
+
     private String suffix;
     private String fromSuffix;
     private List<String> fromPackages;
     /**
      * key: pojo class name
      */
-    private Map<String, FromElement> allFromElements = new HashMap<>();
+    private Map<String, FromElement> allFromElements = new LinkedHashMap<>();
 
     public void setOoosAnno(OOOs ooosAnno) {
         this.ooosAnno = ooosAnno;
+        parse();
     }
 
     public void parse() {
@@ -62,16 +62,12 @@ public class FromEntry {
                         continue;
                     }
 
-                    FromElement fromElement = new FromElement();
-                    fromElement.setElement(oooClassElement);
-                    fromElement.setFromSuffix(fromSuffix);
-                    fromElement.setSuffix(suffix);
+                    FromElement fromElement = generateBaseFromElement(oooClassElement);
                     allFromElements.put(MoreTypes.asTypeElement(oooClassElement.asType()).getQualifiedName().toString(), fromElement);
 
                 }
             }
         }
-
 
         // special ooos
         OOO[] ooos = ooosAnno.ooos();
@@ -83,35 +79,22 @@ public class FromEntry {
             String specialQualifiedName = MoreTypes.asTypeElement(fromTypeMirror).getQualifiedName().toString();
             FromElement fromElement = allFromElements.get(specialQualifiedName);
             if (null == fromElement) {
-                fromElement = new FromElement();
-                fromElement.setElement(MoreTypes.asElement(fromTypeMirror));
-                fromElement.setFromSuffix(fromSuffix);
-                fromElement.setSuffix(suffix);
+                fromElement = generateBaseFromElement(MoreTypes.asElement(fromTypeMirror));
                 allFromElements.put(specialQualifiedName, fromElement);
             }
 
-            // replace special params
-            String realSuffix = ooo.suffix();
-            if (!oooParamIsNotSet(realSuffix)) {
-                fromElement.setSuffix(realSuffix);
-            }
-
-            String realFromSuffix = ooo.fromSuffix();
-            if (!oooParamIsNotSet(realFromSuffix)) {
-                fromElement.setFromSuffix(realFromSuffix);
-            }
-
-            OOOConversion[] oooConversions = ooo.conversion();
-            for (OOOConversion oooConversion : oooConversions) {
-                FromFieldConversion fromFieldConversion = new FromFieldConversion();
-                fromFieldConversion.setFieldName(oooConversion.fieldName());
-                fromFieldConversion.setConversionMethodName(oooConversion.conversionMethodName());
-                fromFieldConversion.setTargetType(getConversionFromTargetTypeMirror(oooConversion));
-                fromElement.getSpecialFromConversions().put(oooConversion.fieldName(), fromFieldConversion);
-            }
+            fromElement.setOooAnno(ooo);
 
         }
 
+    }
+
+    private FromElement generateBaseFromElement(Element oooClassElement) {
+        FromElement fromElement = new FromElement();
+        fromElement.setElement(oooClassElement);
+        fromElement.setFromSuffix(fromSuffix);
+        fromElement.setSuffix(suffix);
+        return fromElement;
     }
 
     public OOOs getOoosAnno() {
@@ -142,22 +125,12 @@ public class FromEntry {
         return null;
     }
 
-    private static TypeMirror getConversionFromTargetTypeMirror(OOOConversion oooConversion) {
-        try {
-            oooConversion.targetType();
-        } catch (MirroredTypeException mte) {
-            return mte.getTypeMirror();
-        }
-        return null;
-    }
+
 
     public Map<String, FromElement> getAllFromElements() {
         return allFromElements;
     }
 
-    private boolean oooParamIsNotSet(String stuff) {
-        return OOOConstants.NOT_SET.equals(stuff);
-    }
 
     @Override
     public String toString() {
