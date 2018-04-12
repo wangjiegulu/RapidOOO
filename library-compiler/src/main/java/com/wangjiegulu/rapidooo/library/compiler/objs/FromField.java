@@ -11,6 +11,7 @@ import javax.lang.model.element.Element;
  * Date: 12/04/2018.
  */
 public class FromField {
+    private FromElement ownerFromElement;
     private Element fieldOriginElement;
     private FromFieldConversion fromFieldConversion;
     private IElementStuff targetElementStuff;
@@ -38,6 +39,14 @@ public class FromField {
 
     public IElementStuff getTargetElementStuff() {
         return targetElementStuff;
+    }
+
+    public FromElement getOwnerFromElement() {
+        return ownerFromElement;
+    }
+
+    public void setOwnerFromElement(FromElement ownerFromElement) {
+        this.ownerFromElement = ownerFromElement;
     }
 
     @Override

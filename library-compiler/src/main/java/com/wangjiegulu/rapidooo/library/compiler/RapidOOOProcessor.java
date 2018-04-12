@@ -10,7 +10,6 @@ import com.wangjiegulu.rapidooo.library.compiler.objs.OOOProcess;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 import javax.annotation.processing.Processor;
@@ -41,25 +40,35 @@ public class RapidOOOProcessor extends BaseAbstractProcessor {
 
             HashMap<String, OOOProcess> mapper = new HashMap<>();
 
-            for (Element e : roundEnv.getElementsAnnotatedWith(OOOs.class)) {
-                doTableAnnotation(e, mapper);
-            }
-
-            for (Map.Entry<String, OOOProcess> entry : mapper.entrySet()) {
-                logger("oooProcess: " + entry.getValue());
-                String key = entry.getKey();
-                OOOProcess oooProcess = entry.getValue();
+            for (Element element : roundEnv.getElementsAnnotatedWith(OOOs.class)) {
+                OOOProcess oooProcess = doTableAnnotation(element, mapper);
                 try {
-                    logger("TableConfig generate START -> " + key);
+                    logger("TableConfig generate START -> " + oooProcess);
                     oooProcess.brewJava(filer);
-                    logger("TableConfig generate END -> " + key + ", oooProcess: " + oooProcess);
+                    logger("TableConfig generate END -> " + oooProcess + ", oooProcess: " + oooProcess);
                 } catch (RuntimeException e) {
                     throw e;
                 } catch (Throwable throwable) {
-                    logger("TableConfig generate FAILED -> " + key + ", oooProcess: " + oooProcess);
+                    logger("TableConfig generate FAILED -> " + oooProcess + ", oooProcess: " + oooProcess);
                     loggerE(throwable);
                 }
             }
+
+//            for (Map.Entry<String, OOOProcess> entry : mapper.entrySet()) {
+//                logger("oooProcess: " + entry.getValue());
+//                String key = entry.getKey();
+//                OOOProcess oooProcess = entry.getValue();
+//                try {
+//                    logger("TableConfig generate START -> " + key);
+//                    oooProcess.brewJava(filer);
+//                    logger("TableConfig generate END -> " + key + ", oooProcess: " + oooProcess);
+//                } catch (RuntimeException e) {
+//                    throw e;
+//                } catch (Throwable throwable) {
+//                    logger("TableConfig generate FAILED -> " + key + ", oooProcess: " + oooProcess);
+//                    loggerE(throwable);
+//                }
+//            }
 
         }/*catch (Throwable throwable) {
             loggerE(throwable);
@@ -71,8 +80,8 @@ public class RapidOOOProcessor extends BaseAbstractProcessor {
         return true;
     }
 
-    private void doTableAnnotation(Element ele, HashMap<String, OOOProcess> mapper) {
-        obtainTableEntrySafe(ele, mapper);
+    private OOOProcess doTableAnnotation(Element ele, HashMap<String, OOOProcess> mapper) {
+        return obtainTableEntrySafe(ele, mapper);
     }
 
     private OOOProcess obtainTableEntrySafe(Element ele, HashMap<String, OOOProcess> tableMapper) {

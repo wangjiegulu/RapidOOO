@@ -28,6 +28,8 @@ public class FromEntry {
     private String suffix;
     private String fromSuffix;
     private List<String> fromPackages;
+
+    private Element generatorClassEl;
     /**
      * key: pojo class name
      */
@@ -35,7 +37,6 @@ public class FromEntry {
 
     public void setOoosAnno(OOOs ooosAnno) {
         this.ooosAnno = ooosAnno;
-        parse();
     }
 
     public void parse() {
@@ -64,6 +65,7 @@ public class FromEntry {
 
                     FromElement fromElement = generateBaseFromElement(oooClassElement);
                     allFromElements.put(MoreTypes.asTypeElement(oooClassElement.asType()).getQualifiedName().toString(), fromElement);
+                    fromElement.parse();
 
                 }
             }
@@ -84,7 +86,7 @@ public class FromEntry {
             }
 
             fromElement.setOooAnno(ooo);
-
+            fromElement.parse();
         }
 
     }
@@ -92,6 +94,7 @@ public class FromEntry {
     private FromElement generateBaseFromElement(Element oooClassElement) {
         FromElement fromElement = new FromElement();
         fromElement.setElement(oooClassElement);
+        fromElement.setGeneratorClassEl(generatorClassEl);
         fromElement.setFromSuffix(fromSuffix);
         fromElement.setSuffix(suffix);
         return fromElement;
@@ -131,6 +134,13 @@ public class FromEntry {
         return allFromElements;
     }
 
+    public Element getGeneratorClassEl() {
+        return generatorClassEl;
+    }
+
+    public void setGeneratorClassEl(Element generatorClassEl) {
+        this.generatorClassEl = generatorClassEl;
+    }
 
     @Override
     public String toString() {

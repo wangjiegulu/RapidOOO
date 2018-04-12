@@ -1,8 +1,11 @@
 package com.wangjiegulu.rapidooo.library.compiler.objs;
 
+import com.google.auto.common.MoreElements;
+
 import com.wangjiegulu.rapidooo.api.OOO;
 import com.wangjiegulu.rapidooo.api.OOOConversion;
 import com.wangjiegulu.rapidooo.library.compiler.util.AnnoUtil;
+import com.wangjiegulu.rapidooo.library.compiler.util.LogUtil;
 
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -18,6 +21,10 @@ import javax.lang.model.element.ElementKind;
  */
 public class FromElement {
     private OOO oooAnno;
+    private Element generatorClassEl;
+
+    private String targetClassPackage;
+    private String targetClassSimpleName;
 
     private Element element;
     private String fromSuffix;
@@ -31,10 +38,7 @@ public class FromElement {
 
     public void setElement(Element element) {
         this.element = element;
-        parse();
-    }
 
-    private void parse() {
         List<? extends Element> eles = element.getEnclosedElements();
         for (Element e : eles) {
             if (ElementKind.FIELD == e.getKind()) {
@@ -43,6 +47,16 @@ public class FromElement {
                 allFromFields.put(e.getSimpleName().toString(), fromField);
             }
         }
+    }
+
+    public void parse() {
+        String fromClassName = element.getSimpleName().toString();
+        targetClassPackage = generatorClassEl.getEnclosingElement().toString();
+        LogUtil.logger("targetClassPackage: " + targetClassPackage);
+        // eg. replace "BO" when generate VO
+        targetClassSimpleName =
+                (AnnoUtil.oooParamIsNotSet(fromSuffix) ? fromClassName : fromClassName.substring(0, fromClassName.length() - fromSuffix.length()))
+                        + suffix;
     }
 
     public void setOooAnno(OOO oooAnno) {
@@ -62,18 +76,26 @@ public class FromElement {
         }
 
         OOOConversion[] oooConversions = oooAnno.conversion();
+        LogUtil.logger("----oooAnno: " + oooAnno);
         for (OOOConversion oooConversion : oooConversions) {
-            FromFieldConversion fromFieldConversion = new FromFieldConversion();
-            fromFieldConversion.setOooConversionAnno(oooConversion);
             String fieldName = oooConversion.fieldName();
             FromField fromField = allFromFields.get(fieldName);
             if (null == fromField) {
-                throw new RuntimeException("Field[" + fieldName + "] is not exist.");
+                throw new RuntimeException("Field[" + fieldName + "] is not exist in " + MoreElements.asType(element).getQualifiedName());
             }
 
+            FromFieldConversion fromFieldConversion = new FromFieldConversion();
+            fromFieldConversion.setOwnerFromElement(this);
+            fromFieldConversion.setOooConversionAnno(oooConversion);
+            fromFieldConversion.setOwnerFromField(fromField);
+            fromFieldConversion.parse();
             fromField.setFromFieldConversion(fromFieldConversion);
+            LogUtil.logger("fromFieldConversion: " + fromFieldConversion);
+            fromField.setOwnerFromElement(this);
             fromField.parse();
         }
+
+
 
     }
 
@@ -107,7 +129,19 @@ public class FromElement {
         return allFromFields;
     }
 
-    public void setAllFromFields(Map<String, FromField> allFromFields) {
-        this.allFromFields = allFromFields;
+    public Element getGeneratorClassEl() {
+        return generatorClassEl;
+    }
+
+    public void setGeneratorClassEl(Element generatorClassEl) {
+        this.generatorClassEl = generatorClassEl;
+    }
+
+    public String getTargetClassPackage() {
+        return targetClassPackage;
+    }
+
+    public String getTargetClassSimpleName() {
+        return targetClassSimpleName;
     }
 }

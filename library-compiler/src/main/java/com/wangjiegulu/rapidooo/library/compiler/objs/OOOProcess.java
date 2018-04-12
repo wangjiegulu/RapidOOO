@@ -10,13 +10,12 @@ import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
-import com.wangjiegulu.rapidooo.api.OOO;
-import com.wangjiegulu.rapidooo.api.OOOConstants;
 import com.wangjiegulu.rapidooo.api.OOOs;
 import com.wangjiegulu.rapidooo.library.compiler.base.contract.ElementStuff;
 import com.wangjiegulu.rapidooo.library.compiler.base.contract.IElementStuff;
 import com.wangjiegulu.rapidooo.library.compiler.util.AnnoUtil;
 import com.wangjiegulu.rapidooo.library.compiler.util.GlobalEnvironment;
+import com.wangjiegulu.rapidooo.library.compiler.util.LogUtil;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -30,7 +29,6 @@ import javax.annotation.processing.Filer;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.type.DeclaredType;
-import javax.lang.model.type.MirroredTypeException;
 import javax.lang.model.type.TypeMirror;
 
 /**
@@ -49,7 +47,9 @@ public class OOOProcess {
     public void setGeneratorClassEl(Element mGeneratorClassEl) {
         this.generatorClassEl = mGeneratorClassEl;
         fromEntry = new FromEntry();
+        fromEntry.setGeneratorClassEl(generatorClassEl);
         fromEntry.setOoosAnno(mGeneratorClassEl.getAnnotation(OOOs.class));
+        fromEntry.parse();
     }
 
 
@@ -61,15 +61,9 @@ public class OOOProcess {
             Element fromClassElement = fromElement.getElement();
             TypeName fromClassTypeName = ClassName.get(fromClassElement.asType());
 
-            String fromSuffix = fromElement.getFromSuffix();
             String fromClassName = fromClassElement.getSimpleName().toString();
             // eg. replace "BO" when generate VO
-            String targetClassSimpleName =
-                    (oooParamIsNotSet(fromSuffix) ? fromClassName : fromClassName.substring(0, fromClassName.length() - fromSuffix.length()))
-                            + fromElement.getSuffix();
-
-
-            String targetPackage = generatorClassEl.getEnclosingElement().toString();
+            String targetClassSimpleName = fromElement.getTargetClassSimpleName();
 
             TypeSpec.Builder result = TypeSpec.classBuilder(targetClassSimpleName)
                     .addModifiers(Modifier.PUBLIC)
@@ -130,7 +124,6 @@ public class OOOProcess {
                     addGetterSetterMethods(result, realFieldElementStuff, fromFieldConversion, true);
                 }
 
-
             }
 
             // Constructor method
@@ -151,6 +144,7 @@ public class OOOProcess {
                 GetterSetterMethodNames getterSetterMethodNames = generateGetterSetterMethodName(new ElementStuff(fieldElement));
 
                 FromFieldConversion fromFieldConversion = fromField.getFromFieldConversion();
+                LogUtil.logger("fromFieldConversion: " + fromFieldConversion);
                 if (null == fromFieldConversion) {
                     constructorMethod.addStatement(firstCharLower(fieldElement.getSimpleName().toString()) + " = " + fromParamName + "." + getterSetterMethodNames.getGetterMethodName() + "()");
                 } else {
@@ -158,11 +152,15 @@ public class OOOProcess {
                         constructorMethod.addStatement(firstCharLower(fieldElement.getSimpleName().toString()) + " = " + fromParamName + "." + getterSetterMethodNames.getGetterMethodName() + "()");
                     }
 
-                    TypeMirror conversionMethodType = fromFieldConversion.getConversionMethodType(generatorClassEl.asType());
-                    constructorMethod.addStatement(
-                            fromFieldConversion.getTargetFieldName() + " = $T." + fromFieldConversion.getConversionMethodName() + "(this, " + fromParamName + "." + getterSetterMethodNames.getGetterMethodName() + "())",
-                            ClassName.get(conversionMethodType)
-                    );
+                    String conversionMethodName = fromFieldConversion.getConversionMethodName();
+                    LogUtil.logger("conversionMethodName: " + conversionMethodName);
+                    if (!AnnoUtil.oooParamIsNotSet(conversionMethodName)) {
+                        fromFieldConversion.checkConversionMethodValidate();
+                        constructorMethod.addStatement(
+                                fromFieldConversion.getTargetFieldName() + " = $T." + conversionMethodName + "(this, " + fromParamName + "." + getterSetterMethodNames.getGetterMethodName() + "())",
+                                ClassName.get(fromFieldConversion.getConversionMethodType())
+                        );
+                    }
 
                 }
 
@@ -195,7 +193,7 @@ public class OOOProcess {
 
             // TODO: 11/04/2018 wangjie, need copy methods here from `from pojo`?
 
-            JavaFile.builder(targetPackage, result.build())
+            JavaFile.builder(fromElement.getTargetClassPackage(), result.build())
                     .addFileComment("GENERATED CODE BY RapidOOO. DO NOT MODIFY! $S, POJOGenerator: $S",
                             DATE_FORMAT.format(new Date(System.currentTimeMillis())),
                             generatorClassEl.asType().toString())
@@ -206,7 +204,6 @@ public class OOOProcess {
         }
 
     }
-
 
     private void addGetterSetterMethods(TypeSpec.Builder typeSpecBuilder, IElementStuff fieldElement, FromFieldConversion fromFieldConversion, boolean inverse) {
         GetterSetterMethodNames getterSetterMethodNames = generateGetterSetterMethodName(fieldElement);
@@ -230,11 +227,17 @@ public class OOOProcess {
                     .addStatement("this." + fieldName + " = " + fieldName);
 
             if (null != fromFieldConversion) {
-                String conversionMethodName = inverse ? fromFieldConversion.getInverseConversionMethodName() : fromFieldConversion.getConversionMethodName();
+                String conversionMethodName;
+                if (inverse){
+                    fromFieldConversion.checkInverseConversionMethodValidate();
+                    conversionMethodName = fromFieldConversion.getInverseConversionMethodName();
+                } else {
+                    conversionMethodName = fromFieldConversion.getConversionMethodName();
+                }
                 if (!AnnoUtil.oooParamIsNotSet(conversionMethodName)) {
                     setterMethodSpecBuilder.addStatement(
                             "this." + (inverse ? fromFieldConversion.getFieldName() : fromFieldConversion.getTargetFieldName()) + " = $T." + conversionMethodName + "(this, " + fieldName + ")",
-                            ClassName.get(fromFieldConversion.getConversionMethodType(generatorClassEl.asType()))
+                            ClassName.get(fromFieldConversion.getConversionMethodType())
                     );
                 }
             }
@@ -292,20 +295,6 @@ public class OOOProcess {
         return modifiers;
     }
 
-
-    private static TypeMirror getFromTypeMirror(OOO ooo) {
-        try {
-            ooo.from();
-        } catch (MirroredTypeException mte) {
-            return mte.getTypeMirror();
-        }
-        return null;
-    }
-
-
-    private boolean oooParamIsNotSet(String stuff) {
-        return OOOConstants.NOT_SET.equals(stuff);
-    }
 
 
     @Override
