@@ -1,6 +1,10 @@
 package com.wangjiegulu.rapidooo.library.compiler.util;
 
 import com.google.auto.common.MoreElements;
+import com.google.auto.common.MoreTypes;
+
+import com.squareup.javapoet.ClassName;
+import com.squareup.javapoet.TypeName;
 
 import java.util.List;
 
@@ -42,19 +46,37 @@ public class ElementUtil {
         return true;
     }
 
-    public static boolean isSameType(TypeMirror type1, TypeMirror typ22) {
-        return GlobalEnvironment.getProcessingEnv().getTypeUtils().isSameType(type1, typ22);
+    public static boolean isSameType(TypeMirror type1, TypeMirror type2) {
+        return GlobalEnvironment.getProcessingEnv().getTypeUtils().isSameType(type1, type2);
     }
 
     public static boolean isSameType(TypeMirror type1, Class<?> type2) {
-        return GlobalEnvironment.getProcessingEnv().getTypeUtils().isSameType(type1, GlobalEnvironment.getProcessingEnv().getElementUtils().getTypeElement(type2.getCanonicalName()).asType());
+        return equals(MoreTypes.asTypeElement(type1).getQualifiedName().toString(), type2.getCanonicalName());
+//        return GlobalEnvironment.getProcessingEnv().getTypeUtils().isSameType(type1, GlobalEnvironment.getProcessingEnv().getElementUtils().getTypeElement(type2.getCanonicalName()).asType());
     }
 
     public static boolean isSameType(Class<?> type1, Class<?> type2) {
-        return GlobalEnvironment.getProcessingEnv().getTypeUtils().isSameType(
-                GlobalEnvironment.getProcessingEnv().getElementUtils().getTypeElement(type2.getCanonicalName()).asType(),
-                GlobalEnvironment.getProcessingEnv().getElementUtils().getTypeElement(type2.getCanonicalName()).asType()
-        );
+        return equals(type1.getCanonicalName(), type2.getCanonicalName());
+//        return GlobalEnvironment.getProcessingEnv().getTypeUtils().isSameType(
+//                GlobalEnvironment.getProcessingEnv().getElementUtils().getTypeElement(type2.getCanonicalName()).asType(),
+//                GlobalEnvironment.getProcessingEnv().getElementUtils().getTypeElement(type2.getCanonicalName()).asType()
+//        );
+    }
+
+    public static boolean isSameType(TypeMirror type1, TypeName type2) {
+        return equals(MoreTypes.asTypeElement(type1).getQualifiedName().toString(), type2.toString());
+    }
+
+    public static boolean isSameType(TypeName type1, TypeName type2) {
+        return equals(type1.toString(), type2.toString());
+    }
+
+    public static boolean isSameSimpleName(TypeMirror type1, TypeName type2){
+        return equals(MoreTypes.asTypeElement(type1).getSimpleName().toString(), ((ClassName)type2).simpleName());
+    }
+
+    private static boolean equals(String str1, String str2) {
+        return null != str1 && str1.equals(str2);
     }
 
 }

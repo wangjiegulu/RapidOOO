@@ -1,6 +1,6 @@
 package com.wangjiegulu.rapidooo.library.compiler.base.contract;
 
-import javax.lang.model.type.TypeMirror;
+import com.squareup.javapoet.TypeName;
 
 /**
  * Author: wangjie
@@ -8,7 +8,7 @@ import javax.lang.model.type.TypeMirror;
  * Date: 12/04/2018.
  */
 public interface IElementStuff {
-    TypeMirror asType();
+    TypeName asType();
 
     String getSimpleName();
 }

@@ -3,8 +3,9 @@ package com.wangjiegulu.rapidooo;
 import com.wangjiegulu.rapidooo.api.OOO;
 import com.wangjiegulu.rapidooo.api.OOOConversion;
 import com.wangjiegulu.rapidooo.api.OOOs;
-import com.wangjiegulu.rapidooo.depmodule.bll._bo.BOGenerator;
-import com.wangjiegulu.rapidooo.depmodule.bll._bo.User_BO;
+import com.wangjiegulu.rapidooo.depmodule.bll.xbo.BOGenerator;
+import com.wangjiegulu.rapidooo.depmodule.bll.xbo.PetBO;
+import com.wangjiegulu.rapidooo.depmodule.bll.xbo.User_BO;
 
 /**
  * Generate VOs from BOs
@@ -15,6 +16,7 @@ import com.wangjiegulu.rapidooo.depmodule.bll._bo.User_BO;
 @OOOs(suffix = VOGenerator.VO_SUFFIX, fromSuffix = BOGenerator.BO_SUFFIX, ooosPackages = {
         VOGenerator.PACKAGE_BO
 }, ooos = {
+        @OOO(id = "userVO", from = User_BO.class),
         @OOO(from = User_BO.class/*, suffix = VOGenerator.VO_SUFFIX_USER*/,
                 fromSuffix = BOGenerator.BO_SUFFIX_USER,
                 conversion = {
@@ -35,14 +37,24 @@ import com.wangjiegulu.rapidooo.depmodule.bll._bo.User_BO;
                                 replace = true
                         )
                 }
+        ),
+        @OOO(from = PetBO.class,
+                conversion = {
+                        @OOOConversion(
+                                fieldName = "ownerUser",
+                                targetFieldName = "ownerUser",
+                                targetTypeId = "userVO",
+                                replace = true
+                        )
+                }
         )
 })
 public class VOGenerator {
     public static final String VO_SUFFIX = "VO";
     //    public static final String VO_SUFFIX_USER = "_VO";
-    public static final String PACKAGE_BO = "com.wangjiegulu.rapidooo.depmodule.bll._bo";
+    public static final String PACKAGE_BO = "com.wangjiegulu.rapidooo.depmodule.bll.xbo";
 
-    public static String conversionGender(UserVO userVO, Integer gender) {
+    public static String conversionGender(Integer gender) {
         if (null == gender) {
             return "unknown";
         }

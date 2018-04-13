@@ -111,7 +111,7 @@ public class OOOProcess {
                 } else {
                     // TODO: 12/04/2018 wangjie modifiers ?
                     // Generate extra Field
-                    FieldSpec.Builder fieldSpecBuilder = FieldSpec.builder(ClassName.get(fromFieldConversion.getTargetType()), fromFieldConversion.getTargetFieldName(), Modifier.PRIVATE)
+                    FieldSpec.Builder fieldSpecBuilder = FieldSpec.builder(fromFieldConversion.getTargetType(), fromFieldConversion.getTargetFieldName(), Modifier.PRIVATE)
                             .addJavadoc("field name conversion : {@link $T}\n",
                                     ClassName.get(generatorClassEl.asType())
                             );
@@ -138,11 +138,11 @@ public class OOOProcess {
                             // add getter method
                             result.addMethod(obtainGetterMethodsBuilder(realFieldElementStuff, getterSetterMethodNames).build());
                             // add setter method
-                            String inverseConversionMethodName = fromFieldConversion.getInverseConversionMethodName();
-                            if (!AnnoUtil.oooParamIsNotSet(inverseConversionMethodName)) { // inverseConversionMethodName has set
-                                setterMethodBuilder = obtainInverseConversionSetterMethodBuilder(fromFieldConversion, realFieldElementStuff, getterSetterMethodNames);
-                                result.addMethod(setterMethodBuilder.build());
-                            }
+//                            String inverseConversionMethodName = fromFieldConversion.getInverseConversionMethodName();
+//                            if (!AnnoUtil.oooParamIsNotSet(inverseConversionMethodName)) { // inverseConversionMethodName has set
+                            setterMethodBuilder = obtainInverseConversionSetterMethodBuilder(fromFieldConversion, realFieldElementStuff, getterSetterMethodNames);
+                            result.addMethod(setterMethodBuilder.build());
+//                            }
 
                         }
                     } else { // replace fields
@@ -150,11 +150,11 @@ public class OOOProcess {
                         GetterSetterMethodNames getterSetterMethodNames = generateGetterSetterMethodName(realFieldElementStuff);
                         // add getter method
                         result.addMethod(obtainGetterMethodsBuilder(realFieldElementStuff, getterSetterMethodNames).build());
-                        String inverseConversionMethodName = fromFieldConversion.getInverseConversionMethodName();
-                        if (!AnnoUtil.oooParamIsNotSet(inverseConversionMethodName)) { // inverseConversionMethodName has set
-                            MethodSpec.Builder setterMethodBuilder = obtainInverseConversionSetterMethodBuilder(fromFieldConversion, realFieldElementStuff, getterSetterMethodNames);
-                            result.addMethod(setterMethodBuilder.build());
-                        }
+//                        String inverseConversionMethodName = fromFieldConversion.getInverseConversionMethodName();
+//                        if (!AnnoUtil.oooParamIsNotSet(inverseConversionMethodName)) { // inverseConversionMethodName has set
+                        MethodSpec.Builder setterMethodBuilder = obtainInverseConversionSetterMethodBuilder(fromFieldConversion, realFieldElementStuff, getterSetterMethodNames);
+                        result.addMethod(setterMethodBuilder.build());
+//                        }
 
                     }
 
@@ -185,34 +185,43 @@ public class OOOProcess {
                 GetterSetterMethodNames getterSetterMethodNames = generateGetterSetterMethodName(new ElementStuff(fieldElement));
 
                 FromFieldConversion fromFieldConversion = fromField.getFromFieldConversion();
+                String fieldElementSimpleName = fieldElement.getSimpleName().toString();
+
                 if (null == fromFieldConversion) {
-                    createMethod.addStatement(createTargetParam + "." + firstCharLower(fieldElement.getSimpleName().toString()) + " = " + fromParamName + "." + getterSetterMethodNames.getGetterMethodName() + "()");
-                } else {
-                    if (!fromFieldConversion.isReplace()) {
-                        createMethod.addStatement(createTargetParam + "." + firstCharLower(fieldElement.getSimpleName().toString()) + " = " + fromParamName + "." + getterSetterMethodNames.getGetterMethodName() + "()");
-                    }
-
-                    String conversionMethodName = fromFieldConversion.getConversionMethodName();
-                    if (!AnnoUtil.oooParamIsNotSet(conversionMethodName)) {
-                        fromFieldConversion.checkConversionMethodValidate();
-                        switch (fromFieldConversion.getConversionMethodNameValidateVariableSize()) {
-                            case 1:
-                                createMethod.addStatement(
-                                        createTargetParam + "." + fromFieldConversion.getTargetFieldName() + " = $T." + conversionMethodName + "(" + fromParamName + "." + getterSetterMethodNames.getGetterMethodName() + "())",
-                                        ClassName.get(fromFieldConversion.getConversionMethodType())
-                                );
-                                break;
-                            case 2:
-                                createMethod.addStatement(
-                                        createTargetParam + "." + fromFieldConversion.getTargetFieldName() + " = $T." + conversionMethodName + "(" + createTargetParam + ", " + fromParamName + "." + getterSetterMethodNames.getGetterMethodName() + "())",
-                                        ClassName.get(fromFieldConversion.getConversionMethodType())
-                                );
-                                break;
-                        }
-
-                    }
-
+                    createMethod.addStatement(createTargetParam + "." + firstCharLower(fieldElementSimpleName) + " = " + fromParamName + "." + getterSetterMethodNames.getGetterMethodName() + "()");
+                    continue;
                 }
+
+                String conversionMethodName = fromFieldConversion.getConversionMethodName();
+                if (!AnnoUtil.oooParamIsNotSet(conversionMethodName)) {
+                    fromFieldConversion.checkConversionMethodValidate();
+                    switch (fromFieldConversion.getConversionMethodNameValidateVariableSize()) {
+                        case 1:
+                            createMethod.addStatement(
+                                    createTargetParam + "." + fromFieldConversion.getTargetFieldName() + " = $T." + conversionMethodName + "(" + fromParamName + "." + getterSetterMethodNames.getGetterMethodName() + "())",
+                                    ClassName.get(fromFieldConversion.getConversionMethodType())
+                            );
+                            continue;
+                        case 2:
+                            createMethod.addStatement(
+                                    createTargetParam + "." + fromFieldConversion.getTargetFieldName() + " = $T." + conversionMethodName + "(" + createTargetParam + ", " + fromParamName + "." + getterSetterMethodNames.getGetterMethodName() + "())",
+                                    ClassName.get(fromFieldConversion.getConversionMethodType())
+                            );
+                            continue;
+                    }
+                }
+
+                if (fromFieldConversion.isTargetTypeId()) {
+                    FromElement temp = fromElement.getFromEntry().getFromElementById(fromFieldConversion.getTargetTypeId());
+                    createMethod.addStatement(createTargetParam + "." + fromFieldConversion.getTargetFieldName() + " = " + temp.getTargetClassSimpleName() + ".create(" + fromParamName + "." + getterSetterMethodNames.getGetterMethodName() + "())");
+                    continue;
+                }
+
+                if (!fromFieldConversion.isReplace()) {
+                    createMethod.addStatement(createTargetParam + "." + fromFieldConversion.getTargetFieldName() + " = " + fromParamName + "." + getterSetterMethodNames.getGetterMethodName() + "()");
+                    continue;
+                }
+
 
             }
             createMethod.addStatement("return " + createTargetParam);
@@ -231,11 +240,43 @@ public class OOOProcess {
 
                 FromFieldConversion fromFieldConversion = fromField.getFromFieldConversion();
 
-                if (null == fromFieldConversion || !fromFieldConversion.isReplace()) {
+                if (null == fromFieldConversion) {
                     toFromMethod.addStatement(fromParamName + "." + getterSetterMethodNames.getSetterMethodName() + "(" + fromFieldName + ")");
-                } else {
-                    toFromMethod.addComment("Skipped field: " + fromFieldName);
+                    continue;
                 }
+
+                // TODO: 13/04/2018 wangjie conversion method
+
+                String inverseConversionMethodName = fromFieldConversion.getInverseConversionMethodName();
+                if (!AnnoUtil.oooParamIsNotSet(inverseConversionMethodName)) {
+                    fromFieldConversion.checkInverseConversionMethodValidate();
+                    switch (fromFieldConversion.getInverseConversionMethodNameValidateVariableSize()) {
+                        case 1:
+                            toFromMethod.addStatement(fromParamName + "." + getterSetterMethodNames.getSetterMethodName() + "($T." + inverseConversionMethodName + "(" + fromFieldConversion.getTargetFieldName() + "))",
+                                    ClassName.get(fromFieldConversion.getConversionMethodType())
+                                    );
+                            continue;
+                        case 2:
+                            toFromMethod.addStatement(fromParamName + "." + getterSetterMethodNames.getSetterMethodName() + "($T." + inverseConversionMethodName + "(this, " + fromFieldConversion.getTargetFieldName() + "))",
+                                    ClassName.get(fromFieldConversion.getConversionMethodType())
+                            );
+                            continue;
+                    }
+                }
+
+
+                if (fromFieldConversion.isTargetTypeId()) {
+                    FromElement temp = fromElement.getFromEntry().getFromElementById(fromFieldConversion.getTargetTypeId());
+                    toFromMethod.addStatement(fromParamName + "." + getterSetterMethodNames.getSetterMethodName() + "(" + fromFieldConversion.getTargetFieldName() + ".to" + temp.getElement().getSimpleName().toString() + "())");
+                    continue;
+                }
+
+                if (!fromFieldConversion.isReplace()) {
+                    toFromMethod.addStatement(fromParamName + "." + getterSetterMethodNames.getSetterMethodName() + "(" + fromFieldName + ")");
+                    continue;
+                }
+
+//                toFromMethod.addComment("Ignore field: " + fromFieldName);
 
             }
             toFromMethod.addStatement("return " + fromParamName);
@@ -256,28 +297,31 @@ public class OOOProcess {
     }
 
     private MethodSpec.Builder obtainInverseConversionSetterMethodBuilder(FromFieldConversion fromFieldConversion, IElementStuff realFieldElementStuff, GetterSetterMethodNames getterSetterMethodNames) {
-        fromFieldConversion.checkInverseConversionMethodValidate();
         String inverseConversionMethodName = fromFieldConversion.getInverseConversionMethodName();
         // add setter method
         // inverse
         MethodSpec.Builder setterMethodBuilder = obtainSetterMethodsBuilderDefault(realFieldElementStuff, getterSetterMethodNames);
-        int conversionMethodValidateVariableSize = fromFieldConversion.getInverseConversionMethodNameValidateVariableSize();
-        switch (conversionMethodValidateVariableSize) {
-            case 1:
-                setterMethodBuilder.addStatement(
-                        "this." + fromFieldConversion.getFieldName() + " = $T." + inverseConversionMethodName + "(" + realFieldElementStuff.getSimpleName() + ")",
-                        ClassName.get(fromFieldConversion.getConversionMethodType())
-                );
-                break;
-            case 2:
-                setterMethodBuilder.addStatement(
-                        "this." + fromFieldConversion.getFieldName() + " = $T." + inverseConversionMethodName + "(this, " + realFieldElementStuff.getSimpleName() + ")",
-                        ClassName.get(fromFieldConversion.getConversionMethodType())
-                );
-                break;
-            default:
-                throw new RuntimeException("Invalidate method: " + inverseConversionMethodName);
+        if (!fromFieldConversion.isReplace() && !AnnoUtil.oooParamIsNotSet(inverseConversionMethodName)) { // inverseConversionMethodName has set
+            fromFieldConversion.checkInverseConversionMethodValidate();
+            int conversionMethodValidateVariableSize = fromFieldConversion.getInverseConversionMethodNameValidateVariableSize();
+            switch (conversionMethodValidateVariableSize) {
+                case 1:
+                    setterMethodBuilder.addStatement(
+                            "this." + fromFieldConversion.getFieldName() + " = $T." + inverseConversionMethodName + "(" + realFieldElementStuff.getSimpleName() + ")",
+                            ClassName.get(fromFieldConversion.getConversionMethodType())
+                    );
+                    break;
+                case 2:
+                    setterMethodBuilder.addStatement(
+                            "this." + fromFieldConversion.getFieldName() + " = $T." + inverseConversionMethodName + "(this, " + realFieldElementStuff.getSimpleName() + ")",
+                            ClassName.get(fromFieldConversion.getConversionMethodType())
+                    );
+                    break;
+                default:
+                    throw new RuntimeException("Invalidate method: " + inverseConversionMethodName);
+            }
         }
+
         return setterMethodBuilder;
     }
 
@@ -320,22 +364,20 @@ public class OOOProcess {
 
 
     private MethodSpec.Builder obtainGetterMethodsBuilder(IElementStuff fieldElement, GetterSetterMethodNames getterSetterMethodNames) {
-        TypeName fieldTypeName = ClassName.get(fieldElement.asType());
         String fieldName = fieldElement.getSimpleName();
 
         return MethodSpec.methodBuilder(getterSetterMethodNames.getGetterMethodName())
                 .addModifiers(Modifier.PUBLIC)
-                .returns(fieldTypeName)
+                .returns(fieldElement.asType())
                 .addStatement("return " + fieldName);
     }
 
     private MethodSpec.Builder obtainSetterMethodsBuilderDefault(IElementStuff fieldElement, GetterSetterMethodNames getterSetterMethodNames) {
-        TypeName fieldTypeName = ClassName.get(fieldElement.asType());
         String fieldName = fieldElement.getSimpleName();
 
         return MethodSpec.methodBuilder(getterSetterMethodNames.getSetterMethodName())
                 .addModifiers(Modifier.PUBLIC)
-                .addParameter(fieldTypeName, fieldName)
+                .addParameter(fieldElement.asType(), fieldName)
                 .returns(void.class)
                 .addStatement("this." + fieldName + " = " + fieldName);
     }
@@ -347,7 +389,7 @@ public class OOOProcess {
         String fieldName = fieldElement.getSimpleName();
         String firstCharUpperFieldName = firstCharUpper(fieldName);
 
-        if (ClassName.get(fieldElement.asType()) == TypeName.BOOLEAN) {
+        if (fieldElement.asType() == TypeName.BOOLEAN) {
             if ("is".equalsIgnoreCase(fieldName.substring(0, 2))) {
                 getterSetterMethodNames.setGetterMethodName(fieldName);
                 getterSetterMethodNames.setSetterMethodName("set" + firstCharUpper(fieldName.substring(2)));
@@ -355,7 +397,7 @@ public class OOOProcess {
                 getterSetterMethodNames.setGetterMethodName("is" + firstCharUpperFieldName);
                 getterSetterMethodNames.setSetterMethodName("set" + firstCharUpperFieldName);
             }
-        } else if (Boolean.class.getCanonicalName().equals(ClassName.get(fieldElement.asType()).toString())) {
+        } else if (Boolean.class.getCanonicalName().equals(fieldElement.asType().toString())) {
             if ("is".equalsIgnoreCase(fieldName.substring(0, 2))) {
                 getterSetterMethodNames.setGetterMethodName("get" + fieldName.substring(2));
                 getterSetterMethodNames.setSetterMethodName("set" + firstCharUpper(fieldName.substring(2)));

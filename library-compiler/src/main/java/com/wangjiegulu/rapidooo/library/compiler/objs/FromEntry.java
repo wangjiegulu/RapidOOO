@@ -8,6 +8,7 @@ import com.wangjiegulu.rapidooo.api.OOOs;
 import com.wangjiegulu.rapidooo.library.compiler.util.GlobalEnvironment;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -34,6 +35,11 @@ public class FromEntry {
      * key: pojo class name
      */
     private Map<String, FromElement> allFromElements = new LinkedHashMap<>();
+
+    /**
+     * key: @OOO.id
+     */
+    private Map<String, FromElement> allFromElementIds = new HashMap<>();
 
     public void setOoosAnno(OOOs ooosAnno) {
         this.ooosAnno = ooosAnno;
@@ -85,6 +91,9 @@ public class FromEntry {
                 allFromElements.put(specialQualifiedName, fromElement);
             }
 
+            // cache from element ids
+            allFromElementIds.put(ooo.id(), fromElement);
+
             fromElement.setOooAnno(ooo);
             fromElement.parse();
         }
@@ -93,6 +102,7 @@ public class FromEntry {
 
     private FromElement generateBaseFromElement(Element oooClassElement) {
         FromElement fromElement = new FromElement();
+        fromElement.setFromEntry(this);
         fromElement.setElement(oooClassElement);
         fromElement.setGeneratorClassEl(generatorClassEl);
         fromElement.setFromSuffix(fromSuffix);
@@ -140,6 +150,10 @@ public class FromEntry {
 
     public void setGeneratorClassEl(Element generatorClassEl) {
         this.generatorClassEl = generatorClassEl;
+    }
+
+    public FromElement getFromElementById(String id){
+        return allFromElementIds.get(id);
     }
 
     @Override

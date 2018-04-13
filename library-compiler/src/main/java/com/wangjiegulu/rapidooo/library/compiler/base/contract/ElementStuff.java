@@ -1,7 +1,9 @@
 package com.wangjiegulu.rapidooo.library.compiler.base.contract;
 
+import com.squareup.javapoet.ClassName;
+import com.squareup.javapoet.TypeName;
+
 import javax.lang.model.element.Element;
-import javax.lang.model.type.TypeMirror;
 
 /**
  * Author: wangjie
@@ -16,8 +18,8 @@ public class ElementStuff implements IElementStuff {
     }
 
     @Override
-    public TypeMirror asType() {
-        return element.asType();
+    public TypeName asType() {
+        return ClassName.get(element.asType());
     }
 
     @Override

@@ -1,4 +1,4 @@
-package com.wangjiegulu.rapidooo.depmodule.dal._do;
+package com.wangjiegulu.rapidooo.depmodule.dal.xdo;
 
 import java.io.Serializable;
 

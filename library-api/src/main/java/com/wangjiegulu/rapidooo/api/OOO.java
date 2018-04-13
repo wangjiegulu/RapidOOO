@@ -14,6 +14,9 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.ANNOTATION_TYPE)
 public @interface OOO {
+
+    String id() default OOOConstants.NOT_SET;
+
     String fromSuffix() default OOOConstants.NOT_SET;
 
     String suffix() default OOOConstants.NOT_SET;

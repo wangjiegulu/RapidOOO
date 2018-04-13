@@ -1,6 +1,6 @@
 package com.wangjiegulu.rapidooo.library.compiler.base.contract;
 
-import javax.lang.model.type.TypeMirror;
+import com.squareup.javapoet.TypeName;
 
 /**
  * Author: wangjie
@@ -8,17 +8,17 @@ import javax.lang.model.type.TypeMirror;
  * Date: 12/04/2018.
  */
 public class FakeElementStuff implements IElementStuff{
-    private TypeMirror typeMirror;
+    private TypeName typeName;
     private String simpleName;
 
-    public FakeElementStuff(TypeMirror typeMirror, String simpleName) {
-        this.typeMirror = typeMirror;
+    public FakeElementStuff(TypeName typeName, String simpleName) {
+        this.typeName = typeName;
         this.simpleName = simpleName;
     }
 
     @Override
-    public TypeMirror asType() {
-        return typeMirror;
+    public TypeName asType() {
+        return typeName;
     }
 
     @Override

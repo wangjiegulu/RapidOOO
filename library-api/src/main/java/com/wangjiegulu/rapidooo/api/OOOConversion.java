@@ -18,12 +18,13 @@ public @interface OOOConversion {
 
     String targetFieldName();
 
-    Class<?> targetType();
+    Class<?> targetType() default Object.class;
+    String targetTypeId() default OOOConstants.NOT_SET;
 
     Class<?> conversionMethodClass() default Object.class;
-    String conversionMethodName();
+    String conversionMethodName() default OOOConstants.NOT_SET;
     String inverseConversionMethodName() default OOOConstants.NOT_SET;
 
-    boolean replace() default false;
+    boolean replace();
 
 }

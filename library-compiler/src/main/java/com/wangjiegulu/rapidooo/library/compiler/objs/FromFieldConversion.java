@@ -3,8 +3,13 @@ package com.wangjiegulu.rapidooo.library.compiler.objs;
 import com.google.auto.common.MoreElements;
 import com.google.auto.common.MoreTypes;
 
+import com.squareup.javapoet.ClassName;
+import com.squareup.javapoet.TypeName;
 import com.wangjiegulu.rapidooo.api.OOOConversion;
+import com.wangjiegulu.rapidooo.library.compiler.util.AnnoUtil;
+import com.wangjiegulu.rapidooo.library.compiler.util.EasyType;
 import com.wangjiegulu.rapidooo.library.compiler.util.ElementUtil;
+import com.wangjiegulu.rapidooo.library.compiler.util.LogUtil;
 
 import java.util.List;
 
@@ -28,12 +33,13 @@ public class FromFieldConversion {
 
     private String fieldName;
     private String targetFieldName;
-    private TypeMirror targetType;
+    //    private TypeMirror targetType;
+    private String targetTypeId;
+    private TypeName targetType;
     private TypeMirror conversionMethodType;
     private String conversionMethodName;
     private String inverseConversionMethodName;
     private boolean replace;
-    private Element targetElement;
 
     private int conversionMethodNameValidateVariableSize = -1;
     private int inverseConversionMethodNameValidateVariableSize = -1;
@@ -43,6 +49,7 @@ public class FromFieldConversion {
     }
 
     public void parse() {
+        targetTypeId = oooConversion.targetTypeId();
         fieldName = oooConversion.fieldName();
 
         TypeMirror conversionSpecialMethodType = getConversionMethodTypeMirror(oooConversion);
@@ -50,7 +57,6 @@ public class FromFieldConversion {
 
         conversionMethodName = oooConversion.conversionMethodName();
         targetType = getConversionFromTargetTypeMirror(oooConversion);
-        targetElement = MoreTypes.asElement(targetType);
         replace = oooConversion.replace();
         targetFieldName = oooConversion.targetFieldName();
         inverseConversionMethodName = oooConversion.inverseConversionMethodName();
@@ -61,19 +67,19 @@ public class FromFieldConversion {
         conversionMethodNameValidateVariableSize = checkMethodValidate(conversionMethodType, conversionMethodName,
                 targetType,
                 ownerFromElement.getTargetClassSimpleName(),
-                ownerFromField.getFieldOriginElement().asType()
+                ClassName.get(ownerFromField.getFieldOriginElement().asType())
         );
     }
 
     public void checkInverseConversionMethodValidate() {
         inverseConversionMethodNameValidateVariableSize = checkMethodValidate(conversionMethodType, inverseConversionMethodName,
-                ownerFromField.getFieldOriginElement().asType(),
+                ClassName.get(ownerFromField.getFieldOriginElement().asType()),
                 ownerFromElement.getTargetClassSimpleName(),
                 targetType
         );
     }
 
-    private int checkMethodValidate(TypeMirror conversionMethodType, String conversionMethodName, TypeMirror returnType, String param1Name, TypeMirror param2Type) {
+    private int checkMethodValidate(TypeMirror conversionMethodType, String conversionMethodName, TypeName returnType, String param1Name, TypeName param2Type) {
         List<? extends Element> elements = MoreTypes.asElement(conversionMethodType).getEnclosedElements();
         int validateVariableSize = -1;
         for (Element e : elements) {
@@ -84,21 +90,30 @@ public class FromFieldConversion {
                         ||
                         !MoreElements.hasModifiers(Modifier.PUBLIC).apply(methodElement)
                         ) {
+                    LogUtil.logger("Method[" + methodElement.getSimpleName() + "] must be `public` and `static`");
                     continue;
                 }
 
                 if (!e.getSimpleName().toString().equals(conversionMethodName)) {
+                    LogUtil.logger("Method name not matched: " + e.getSimpleName().toString() + " & " + conversionMethodName);
                     continue;
                 }
 
-                if (!ElementUtil.isSameType(methodElement.getReturnType(), returnType)) {
+                // ElementUtil.isSameType not work ?
+//                if (!ElementUtil.isSameType(methodElement.getReturnType(), returnType)) {
+//                    continue;
+//                }
+
+                if (!ElementUtil.isSameSimpleName(methodElement.getReturnType(), returnType)) {
+                    LogUtil.logger("Method return type not matched");
                     continue;
                 }
                 List<? extends VariableElement> variableElements = methodElement.getParameters();
                 int variableElementSize = variableElements.size();
                 switch (variableElementSize) {
                     case 1: {
-                        if (!ElementUtil.isSameType(variableElements.get(0).asType(), param2Type)) {
+                        if (!ElementUtil.isSameSimpleName(variableElements.get(0).asType(), param2Type)) {
+                            LogUtil.logger("Method variable size 1, and first type not matched");
                             continue;
                         }
                         validateVariableSize = 1;
@@ -106,10 +121,12 @@ public class FromFieldConversion {
                     }
                     case 2: {
                         if (!MoreTypes.asTypeElement(variableElements.get(0).asType()).getSimpleName().toString().equals(param1Name)) {
+                            LogUtil.logger("Method variable size 2, and first type not matched");
                             continue;
                         }
 
                         if (!ElementUtil.isSameType(variableElements.get(1).asType(), param2Type)) {
+                            LogUtil.logger("Method variable size 2, and second type not matched");
                             continue;
                         }
                         validateVariableSize = 2;
@@ -121,10 +138,12 @@ public class FromFieldConversion {
             }
         }
 
+        LogUtil.logger("check result: " + validateVariableSize);
+
         if (-1 == validateVariableSize) {
             throw new RuntimeException("No such method [public static "
-                    + MoreTypes.asTypeElement(returnType).getSimpleName() + " "
-                    + conversionMethodName + "(" + param1Name + ", " + MoreTypes.asTypeElement(param2Type) + ")] in "
+                    + ((ClassName) returnType).simpleName() + " "
+                    + conversionMethodName + "(" + param1Name + ", " + param2Type + ")] in "
                     + MoreTypes.asTypeElement(conversionMethodType).getQualifiedName());
         }
         return validateVariableSize;
@@ -134,16 +153,8 @@ public class FromFieldConversion {
         return fieldName;
     }
 
-    public void setFieldName(String fieldName) {
-        this.fieldName = fieldName;
-    }
-
-    public TypeMirror getTargetType() {
+    public TypeName getTargetType() {
         return targetType;
-    }
-
-    public void setTargetType(TypeMirror targetType) {
-        this.targetType = targetType;
     }
 
     public String getConversionMethodName() {
@@ -154,11 +165,22 @@ public class FromFieldConversion {
         this.conversionMethodName = conversionMethodName;
     }
 
-    private static TypeMirror getConversionFromTargetTypeMirror(OOOConversion oooConversion) {
+    public String getTargetTypeId() {
+        return targetTypeId;
+    }
+
+    private TypeName getConversionFromTargetTypeMirror(OOOConversion oooConversion) {
+        // if already id set
+        String targetTypeId = oooConversion.targetTypeId();
+        FromElement temp;
+        if (!AnnoUtil.oooParamIsNotSet(targetTypeId) && null != (temp = ownerFromElement.getFromEntry().getFromElementById(targetTypeId))) {
+            return EasyType.bestGuess(temp.getTargetClassFullName());
+        }
+        // else targetType
         try {
             oooConversion.targetType();
         } catch (MirroredTypeException mte) {
-            return mte.getTypeMirror();
+            return TypeName.get(mte.getTypeMirror());
         }
         throw new RuntimeException("getConversionFromTargetTypeMirror error");
     }
@@ -170,10 +192,6 @@ public class FromFieldConversion {
             return mte.getTypeMirror();
         }
         throw new RuntimeException("getConversionMethodTypeMirror error");
-    }
-
-    public Element getTargetElement() {
-        return targetElement;
     }
 
     public boolean isReplace() {
@@ -214,5 +232,9 @@ public class FromFieldConversion {
 
     public int getInverseConversionMethodNameValidateVariableSize() {
         return inverseConversionMethodNameValidateVariableSize;
+    }
+
+    public boolean isTargetTypeId() {
+        return null != targetTypeId && !AnnoUtil.oooParamIsNotSet(targetTypeId);
     }
 }

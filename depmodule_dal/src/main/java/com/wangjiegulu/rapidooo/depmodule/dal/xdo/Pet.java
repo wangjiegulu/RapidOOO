@@ -1,4 +1,4 @@
-package com.wangjiegulu.rapidooo.depmodule.dal._do;
+package com.wangjiegulu.rapidooo.depmodule.dal.xdo;
 
 /**
  * Author: wangjie
@@ -16,6 +16,7 @@ public class Pet {
     private Boolean isDog;
     private Boolean clear;
 
+    private User owner;
 
     public Long getPetId() {
         return petId;
@@ -72,5 +73,13 @@ public class Pet {
 
     public void setClear(Boolean clear) {
         this.clear = clear;
+    }
+
+    public User getOwner() {
+        return owner;
+    }
+
+    public void setOwner(User owner) {
+        this.owner = owner;
     }
 }

@@ -5,7 +5,6 @@ import com.google.auto.common.MoreElements;
 import com.wangjiegulu.rapidooo.api.OOO;
 import com.wangjiegulu.rapidooo.api.OOOConversion;
 import com.wangjiegulu.rapidooo.library.compiler.util.AnnoUtil;
-import com.wangjiegulu.rapidooo.library.compiler.util.LogUtil;
 
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -20,6 +19,7 @@ import javax.lang.model.element.ElementKind;
  * Date: 11/04/2018.
  */
 public class FromElement {
+    private FromEntry fromEntry;
     private OOO oooAnno;
     private Element generatorClassEl;
 
@@ -75,7 +75,6 @@ public class FromElement {
         }
 
         OOOConversion[] oooConversions = oooAnno.conversion();
-        LogUtil.logger("----oooAnno: " + oooAnno);
         for (OOOConversion oooConversion : oooConversions) {
             String fieldName = oooConversion.fieldName();
             FromField fromField = allFromFields.get(fieldName);
@@ -89,7 +88,6 @@ public class FromElement {
             fromFieldConversion.setOwnerFromField(fromField);
             fromFieldConversion.parse();
             fromField.setFromFieldConversion(fromFieldConversion);
-            LogUtil.logger("fromFieldConversion: " + fromFieldConversion);
             fromField.setOwnerFromElement(this);
             fromField.parse();
         }
@@ -145,5 +143,13 @@ public class FromElement {
 
     public String getTargetClassFullName() {
         return targetClassPackage + "." + targetClassSimpleName;
+    }
+
+    public FromEntry getFromEntry() {
+        return fromEntry;
+    }
+
+    public void setFromEntry(FromEntry fromEntry) {
+        this.fromEntry = fromEntry;
     }
 }

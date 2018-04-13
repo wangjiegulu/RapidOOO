@@ -1,4 +1,4 @@
-package com.wangjiegulu.rapidooo.depmodule.dal._do;
+package com.wangjiegulu.rapidooo.depmodule.dal.xdo;
 
 import com.wangjiegulu.rapidooo.api.OOOIgnore;
 
