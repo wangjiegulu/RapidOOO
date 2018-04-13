@@ -56,7 +56,7 @@ public class VOGenerator {
         }
     }
 
-    public static Integer inverseConversionGender(UserVO userVO, String genderDesc) {
+    public static Integer inverseConversionGender(String genderDesc) {
         switch (genderDesc) {
             case "male":
                 return 1;

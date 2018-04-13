@@ -21,7 +21,7 @@ public @interface OOOConversion {
     Class<?> targetType();
 
     Class<?> conversionMethodClass() default Object.class;
-    String conversionMethodName() default OOOConstants.NOT_SET;
+    String conversionMethodName();
     String inverseConversionMethodName() default OOOConstants.NOT_SET;
 
     boolean replace() default false;

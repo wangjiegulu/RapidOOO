@@ -7,7 +7,7 @@ package com.wangjiegulu.rapidooo;
  */
 public class AgeConversion {
 
-    public static String conversionAge(UserVO userVO, Integer age) {
+    public static String conversionAge(Integer age) {
         if (null == age || age < 0) {
             return "unknown";
         }

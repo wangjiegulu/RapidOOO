@@ -52,7 +52,6 @@ public class FromElement {
     public void parse() {
         String fromClassName = element.getSimpleName().toString();
         targetClassPackage = generatorClassEl.getEnclosingElement().toString();
-        LogUtil.logger("targetClassPackage: " + targetClassPackage);
         // eg. replace "BO" when generate VO
         targetClassSimpleName =
                 (AnnoUtil.oooParamIsNotSet(fromSuffix) ? fromClassName : fromClassName.substring(0, fromClassName.length() - fromSuffix.length()))
@@ -94,7 +93,6 @@ public class FromElement {
             fromField.setOwnerFromElement(this);
             fromField.parse();
         }
-
 
 
     }
@@ -143,5 +141,9 @@ public class FromElement {
 
     public String getTargetClassSimpleName() {
         return targetClassSimpleName;
+    }
+
+    public String getTargetClassFullName() {
+        return targetClassPackage + "." + targetClassSimpleName;
     }
 }

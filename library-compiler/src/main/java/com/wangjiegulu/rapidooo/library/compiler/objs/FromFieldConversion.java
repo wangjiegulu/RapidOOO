@@ -35,6 +35,9 @@ public class FromFieldConversion {
     private boolean replace;
     private Element targetElement;
 
+    private int conversionMethodNameValidateVariableSize = -1;
+    private int inverseConversionMethodNameValidateVariableSize = -1;
+
     public void setOooConversionAnno(OOOConversion oooConversion) {
         this.oooConversion = oooConversion;
     }
@@ -55,7 +58,7 @@ public class FromFieldConversion {
     }
 
     public void checkConversionMethodValidate() {
-        checkMethodValidate(conversionMethodType, conversionMethodName,
+        conversionMethodNameValidateVariableSize = checkMethodValidate(conversionMethodType, conversionMethodName,
                 targetType,
                 ownerFromElement.getTargetClassSimpleName(),
                 ownerFromField.getFieldOriginElement().asType()
@@ -63,16 +66,16 @@ public class FromFieldConversion {
     }
 
     public void checkInverseConversionMethodValidate() {
-        checkMethodValidate(conversionMethodType, inverseConversionMethodName,
+        inverseConversionMethodNameValidateVariableSize = checkMethodValidate(conversionMethodType, inverseConversionMethodName,
                 ownerFromField.getFieldOriginElement().asType(),
                 ownerFromElement.getTargetClassSimpleName(),
                 targetType
         );
     }
 
-    private void checkMethodValidate(TypeMirror conversionMethodType, String conversionMethodName, TypeMirror returnType, String param1Name, TypeMirror param2Type) {
-        boolean isValidate = false;
+    private int checkMethodValidate(TypeMirror conversionMethodType, String conversionMethodName, TypeMirror returnType, String param1Name, TypeMirror param2Type) {
         List<? extends Element> elements = MoreTypes.asElement(conversionMethodType).getEnclosedElements();
+        int validateVariableSize = -1;
         for (Element e : elements) {
             if (ElementKind.METHOD == e.getKind()) {
                 ExecutableElement methodElement = MoreElements.asExecutable(e);
@@ -92,29 +95,39 @@ public class FromFieldConversion {
                     continue;
                 }
                 List<? extends VariableElement> variableElements = methodElement.getParameters();
-                if (2 != variableElements.size()) {
-                    continue;
+                int variableElementSize = variableElements.size();
+                switch (variableElementSize) {
+                    case 1: {
+                        if (!ElementUtil.isSameType(variableElements.get(0).asType(), param2Type)) {
+                            continue;
+                        }
+                        validateVariableSize = 1;
+                        break;
+                    }
+                    case 2: {
+                        if (!MoreTypes.asTypeElement(variableElements.get(0).asType()).getSimpleName().toString().equals(param1Name)) {
+                            continue;
+                        }
+
+                        if (!ElementUtil.isSameType(variableElements.get(1).asType(), param2Type)) {
+                            continue;
+                        }
+                        validateVariableSize = 2;
+                        break;
+                    }
+                    default:
+                        break;
                 }
-
-                if (!MoreTypes.asTypeElement(variableElements.get(0).asType()).getSimpleName().toString().equals(param1Name)) {
-                    continue;
-                }
-
-                if (!ElementUtil.isSameType(variableElements.get(1).asType(), param2Type)) {
-                    continue;
-                }
-
-
-                isValidate = true;
             }
         }
 
-        if (!isValidate) {
+        if (-1 == validateVariableSize) {
             throw new RuntimeException("No such method [public static "
                     + MoreTypes.asTypeElement(returnType).getSimpleName() + " "
                     + conversionMethodName + "(" + param1Name + ", " + MoreTypes.asTypeElement(param2Type) + ")] in "
                     + MoreTypes.asTypeElement(conversionMethodType).getQualifiedName());
         }
+        return validateVariableSize;
     }
 
     public String getFieldName() {
@@ -193,5 +206,13 @@ public class FromFieldConversion {
 
     public void setOwnerFromField(FromField ownerFromField) {
         this.ownerFromField = ownerFromField;
+    }
+
+    public int getConversionMethodNameValidateVariableSize() {
+        return conversionMethodNameValidateVariableSize;
+    }
+
+    public int getInverseConversionMethodNameValidateVariableSize() {
+        return inverseConversionMethodNameValidateVariableSize;
     }
 }

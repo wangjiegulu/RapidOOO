@@ -24,9 +24,9 @@ public class FakeInteractorImpl {
         user.setNickname("Wang Jie");
         user.setGender(1);
 
-        User_BO userDTO_ = new User_BO(user);
+        User_BO userBO = User_BO.create(user);
 
-        PetBO petBO = new PetBO(pet);
+        PetBO petBO = PetBO.create(pet);
 //        petDTO_.setOwner(userDTO_);
 
         return petBO;
