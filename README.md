@@ -2,6 +2,8 @@
 
 Android POJO Converter: Generate scalable and bindable domain objects java class file automatically in compile time.
 
+[中文版本](README_zh.md)
+
 ## Why RapidOOO ?
 
 We always transform data between different layer in Domain-Driven Design, such as  `VO`, `PO`, `DO`, `DTO`, `BO`. The same situation is often encountered in the development of Android, For example,  [UserModelDataMapper::transform](https://github.com/android10/Android-CleanArchitecture/blob/master/presentation/src/main/java/com/fernandocejas/android10/sample/presentation/mapper/UserModelDataMapper.java#L42), [UserEntityDataMapper::transform](https://github.com/android10/Android-CleanArchitecture/blob/master/data/src/main/java/com/fernandocejas/android10/sample/data/entity/mapper/UserEntityDataMapper.java#L42) in [Android-CleanArchitecture](https://github.com/android10/Android-CleanArchitecture). The process of manually copying and converting is not only cumbersome, but also has a relatively large risk of errors. It also increases maintenance costs when adding or deleting fields. [Dozer](http://dozer.sourceforge.net/documentation/about.html) can be a good solution to this problem, but it may not be applicable on Android.
