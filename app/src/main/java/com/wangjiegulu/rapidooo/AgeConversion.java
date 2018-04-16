@@ -14,4 +14,11 @@ public class AgeConversion {
         return age + " years old";
     }
 
+    public static Integer inverseConversionAge(String ageDesc) {
+        if (null == ageDesc) {
+            return -1;
+        }
+        return Integer.valueOf(ageDesc.split(" ")[0]);
+    }
+
 }

@@ -141,9 +141,13 @@ public class FromFieldConversion {
         LogUtil.logger("check result: " + validateVariableSize);
 
         if (-1 == validateVariableSize) {
-            throw new RuntimeException("No such method [public static "
+            throw new RuntimeException("No such method \n[public static "
                     + ((ClassName) returnType).simpleName() + " "
-                    + conversionMethodName + "(" + param1Name + ", " + param2Type + ")] in "
+                    + conversionMethodName + "(" + param1Name + ", " + param2Type + ")] \n"
+                    + " OR \n[public static "
+                    + ((ClassName) returnType).simpleName() + " "
+                    + conversionMethodName + "(" + param2Type + ")"
+                    + " in "
                     + MoreTypes.asTypeElement(conversionMethodType).getQualifiedName());
         }
         return validateVariableSize;

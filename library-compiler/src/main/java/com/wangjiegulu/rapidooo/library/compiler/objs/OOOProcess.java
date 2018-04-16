@@ -192,17 +192,25 @@ public class OOOProcess {
                     continue;
                 }
 
+                boolean isReplace = fromFieldConversion.isReplace();
                 String conversionMethodName = fromFieldConversion.getConversionMethodName();
                 if (!AnnoUtil.oooParamIsNotSet(conversionMethodName)) {
                     fromFieldConversion.checkConversionMethodValidate();
                     switch (fromFieldConversion.getConversionMethodNameValidateVariableSize()) {
                         case 1:
+                            if (!isReplace) {
+                                createMethod.addStatement(createTargetParam + "." + fromFieldConversion.getFieldName() + " = " + fromParamName + "." + getterSetterMethodNames.getGetterMethodName() + "()");
+                            }
+
                             createMethod.addStatement(
                                     createTargetParam + "." + fromFieldConversion.getTargetFieldName() + " = $T." + conversionMethodName + "(" + fromParamName + "." + getterSetterMethodNames.getGetterMethodName() + "())",
                                     ClassName.get(fromFieldConversion.getConversionMethodType())
                             );
                             continue;
                         case 2:
+                            if (!isReplace) {
+                                createMethod.addStatement(createTargetParam + "." + fromFieldConversion.getFieldName() + " = " + fromParamName + "." + getterSetterMethodNames.getGetterMethodName() + "()");
+                            }
                             createMethod.addStatement(
                                     createTargetParam + "." + fromFieldConversion.getTargetFieldName() + " = $T." + conversionMethodName + "(" + createTargetParam + ", " + fromParamName + "." + getterSetterMethodNames.getGetterMethodName() + "())",
                                     ClassName.get(fromFieldConversion.getConversionMethodType())
@@ -217,7 +225,7 @@ public class OOOProcess {
                     continue;
                 }
 
-                if (!fromFieldConversion.isReplace()) {
+                if (!isReplace) {
                     createMethod.addStatement(createTargetParam + "." + fromFieldConversion.getTargetFieldName() + " = " + fromParamName + "." + getterSetterMethodNames.getGetterMethodName() + "()");
                     continue;
                 }
@@ -245,22 +253,33 @@ public class OOOProcess {
                     continue;
                 }
 
-                // TODO: 13/04/2018 wangjie conversion method
+                boolean isReplace = fromFieldConversion.isReplace();
+
 
                 String inverseConversionMethodName = fromFieldConversion.getInverseConversionMethodName();
                 if (!AnnoUtil.oooParamIsNotSet(inverseConversionMethodName)) {
                     fromFieldConversion.checkInverseConversionMethodValidate();
                     switch (fromFieldConversion.getInverseConversionMethodNameValidateVariableSize()) {
                         case 1:
-                            toFromMethod.addStatement(fromParamName + "." + getterSetterMethodNames.getSetterMethodName() + "($T." + inverseConversionMethodName + "(" + fromFieldConversion.getTargetFieldName() + "))",
-                                    ClassName.get(fromFieldConversion.getConversionMethodType())
-                                    );
+                            if (!isReplace) {
+                                toFromMethod.addStatement(fromParamName + "." + getterSetterMethodNames.getSetterMethodName() + "(" + fromFieldName + ")");
+                            } else {
+                                toFromMethod.addStatement(fromParamName + "." + getterSetterMethodNames.getSetterMethodName() + "($T." + inverseConversionMethodName + "(" + fromFieldConversion.getTargetFieldName() + "))",
+                                        ClassName.get(fromFieldConversion.getConversionMethodType())
+                                );
+                            }
                             continue;
+
                         case 2:
-                            toFromMethod.addStatement(fromParamName + "." + getterSetterMethodNames.getSetterMethodName() + "($T." + inverseConversionMethodName + "(this, " + fromFieldConversion.getTargetFieldName() + "))",
-                                    ClassName.get(fromFieldConversion.getConversionMethodType())
-                            );
+                            if (!isReplace) {
+                                toFromMethod.addStatement(fromParamName + "." + getterSetterMethodNames.getSetterMethodName() + "(" + fromFieldName + ")");
+                            } else {
+                                toFromMethod.addStatement(fromParamName + "." + getterSetterMethodNames.getSetterMethodName() + "($T." + inverseConversionMethodName + "(this, " + fromFieldConversion.getTargetFieldName() + "))",
+                                        ClassName.get(fromFieldConversion.getConversionMethodType())
+                                );
+                            }
                             continue;
+
                     }
                 }
 
@@ -271,12 +290,12 @@ public class OOOProcess {
                     continue;
                 }
 
-                if (!fromFieldConversion.isReplace()) {
+                if (!isReplace) {
                     toFromMethod.addStatement(fromParamName + "." + getterSetterMethodNames.getSetterMethodName() + "(" + fromFieldName + ")");
-                    continue;
+                } else {
+                    toFromMethod.addComment("Loss field: " + fromFieldName + ", recommend to use `inverseConversionMethodName`.");
                 }
 
-//                toFromMethod.addComment("Ignore field: " + fromFieldName);
 
             }
             toFromMethod.addStatement("return " + fromParamName);

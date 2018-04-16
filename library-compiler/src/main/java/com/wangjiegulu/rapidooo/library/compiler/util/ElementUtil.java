@@ -64,15 +64,19 @@ public class ElementUtil {
     }
 
     public static boolean isSameType(TypeMirror type1, TypeName type2) {
-        return equals(MoreTypes.asTypeElement(type1).getQualifiedName().toString(), type2.toString());
+        return equals(ClassName.get(type1).toString(), type2.toString());
     }
 
     public static boolean isSameType(TypeName type1, TypeName type2) {
         return equals(type1.toString(), type2.toString());
     }
 
-    public static boolean isSameSimpleName(TypeMirror type1, TypeName type2){
-        return equals(MoreTypes.asTypeElement(type1).getSimpleName().toString(), ((ClassName)type2).simpleName());
+    public static boolean isSameSimpleName(TypeMirror type1, TypeName type2) {
+        if (ClassName.get(type1).isPrimitive()) {
+            return equals(type1.toString(), ((ClassName) type2).simpleName());
+        } else {
+            return equals(MoreTypes.asTypeElement(type1).getSimpleName().toString(), ((ClassName) type2).simpleName());
+        }
     }
 
     private static boolean equals(String str1, String str2) {

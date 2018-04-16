@@ -1,34 +1,31 @@
 # RapidOOO
 
-Android POJO Converter: Generate scalable and bindable domain objects java class file automatically in compile time.
+Android POJO 转换器：根据 POJO 类编译时自动生成支持扩展互相绑定的领域对象。
 
-## Why RapidOOO ?
+## 为什么使用 RapidOOO？
 
-We always transform data between different layer in Domain-Driven Design, such as  `VO`, `PO`, `DO`, `DTO`, `BO`. The same situation is often encountered in the development of Android, For example,  [UserModelDataMapper::transform](https://github.com/android10/Android-CleanArchitecture/blob/master/presentation/src/main/java/com/fernandocejas/android10/sample/presentation/mapper/UserModelDataMapper.java#L42), [UserEntityDataMapper::transform](https://github.com/android10/Android-CleanArchitecture/blob/master/data/src/main/java/com/fernandocejas/android10/sample/data/entity/mapper/UserEntityDataMapper.java#L42) in [Android-CleanArchitecture](https://github.com/android10/Android-CleanArchitecture). The process of manually copying and converting is not only cumbersome, but also has a relatively large risk of errors. It also increases maintenance costs when adding or deleting fields. [Dozer](http://dozer.sourceforge.net/documentation/about.html) can be a good solution to this problem, but it may not be applicable on Android.
+我们在领域驱动设计中经常会在不同层级之间传递数据，例如 `VO`, `PO`, `DO`, `DTO`, `BO`等。Android 的开发中也经常会遇到这些情况，比如在 [Android-CleanArchitecture](https://github.com/android10/Android-CleanArchitecture) 的 [UserModelDataMapper::transform](https://github.com/android10/Android-CleanArchitecture/blob/master/presentation/src/main/java/com/fernandocejas/android10/sample/presentation/mapper/UserModelDataMapper.java#L42), [UserEntityDataMapper::transform](https://github.com/android10/Android-CleanArchitecture/blob/master/data/src/main/java/com/fernandocejas/android10/sample/data/entity/mapper/UserEntityDataMapper.java#L42) 等。手工地进行拷贝转换的过程不但繁琐，而且错误的风险比较大，在新增、删除字段时也增加了维护的成本。[Dozer](http://dozer.sourceforge.net/documentation/about.html) 可以很好地解决这个问题，但是在 Android 上可能就不太适用了。
 
+**RapidOOO 可以做到：**
 
+1. 在编译时针对指定的初始 POJO，可以自动生成 Java 类（比如 `UserVO`, `UserBO` 等），非反射。
+2. 可以在生成的 POJO 类中增加配置，添加新的字段（比如通过 User 中的 `gender` 在生成的 POJO（UserVO） 中扩展出一个 `genderDesc` 字段，并且与原来的 `gender` 类共存并进行双向绑定）
+3. 字段进行转换时可以通过指定 `conversionMethodName`, `inverseConversionMethodName` 等方法来进行特殊的转换，类似 `Databinding` 中的 `@BindingMethod`。
+4. 链式的 POJO 生成，如从 `User` 生成 `UserDO`, 从 `UserDO` 生成 `UserBO`, 从 `UserBO` 生成 `UserVO`...
+5. 生成类中自动生成转换方法 `UserBo.create(User user)`, `userBo.toUser()`。
 
-**RapidOOO Can Do：**
+**后续 feature：**
 
-1. Java classes (such as `UserVO`, `UserBO`, etc.) can be automatically generated for non-reflection in compile time for the specified original POJO.
-2. You can add configuration to the generated POJO class, add new fields (such as `gender` in User to create a `genderDesc` field in the generated POJO (UserVO), and coexist with the original `gender` class and data binding)
-3. You can perform special conversions for fields by specifying `conversionMethodName`, `inverseConversionMethodName`. similar to `@BindingMethod` in `Databinding`.
-4. Chain POJO generation, such as generating `UserDO` from `User`, `UserBO` from `UserDO`, `UserVO` from `UserBO`...
-5. The conversion method `UserBo.create(User user)`, `userBo.toUser()` in generated class will be automatically generate.
+- POJO 继承
+- 配置对象池
 
+## 怎么使用？
 
-**feature:**
+> 尚未上传到 Maven Central，具体的依赖方式稍后
 
-- POJO extend
-- Object Pool
+以下通过两个例子来说明：
 
-## How to use ?
-
-> Not yet uploaded to Maven Central, gradle dependencies are later.
-
-Here are two examples:
-
-**User POJO:**
+**User POJO：**
 
 ```java
 public class User implements Serializable {
@@ -41,7 +38,7 @@ public class User implements Serializable {
 }
 ```
 
-**Pet POJO:**
+**Pet POJO：**
 
 ```java
 public class Pet {
@@ -56,9 +53,9 @@ public class Pet {
 }
 ```
 
-### POJO Convert to BO
+### POJO 转换为 BO
 
-Create `BOGenerator` class, Configure the following annotation：
+创建 `BOGenerator` 类，配置以下注解：
 
 ```java
 @OOOs(suffix = BOGenerator.BO_SUFFIX, ooos = {
@@ -78,17 +75,17 @@ public class BOGenerator {
 }
 ```
 
-Using the `@OOOs` annotation to configure conversions. The `@OOO` annotations explicitly specify which classes need to be converted.
+这里使用 `@OOOs` 注解来进行转换的配置，通过 `@OOO` 注解来显示地指定需要转换成哪些类。
 
 ```java
 @OOO(id = "user_bo_id", from = User.class, suffix = BOGenerator.BO_SUFFIX_USER)
 ```
 
-The above represents a class conversion:
+以上表示一个类的转换：
 
-- **id：**Represent the id of this transformation, can be an arbitrary string (unique), and the default does not set the id.
-- **from：**required. Represent the conversion source. from the `User` conversion.
-- **suffix：**Represent the name of the generated POJO class suffix, here is `_BO`, so the generated class name is `User_BO`, by default it uses `suffix` in `@OOOs`.
+- **id：**表示本地转换的 id，可以为任意字符串（需唯一），默认不设置 id。
+- **from：**表示转换源，从 `User` 转换，必填。
+- **suffix：**表示生成的 POJO 类的名字后缀，这里是 `_BO`，所以生成的类名为 `User_BO`，默认使用 `@OOOs` 中的 `suffix`。
 
 ```java
 @OOO(from = Pet.class, conversion = {
@@ -101,15 +98,15 @@ The above represents a class conversion:
 })
 ```
 
-The above also represents a class conversion, but a field can be added with `@OOOConversion`:
+以上也表示一个类的转换，但是可以通过 `@OOOConversion` 来新增一个字段：
 
-- **fieldName：**Specifying a new field is derived from which field of the source POJO is converted.
-- **targetTypeId：**Used to specify the type id of the new field. It needs to be consistent with the `id` specified by the other `@OOO`; it is also possible to specify the Class type via `targetType`.
-- **targetFieldName：**Specify the name of the new field, which can be arbitrary.
-- **replace：**Whether the new field replaces the original field (**fieldName**), if false, coexist.
+- **fieldName：**指定新的字段是从转换源 POJO 的哪个字段派生出来的
+- **targetTypeId：**用来指定新的字段的类型id，需要与其它的 `@OOO` 指定的 `id` 一致；也可以通过 `targetType` 来指定 Class 类型。
+- **targetFieldName：**指定新字段的名字，可以任意。
+- **replace：**新的字段是否替换原来的字段（**fieldName**），如果 false，则共存。
 
 
-Following code will be automatically generated in compile time:
+然后编译将会自动生成以下代码：
 
 ```java
 public class User_BO implements Serializable {
@@ -182,7 +179,7 @@ public class PetBO {
 }
 ```
 
-### BO Convert to VO
+### BO 转换为 VO
 
 如下新建 `VOGenerator`：
 
@@ -256,11 +253,11 @@ public class VOGenerator {
 }
 ```
 
-The `@OOOs` annotation is also used to specify the class to be generated, but here `ooosPackages` is used to specify which classes under the package need to be converted.
+还是通过 `@OOOs` 注解来指定要生成的类，但这里使用了 `ooosPackages` 来指定哪些包下面的类需要进行转换。
 
-The conversion source is generated above: `User_BO` and `PetBO`, and the generated classes are `UserVO` and `PetVO`.
+转换源为上面生成的：`User_BO` 和 `PetBO`，生成的类名为 `UserVO` 和 `PetVO`。
 
-Extended two fields in `UserVO`:
+在 `UserVO` 中扩展了两个字段：
 
 ```java
 @OOOConversion(
@@ -273,19 +270,19 @@ Extended two fields in `UserVO`:
 )
 ```
 
-Extend `genderDesc` (used for display on View) from the `gender` field of the conversion source, of type `String`, and `replace = false`(`gender` coexists with `genderDesc`):
+从转换源的 `gender` 字段扩展出 `genderDesc` （用于在 View 上进行展示），类型为 `String` ，并且 `replace = false`（`gender` 与 `genderDesc` 共存）：
 
-- **conversionMethodName：**Specify the conversion method from `gender` to `genderDesc`. The default is not set.
-- **inverseConversionMethodName：**Specify the inverse conversion method from `genderDesc` to `gender`. Default is not set.
+- **conversionMethodName：**指定转换方法，从 `gender` 转换为 `genderDesc`。默认为不设置。
+- **inverseConversionMethodName：**指定逆转换方法，从 `genderDesc` 转换为 `gender`。默认为不设置。
 
-> **NOTE：**When use `conversionMethodName` and `inverseConversionMethodName` to specify method names, the method signature must satisfy one of the following:
-> - `public static [Conversion target type] conversionXxx([Conversion source field type] param)`
-> -  `public static [Conversion target type] conversionXxx([Conversion source class type] param1, [Conversion source field type] param2)`
-> For example, the transformation method between `gender` and `genderDesc` on top:
+> **注意：**`conversionMethodName` 和 `inverseConversionMethodName` 方法指定方法名字时，方法签名必须满足以下其一：
+> - `public static [转换目标类型] conversionXxx([转换源字段类型] param)`
+> -  `public static [转换目标类型] conversionXxx([转换源 class 类型] param1, [转换源字段类型] param2)`
+> 如上面 `gender` 和 `genderDesc` 的转换：
 > - `public static String conversionGender(UserVO userVO, Integer gender)`
 > - `public static Integer inverseConversionGender(String genderDesc)`
 
-By setting the above two methods, the `gender` and `genderDesc` fields will be bind to each other, change one of the fields, and the other field will automatically change.
+通过设置以上两个方法，`gender` 和 `genderDesc` 两个字段会实现互相绑定，改变其中一个字段，另一个字段也会自动发生改变。
 
 ```java
 @OOOConversion(
@@ -298,13 +295,13 @@ By setting the above two methods, the `gender` and `genderDesc` fields will be b
 )
 ```
 
-`UserVO` also extends an `ageDesc` field (replaces the `age` field, does not coexist) from the `age` of the conversion source and specifies `conversionMethodName`, but the conversion method is not in the `VOGenerator` class, and it is in the `AgeConversion` class, so you need to explicitly specify `conversionMethodClass`.
+`UserVO` 中还从转换源的 `age` 扩展了一个 `ageDesc` 属性（替换掉 `age` 字段，不共存），并指定了 `conversionMethodName`，但是转换方法并不在 `VOGenerator` 类中，而是在 `AgeConversion` 类中，所以需要显示地进行指定 `conversionMethodClass`。
 
-- **conversionMethodClass：**The class where the conversion method is , which is not set by default, in the current `Generator` class.
+- **conversionMethodClass：**转换方法所在的 Class，默认不设置则表示在当前的 `Generator` 类中。
 
-In addition `PetVO` extends ʻownerUser` field.
+另外 `PetVO` 扩展了一个 `ownerUser`。
 
-The final compiled code is as follows:
+最后编译生成的代码如下：
 
 ```java
 public class UserVO implements Serializable {
@@ -350,7 +347,7 @@ public class UserVO implements Serializable {
 }
 ```
 
-> **NOTE:** Above `User_BO`, because of the `age` field is `replace`, and only `conversionMethodName` is set, `inverseConversionMethodName` is not set, so the `age` value is lost when the `toUser_BO()` method is inverse converted. It is recommended to use `inverseConversionMethodName`.
+> **注意：**以上 `User_BO`，由于 `age` 属性是 `replace`，并且只设置了 `conversionMethodName`，并没有设置 `inverseConversionMethodName`，所以在 `toUser_BO()` 方法进行逆转换时会丢失 `age` 属性，所以推荐使用 `inverseConversionMethodName`。
 
 ```java
 public class PetVO {

@@ -13,14 +13,14 @@ import com.wangjiegulu.rapidooo.depmodule.dal.xdo.User;
  * Date: 10/04/2018.
  */
 @OOOs(suffix = BOGenerator.BO_SUFFIX, ooos = {
-        @OOO(id = "userBO", from = User.class, suffix = BOGenerator.BO_SUFFIX_USER),
+        @OOO(id = "user_bo_id", from = User.class, suffix = BOGenerator.BO_SUFFIX_USER),
         @OOO(from = Pet.class, conversion = {
                 @OOOConversion(
                         fieldName = "owner",
-                        targetTypeId = "userBO",
+                        targetTypeId = "user_bo_id",
                         targetFieldName = "ownerUser",
-                        conversionMethodName = "conversionUserBO",
-                        inverseConversionMethodName = "inverseConversionUserBO",
+//                        conversionMethodName = "conversionUserBO",
+//                        inverseConversionMethodName = "inverseConversionUserBO",
                         replace = true
                 )
         })
@@ -34,7 +34,7 @@ public class BOGenerator {
         return User_BO.create(user);
     }
 
-    public static User inverseConversionUserBO(User_BO owner2) {
-        return owner2.toUser();
+    public static User inverseConversionUserBO(User_BO owner) {
+        return owner.toUser();
     }
 }

@@ -16,8 +16,7 @@ import com.wangjiegulu.rapidooo.depmodule.bll.xbo.User_BO;
 @OOOs(suffix = VOGenerator.VO_SUFFIX, fromSuffix = BOGenerator.BO_SUFFIX, ooosPackages = {
         VOGenerator.PACKAGE_BO
 }, ooos = {
-        @OOO(id = "userVO", from = User_BO.class),
-        @OOO(from = User_BO.class/*, suffix = VOGenerator.VO_SUFFIX_USER*/,
+        @OOO(id = "user_vo_id", from = User_BO.class/*, suffix = VOGenerator.VO_SUFFIX_USER*/,
                 fromSuffix = BOGenerator.BO_SUFFIX_USER,
                 conversion = {
                         @OOOConversion(
@@ -34,6 +33,7 @@ import com.wangjiegulu.rapidooo.depmodule.bll.xbo.User_BO;
                                 targetType = String.class,
                                 conversionMethodName = "conversionAge",
                                 conversionMethodClass = AgeConversion.class,
+//                                inverseConversionMethodName = "inverseConversionAge",
                                 replace = true
                         )
                 }
@@ -43,7 +43,7 @@ import com.wangjiegulu.rapidooo.depmodule.bll.xbo.User_BO;
                         @OOOConversion(
                                 fieldName = "ownerUser",
                                 targetFieldName = "ownerUser",
-                                targetTypeId = "userVO",
+                                targetTypeId = "user_vo_id",
                                 replace = true
                         )
                 }
