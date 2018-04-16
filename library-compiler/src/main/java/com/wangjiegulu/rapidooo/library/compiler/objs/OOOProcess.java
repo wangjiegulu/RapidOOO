@@ -1,6 +1,5 @@
 package com.wangjiegulu.rapidooo.library.compiler.objs;
 
-import com.google.auto.common.MoreElements;
 import com.google.auto.common.MoreTypes;
 import com.google.common.base.Optional;
 
@@ -99,15 +98,15 @@ public class OOOProcess {
 
                 if (null == fromFieldConversion) {
                     // getter / setter method
-                    if (MoreElements.hasModifiers(Modifier.PRIVATE).apply(fieldElement)
-                            || MoreElements.hasModifiers(Modifier.PROTECTED).apply(fieldElement)) {
+//                    if (MoreElements.hasModifiers(Modifier.PRIVATE).apply(fieldElement)
+//                            || MoreElements.hasModifiers(Modifier.PROTECTED).apply(fieldElement)) {
                         IElementStuff realFieldElementStuff = new ElementStuff(fieldElement);
                         GetterSetterMethodNames getterSetterMethodNames = generateGetterSetterMethodName(realFieldElementStuff);
                         // add getter method
                         result.addMethod(obtainGetterMethodsBuilder(realFieldElementStuff, getterSetterMethodNames).build());
                         // add setter method
                         result.addMethod(obtainSetterMethodsBuilderDefault(realFieldElementStuff, getterSetterMethodNames).build());
-                    }
+//                    }
                 } else {
                     // TODO: 12/04/2018 wangjie modifiers ?
                     // Generate extra Field
@@ -120,8 +119,8 @@ public class OOOProcess {
 
                     if (!fromFieldConversion.isReplace()) { // extra fields (not replace)
                         // getter / setter method
-                        if (MoreElements.hasModifiers(Modifier.PRIVATE).apply(fieldElement)
-                                || MoreElements.hasModifiers(Modifier.PROTECTED).apply(fieldElement)) {
+//                        if (MoreElements.hasModifiers(Modifier.PRIVATE).apply(fieldElement)
+//                                || MoreElements.hasModifiers(Modifier.PROTECTED).apply(fieldElement)) {
 
                             // generate origin field getter / setter
                             IElementStuff realFieldElementStuff = new ElementStuff(fieldElement);
@@ -144,7 +143,7 @@ public class OOOProcess {
                             result.addMethod(setterMethodBuilder.build());
 //                            }
 
-                        }
+//                        }
                     } else { // replace fields
                         IElementStuff realFieldElementStuff = fromField.getTargetElementStuff();
                         GetterSetterMethodNames getterSetterMethodNames = generateGetterSetterMethodName(realFieldElementStuff);

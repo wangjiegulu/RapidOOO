@@ -12,6 +12,7 @@ import java.util.Map;
 
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
+import javax.lang.model.element.Modifier;
 
 /**
  * Author: wangjie
@@ -42,6 +43,9 @@ public class FromElement {
         List<? extends Element> eles = element.getEnclosedElements();
         for (Element e : eles) {
             if (ElementKind.FIELD == e.getKind()) {
+                if(MoreElements.hasModifiers(Modifier.STATIC).apply(e)){
+                    continue;
+                }
                 FromField fromField = new FromField();
                 fromField.setFieldOriginElement(e);
                 allFromFields.put(e.getSimpleName().toString(), fromField);

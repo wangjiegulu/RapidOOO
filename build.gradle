@@ -9,9 +9,14 @@ buildscript {
     dependencies {
         classpath 'com.android.tools.build:gradle:3.0.0'
         
-
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
+        classpath('com.github.wangjiegulu:rapidmetainf:1.0.0') {
+            exclude group: 'com.android.tools.build', module: 'gradle'
+        }
+        classpath('com.github.wangjiegulu:rapidmavenpush:0.0.5') {
+            exclude group: 'com.android.tools.build', module: 'gradle'
+        }
     }
 }
 
