@@ -26,7 +26,12 @@ We always transform data between different layer in Domain-Driven Design, such a
 
 ## How to use ?
 
-> Not yet uploaded to Maven Central, gradle dependencies are later.
+Gradle [Check Newest Version](http://search.maven.org/#search%7Cga%7C1%7Crapidooo)
+
+```groovy
+implementation "com.github.wangjiegulu:rapidooo-api:x.x.x"
+annotationProcessor "com.github.wangjiegulu:rapidooo-compiler:x.x.x"
+```
 
 Here are two examples:
 

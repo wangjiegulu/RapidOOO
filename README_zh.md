@@ -23,7 +23,12 @@ Android POJO 转换器:根据 POJO 类编译时自动生成支持扩展互相绑
 
 ## 怎么使用？
 
-> 尚未上传到 Maven Central，具体的依赖方式稍后
+Gradle [Check Newest Version](http://search.maven.org/#search%7Cga%7C1%7Crapidooo)
+
+```groovy
+implementation "com.github.wangjiegulu:rapidooo-api:x.x.x"
+annotationProcessor "com.github.wangjiegulu:rapidooo-compiler:x.x.x"
+```
 
 以下通过两个例子来说明:
 
