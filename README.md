@@ -1,6 +1,6 @@
 # RapidOOO
 
-Android POJO Converter: Generate scalable and bindable domain objects java class file automatically in compile time.
+Android POJO Converter:Generate scalable and bindable domain objects java class file automatically in compile time.
 
 [中文版本](README_zh.md)
 
@@ -10,7 +10,7 @@ We always transform data between different layer in Domain-Driven Design, such a
 
 
 
-**RapidOOO Can Do：**
+**RapidOOO Can Do:**
 
 1. Java classes (such as `UserVO`, `UserBO`, etc.) can be automatically generated for non-reflection in compile time for the specified original POJO.
 2. You can add configuration to the generated POJO class, add new fields (such as `gender` in User to create a `genderDesc` field in the generated POJO (UserVO), and coexist with the original `gender` class and data binding)
@@ -60,7 +60,7 @@ public class Pet {
 
 ### POJO Convert to BO
 
-Create `BOGenerator` class, Configure the following annotation：
+Create `BOGenerator` class, Configure the following annotation:
 
 ```java
 @OOOs(suffix = BOGenerator.BO_SUFFIX, ooos = {
@@ -88,9 +88,9 @@ Using the `@OOOs` annotation to configure conversions. The `@OOO` annotations ex
 
 The above represents a class conversion:
 
-- **id：**Represent the id of this transformation, can be an arbitrary string (unique), and the default does not set the id.
-- **from：**required. Represent the conversion source. from the `User` conversion.
-- **suffix：**Represent the name of the generated POJO class suffix, here is `_BO`, so the generated class name is `User_BO`, by default it uses `suffix` in `@OOOs`.
+- **id:**Represent the id of this transformation, can be an arbitrary string (unique), and the default does not set the id.
+- **from:**required. Represent the conversion source. from the `User` conversion.
+- **suffix:**Represent the name of the generated POJO class suffix, here is `_BO`, so the generated class name is `User_BO`, by default it uses `suffix` in `@OOOs`.
 
 ```java
 @OOO(from = Pet.class, conversion = {
@@ -105,10 +105,10 @@ The above represents a class conversion:
 
 The above also represents a class conversion, but a field can be added with `@OOOConversion`:
 
-- **fieldName：**Specifying a new field is derived from which field of the source POJO is converted.
-- **targetTypeId：**Used to specify the type id of the new field. It needs to be consistent with the `id` specified by the other `@OOO`; it is also possible to specify the Class type via `targetType`.
-- **targetFieldName：**Specify the name of the new field, which can be arbitrary.
-- **replace：**Whether the new field replaces the original field (**fieldName**), if false, coexist.
+- **fieldName:**Specifying a new field is derived from which field of the source POJO is converted.
+- **targetTypeId:**Used to specify the type id of the new field. It needs to be consistent with the `id` specified by the other `@OOO`; it is also possible to specify the Class type via `targetType`.
+- **targetFieldName:**Specify the name of the new field, which can be arbitrary.
+- **replace:**Whether the new field replaces the original field (**fieldName**), if false, coexist.
 
 
 Following code will be automatically generated in compile time:
@@ -186,7 +186,7 @@ public class PetBO {
 
 ### BO Convert to VO
 
-如下新建 `VOGenerator`：
+如下新建 `VOGenerator`:
 
 ```java
 @OOOs(suffix = VOGenerator.VO_SUFFIX, fromSuffix = BOGenerator.BO_SUFFIX, ooosPackages = {
@@ -260,7 +260,7 @@ public class VOGenerator {
 
 The `@OOOs` annotation is also used to specify the class to be generated, but here `ooosPackages` is used to specify which classes under the package need to be converted.
 
-The conversion source is generated above: `User_BO` and `PetBO`, and the generated classes are `UserVO` and `PetVO`.
+The conversion source is generated above:`User_BO` and `PetBO`, and the generated classes are `UserVO` and `PetVO`.
 
 Extended two fields in `UserVO`:
 
@@ -277,10 +277,10 @@ Extended two fields in `UserVO`:
 
 Extend `genderDesc` (used for display on View) from the `gender` field of the conversion source, of type `String`, and `replace = false`(`gender` coexists with `genderDesc`):
 
-- **conversionMethodName：**Specify the conversion method from `gender` to `genderDesc`. The default is not set.
-- **inverseConversionMethodName：**Specify the inverse conversion method from `genderDesc` to `gender`. Default is not set.
+- **conversionMethodName:**Specify the conversion method from `gender` to `genderDesc`. The default is not set.
+- **inverseConversionMethodName:**Specify the inverse conversion method from `genderDesc` to `gender`. Default is not set.
 
-> **NOTE：**When use `conversionMethodName` and `inverseConversionMethodName` to specify method names, the method signature must satisfy one of the following:
+> **NOTE:** When use `conversionMethodName` and `inverseConversionMethodName` to specify method names, the method signature must satisfy one of the following:
 > - `public static [Conversion target type] conversionXxx([Conversion source field type] param)`
 > -  `public static [Conversion target type] conversionXxx([Conversion source class type] param1, [Conversion source field type] param2)`
 > For example, the transformation method between `gender` and `genderDesc` on top:
@@ -302,7 +302,7 @@ By setting the above two methods, the `gender` and `genderDesc` fields will be b
 
 `UserVO` also extends an `ageDesc` field (replaces the `age` field, does not coexist) from the `age` of the conversion source and specifies `conversionMethodName`, but the conversion method is not in the `VOGenerator` class, and it is in the `AgeConversion` class, so you need to explicitly specify `conversionMethodClass`.
 
-- **conversionMethodClass：**The class where the conversion method is , which is not set by default, in the current `Generator` class.
+- **conversionMethodClass:**The class where the conversion method is , which is not set by default, in the current `Generator` class.
 
 In addition `PetVO` extends ʻownerUser` field.
 
@@ -345,7 +345,7 @@ public class UserVO implements Serializable {
     user_BO.setUserId(userId);
     user_BO.setUsername(username);
     user_BO.setNickname(nickname);
-    // Loss field: age, recommend to use `inverseConversionMethodName`.
+    // Loss field:age, recommend to use `inverseConversionMethodName`.
     user_BO.setGender(gender);
     return user_BO;
   }

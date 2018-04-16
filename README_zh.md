@@ -1,6 +1,6 @@
 # RapidOOO
 
-Android POJO 转换器：根据 POJO 类编译时自动生成支持扩展互相绑定的领域对象。
+Android POJO 转换器:根据 POJO 类编译时自动生成支持扩展互相绑定的领域对象。
 
 [English Version](README.md)
 
@@ -8,7 +8,7 @@ Android POJO 转换器：根据 POJO 类编译时自动生成支持扩展互相�
 
 我们在领域驱动设计中经常会在不同层级之间传递数据，例如 `VO`, `PO`, `DO`, `DTO`, `BO`等。Android 的开发中也经常会遇到这些情况，比如在 [Android-CleanArchitecture](https://github.com/android10/Android-CleanArchitecture) 的 [UserModelDataMapper::transform](https://github.com/android10/Android-CleanArchitecture/blob/master/presentation/src/main/java/com/fernandocejas/android10/sample/presentation/mapper/UserModelDataMapper.java#L42), [UserEntityDataMapper::transform](https://github.com/android10/Android-CleanArchitecture/blob/master/data/src/main/java/com/fernandocejas/android10/sample/data/entity/mapper/UserEntityDataMapper.java#L42) 等。手工地进行拷贝转换的过程不但繁琐，而且错误的风险比较大，在新增、删除字段时也增加了维护的成本。[Dozer](http://dozer.sourceforge.net/documentation/about.html) 可以很好地解决这个问题，但是在 Android 上可能就不太适用了。
 
-**RapidOOO 可以做到：**
+**RapidOOO 可以做到:**
 
 1. 在编译时针对指定的初始 POJO，可以自动生成 Java 类（比如 `UserVO`, `UserBO` 等），非反射。
 2. 可以在生成的 POJO 类中增加配置，添加新的字段（比如通过 User 中的 `gender` 在生成的 POJO（UserVO） 中扩展出一个 `genderDesc` 字段，并且与原来的 `gender` 类共存并进行双向绑定）
@@ -16,7 +16,7 @@ Android POJO 转换器：根据 POJO 类编译时自动生成支持扩展互相�
 4. 链式的 POJO 生成，如从 `User` 生成 `UserDO`, 从 `UserDO` 生成 `UserBO`, 从 `UserBO` 生成 `UserVO`...
 5. 生成类中自动生成转换方法 `UserBo.create(User user)`, `userBo.toUser()`。
 
-**后续 feature：**
+**后续 feature:**
 
 - POJO 继承
 - 配置对象池
@@ -25,9 +25,9 @@ Android POJO 转换器：根据 POJO 类编译时自动生成支持扩展互相�
 
 > 尚未上传到 Maven Central，具体的依赖方式稍后
 
-以下通过两个例子来说明：
+以下通过两个例子来说明:
 
-**User POJO：**
+**User POJO:**
 
 ```java
 public class User implements Serializable {
@@ -40,7 +40,7 @@ public class User implements Serializable {
 }
 ```
 
-**Pet POJO：**
+**Pet POJO:**
 
 ```java
 public class Pet {
@@ -57,7 +57,7 @@ public class Pet {
 
 ### POJO 转换为 BO
 
-创建 `BOGenerator` 类，配置以下注解：
+创建 `BOGenerator` 类，配置以下注解:
 
 ```java
 @OOOs(suffix = BOGenerator.BO_SUFFIX, ooos = {
@@ -83,11 +83,11 @@ public class BOGenerator {
 @OOO(id = "user_bo_id", from = User.class, suffix = BOGenerator.BO_SUFFIX_USER)
 ```
 
-以上表示一个类的转换：
+以上表示一个类的转换:
 
-- **id：**表示本地转换的 id，可以为任意字符串（需唯一），默认不设置 id。
-- **from：**表示转换源，从 `User` 转换，必填。
-- **suffix：**表示生成的 POJO 类的名字后缀，这里是 `_BO`，所以生成的类名为 `User_BO`，默认使用 `@OOOs` 中的 `suffix`。
+- **id:**表示本地转换的 id，可以为任意字符串（需唯一），默认不设置 id。
+- **from:**表示转换源，从 `User` 转换，必填。
+- **suffix:**表示生成的 POJO 类的名字后缀，这里是 `_BO`，所以生成的类名为 `User_BO`，默认使用 `@OOOs` 中的 `suffix`。
 
 ```java
 @OOO(from = Pet.class, conversion = {
@@ -100,15 +100,15 @@ public class BOGenerator {
 })
 ```
 
-以上也表示一个类的转换，但是可以通过 `@OOOConversion` 来新增一个字段：
+以上也表示一个类的转换，但是可以通过 `@OOOConversion` 来新增一个字段:
 
-- **fieldName：**指定新的字段是从转换源 POJO 的哪个字段派生出来的
-- **targetTypeId：**用来指定新的字段的类型id，需要与其它的 `@OOO` 指定的 `id` 一致；也可以通过 `targetType` 来指定 Class 类型。
-- **targetFieldName：**指定新字段的名字，可以任意。
-- **replace：**新的字段是否替换原来的字段（**fieldName**），如果 false，则共存。
+- **fieldName:**指定新的字段是从转换源 POJO 的哪个字段派生出来的
+- **targetTypeId:**用来指定新的字段的类型id，需要与其它的 `@OOO` 指定的 `id` 一致；也可以通过 `targetType` 来指定 Class 类型。
+- **targetFieldName:**指定新字段的名字，可以任意。
+- **replace:**新的字段是否替换原来的字段（**fieldName**），如果 false，则共存。
 
 
-然后编译将会自动生成以下代码：
+然后编译将会自动生成以下代码:
 
 ```java
 public class User_BO implements Serializable {
@@ -183,7 +183,7 @@ public class PetBO {
 
 ### BO 转换为 VO
 
-如下新建 `VOGenerator`：
+如下新建 `VOGenerator`:
 
 ```java
 @OOOs(suffix = VOGenerator.VO_SUFFIX, fromSuffix = BOGenerator.BO_SUFFIX, ooosPackages = {
@@ -257,9 +257,9 @@ public class VOGenerator {
 
 还是通过 `@OOOs` 注解来指定要生成的类，但这里使用了 `ooosPackages` 来指定哪些包下面的类需要进行转换。
 
-转换源为上面生成的：`User_BO` 和 `PetBO`，生成的类名为 `UserVO` 和 `PetVO`。
+转换源为上面生成的:`User_BO` 和 `PetBO`，生成的类名为 `UserVO` 和 `PetVO`。
 
-在 `UserVO` 中扩展了两个字段：
+在 `UserVO` 中扩展了两个字段:
 
 ```java
 @OOOConversion(
@@ -272,15 +272,15 @@ public class VOGenerator {
 )
 ```
 
-从转换源的 `gender` 字段扩展出 `genderDesc` （用于在 View 上进行展示），类型为 `String` ，并且 `replace = false`（`gender` 与 `genderDesc` 共存）：
+从转换源的 `gender` 字段扩展出 `genderDesc` （用于在 View 上进行展示），类型为 `String` ，并且 `replace = false`（`gender` 与 `genderDesc` 共存）:
 
-- **conversionMethodName：**指定转换方法，从 `gender` 转换为 `genderDesc`。默认为不设置。
-- **inverseConversionMethodName：**指定逆转换方法，从 `genderDesc` 转换为 `gender`。默认为不设置。
+- **conversionMethodName:**指定转换方法，从 `gender` 转换为 `genderDesc`。默认为不设置。
+- **inverseConversionMethodName:**指定逆转换方法，从 `genderDesc` 转换为 `gender`。默认为不设置。
 
-> **注意：**`conversionMethodName` 和 `inverseConversionMethodName` 方法指定方法名字时，方法签名必须满足以下其一：
+> **注意:**`conversionMethodName` 和 `inverseConversionMethodName` 方法指定方法名字时，方法签名必须满足以下其一:
 > - `public static [转换目标类型] conversionXxx([转换源字段类型] param)`
 > -  `public static [转换目标类型] conversionXxx([转换源 class 类型] param1, [转换源字段类型] param2)`
-> 如上面 `gender` 和 `genderDesc` 的转换：
+> 如上面 `gender` 和 `genderDesc` 的转换:
 > - `public static String conversionGender(UserVO userVO, Integer gender)`
 > - `public static Integer inverseConversionGender(String genderDesc)`
 
@@ -299,11 +299,11 @@ public class VOGenerator {
 
 `UserVO` 中还从转换源的 `age` 扩展了一个 `ageDesc` 属性（替换掉 `age` 字段，不共存），并指定了 `conversionMethodName`，但是转换方法并不在 `VOGenerator` 类中，而是在 `AgeConversion` 类中，所以需要显示地进行指定 `conversionMethodClass`。
 
-- **conversionMethodClass：**转换方法所在的 Class，默认不设置则表示在当前的 `Generator` 类中。
+- **conversionMethodClass:**转换方法所在的 Class，默认不设置则表示在当前的 `Generator` 类中。
 
 另外 `PetVO` 扩展了一个 `ownerUser`。
 
-最后编译生成的代码如下：
+最后编译生成的代码如下:
 
 ```java
 public class UserVO implements Serializable {
@@ -342,14 +342,14 @@ public class UserVO implements Serializable {
     user_BO.setUserId(userId);
     user_BO.setUsername(username);
     user_BO.setNickname(nickname);
-    // Loss field: age, recommend to use `inverseConversionMethodName`.
+    // Loss field:age, recommend to use `inverseConversionMethodName`.
     user_BO.setGender(gender);
     return user_BO;
   }
 }
 ```
 
-> **注意：**以上 `User_BO`，由于 `age` 属性是 `replace`，并且只设置了 `conversionMethodName`，并没有设置 `inverseConversionMethodName`，所以在 `toUser_BO()` 方法进行逆转换时会丢失 `age` 属性，所以推荐使用 `inverseConversionMethodName`。
+> **注意:**以上 `User_BO`，由于 `age` 属性是 `replace`，并且只设置了 `conversionMethodName`，并没有设置 `inverseConversionMethodName`，所以在 `toUser_BO()` 方法进行逆转换时会丢失 `age` 属性，所以推荐使用 `inverseConversionMethodName`。
 
 ```java
 public class PetVO {
