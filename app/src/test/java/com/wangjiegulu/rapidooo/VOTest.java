@@ -30,17 +30,27 @@ public class VOTest {
         petBO.setClear(true);
         petBO.setOwnerUser(user_bo);
 
-
+        // petBO -> petVO
         PetVO petVO = PetVO.create(petBO);
+        Assert.assertEquals(2000L, petVO.getPetId().longValue());
+        Assert.assertEquals("Max", petVO.getPetName());
+        Assert.assertFalse(petVO.getDog());
+        Assert.assertTrue(petVO.isCat());
+        Assert.assertTrue(petVO.getClear());
+
         petVO.setPetName("Max1");
         petVO.setCat(false);
         petVO.getOwnerUser().setGenderDesc("female");
         petVO.getOwnerUser().setNickname("wangjieooo");
 
+        // petVO -> new petBO
         PetBO newPetBo = petVO.toPetBO();
         Assert.assertEquals(2000L, newPetBo.getPetId().longValue());
         Assert.assertEquals("Max1", newPetBo.getPetName());
+        Assert.assertFalse(newPetBo.getDog());
         Assert.assertFalse(newPetBo.isCat());
+        Assert.assertTrue(newPetBo.getClear());
+
         Assert.assertEquals(0, newPetBo.getOwnerUser().getGender().intValue());
         Assert.assertEquals("wangjieooo", newPetBo.getOwnerUser().getNickname());
 
