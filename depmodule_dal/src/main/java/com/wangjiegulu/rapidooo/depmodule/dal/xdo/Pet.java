@@ -1,11 +1,14 @@
 package com.wangjiegulu.rapidooo.depmodule.dal.xdo;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 /**
  * Author: wangjie
  * Email: tiantian.china.2@gmail.com
  * Date: 10/04/2018.
  */
-public class Pet {
+public class Pet implements Parcelable {
     private Long petId;
     private String petName;
     private Long ownerId;
@@ -82,4 +85,47 @@ public class Pet {
     public void setOwner(User owner) {
         this.owner = owner;
     }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeValue(this.petId);
+        dest.writeString(this.petName);
+        dest.writeValue(this.ownerId);
+        dest.writeByte(this.isCat ? (byte) 1 : (byte) 0);
+        dest.writeByte(this.delete ? (byte) 1 : (byte) 0);
+        dest.writeValue(this.isDog);
+        dest.writeValue(this.clear);
+        dest.writeSerializable(this.owner);
+    }
+
+    public Pet() {
+    }
+
+    protected Pet(Parcel in) {
+        this.petId = (Long) in.readValue(Long.class.getClassLoader());
+        this.petName = in.readString();
+        this.ownerId = (Long) in.readValue(Long.class.getClassLoader());
+        this.isCat = in.readByte() != 0;
+        this.delete = in.readByte() != 0;
+        this.isDog = (Boolean) in.readValue(Boolean.class.getClassLoader());
+        this.clear = (Boolean) in.readValue(Boolean.class.getClassLoader());
+        this.owner = (User) in.readSerializable();
+    }
+
+    public static final Parcelable.Creator<Pet> CREATOR = new Parcelable.Creator<Pet>() {
+        @Override
+        public Pet createFromParcel(Parcel source) {
+            return new Pet(source);
+        }
+
+        @Override
+        public Pet[] newArray(int size) {
+            return new Pet[size];
+        }
+    };
 }

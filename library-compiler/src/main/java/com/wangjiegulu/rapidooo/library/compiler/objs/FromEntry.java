@@ -6,6 +6,7 @@ import com.wangjiegulu.rapidooo.api.OOO;
 import com.wangjiegulu.rapidooo.api.OOOIgnore;
 import com.wangjiegulu.rapidooo.api.OOOs;
 import com.wangjiegulu.rapidooo.library.compiler.util.GlobalEnvironment;
+import com.wangjiegulu.rapidooo.library.compiler.util.LogUtil;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -57,15 +58,15 @@ public class FromEntry {
 //                continue;
             }
 
-            // TODO: 11/04/2018 wangjie
             List<? extends Element> oooClassesElements = packageElement.getEnclosedElements();
             if (null != oooClassesElements) {
                 for (Element oooClassElement : oooClassesElements) {
-                    if (
-                            null != oooClassElement.getAnnotation(OOOs.class)
-                                    ||
-                                    null != oooClassElement.getAnnotation(OOOIgnore.class)
-                            ) {
+                    if (null != oooClassElement.getAnnotation(OOOs.class)) {
+                        continue;
+                    }
+
+                    if (null != oooClassElement.getAnnotation(OOOIgnore.class)) {
+                        LogUtil.logger("Ignore `From Class` [" + oooClassElement.toString() + "](@OOOIgnore).");
                         continue;
                     }
 
@@ -82,6 +83,10 @@ public class FromEntry {
         for (OOO ooo : ooos) {
             TypeMirror fromTypeMirror = getFromTypeMirror(ooo);
             if (null == fromTypeMirror) {
+                continue;
+            }
+            if (null != MoreTypes.asTypeElement(fromTypeMirror).getAnnotation(OOOIgnore.class)) {
+                LogUtil.logger("Ignore `From Class` [" + fromTypeMirror.toString() + "](@OOOIgnore).");
                 continue;
             }
             String specialQualifiedName = MoreTypes.asTypeElement(fromTypeMirror).getQualifiedName().toString();
@@ -139,7 +144,6 @@ public class FromEntry {
     }
 
 
-
     public Map<String, FromElement> getAllFromElements() {
         return allFromElements;
     }
@@ -152,7 +156,7 @@ public class FromEntry {
         this.generatorClassEl = generatorClassEl;
     }
 
-    public FromElement getFromElementById(String id){
+    public FromElement getFromElementById(String id) {
         return allFromElementIds.get(id);
     }
 

@@ -1,5 +1,8 @@
 package com.wangjiegulu.rapidooo.depmodule.dal.xdo;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import java.io.Serializable;
 
 /**
@@ -7,7 +10,7 @@ import java.io.Serializable;
  * Email: tiantian.china.2@gmail.com
  * Date: 10/04/2018.
  */
-public class User implements Serializable {
+public class User implements Serializable, Parcelable {
     private Long userId;
     private String username;
     private String nickname;
@@ -53,4 +56,41 @@ public class User implements Serializable {
     public void setGender(Integer gender) {
         this.gender = gender;
     }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeValue(this.userId);
+        dest.writeString(this.username);
+        dest.writeString(this.nickname);
+        dest.writeValue(this.age);
+        dest.writeValue(this.gender);
+    }
+
+    public User() {
+    }
+
+    protected User(Parcel in) {
+        this.userId = (Long) in.readValue(Long.class.getClassLoader());
+        this.username = in.readString();
+        this.nickname = in.readString();
+        this.age = (Integer) in.readValue(Integer.class.getClassLoader());
+        this.gender = (Integer) in.readValue(Integer.class.getClassLoader());
+    }
+
+    public static final Parcelable.Creator<User> CREATOR = new Parcelable.Creator<User>() {
+        @Override
+        public User createFromParcel(Parcel source) {
+            return new User(source);
+        }
+
+        @Override
+        public User[] newArray(int size) {
+            return new User[size];
+        }
+    };
 }

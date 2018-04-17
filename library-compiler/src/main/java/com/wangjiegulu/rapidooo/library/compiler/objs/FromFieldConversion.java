@@ -138,8 +138,6 @@ public class FromFieldConversion {
             }
         }
 
-        LogUtil.logger("check result: " + validateVariableSize);
-
         if (-1 == validateVariableSize) {
             throw new RuntimeException("No such method \n[public static "
                     + ((ClassName) returnType).simpleName() + " "

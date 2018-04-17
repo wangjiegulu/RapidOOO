@@ -13,8 +13,12 @@ import com.wangjiegulu.rapidooo.api.OOOs;
 import com.wangjiegulu.rapidooo.library.compiler.base.contract.ElementStuff;
 import com.wangjiegulu.rapidooo.library.compiler.base.contract.IElementStuff;
 import com.wangjiegulu.rapidooo.library.compiler.util.AnnoUtil;
+import com.wangjiegulu.rapidooo.library.compiler.util.EasyType;
+import com.wangjiegulu.rapidooo.library.compiler.util.ElementUtil;
 import com.wangjiegulu.rapidooo.library.compiler.util.GlobalEnvironment;
+import com.wangjiegulu.rapidooo.library.compiler.util.TypeNameUtil;
 
+import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Iterator;
@@ -79,7 +83,14 @@ public class OOOProcess {
             List<? extends TypeMirror> interfaces = MoreTypes.asTypeElement(fromClassElement.asType()).getInterfaces();
             if (null != interfaces && interfaces.size() > 0) {
                 for (TypeMirror interf : interfaces) {
-                    result.addSuperinterface(ClassName.get(interf));
+                    if (ElementUtil.isSameType(interf, Serializable.class)) {
+                        result.addSuperinterface(ClassName.get(interf));
+                    } else if (ElementUtil.isSameType(interf, ClassName.bestGuess("android.os.Parcelable"))) {
+                        result.addSuperinterface(ClassName.get(interf));
+                        generateParcelableElements(result, fromElement, targetClassSimpleName);
+                    } else {
+                        throw new RuntimeException("Not supported super interface [" + interf.toString() + "] for " + fromClassName);
+                    }
                 }
             }
 
@@ -100,12 +111,12 @@ public class OOOProcess {
                     // getter / setter method
 //                    if (MoreElements.hasModifiers(Modifier.PRIVATE).apply(fieldElement)
 //                            || MoreElements.hasModifiers(Modifier.PROTECTED).apply(fieldElement)) {
-                        IElementStuff realFieldElementStuff = new ElementStuff(fieldElement);
-                        GetterSetterMethodNames getterSetterMethodNames = generateGetterSetterMethodName(realFieldElementStuff);
-                        // add getter method
-                        result.addMethod(obtainGetterMethodsBuilder(realFieldElementStuff, getterSetterMethodNames).build());
-                        // add setter method
-                        result.addMethod(obtainSetterMethodsBuilderDefault(realFieldElementStuff, getterSetterMethodNames).build());
+                    IElementStuff realFieldElementStuff = new ElementStuff(fieldElement);
+                    GetterSetterMethodNames getterSetterMethodNames = generateGetterSetterMethodName(realFieldElementStuff);
+                    // add getter method
+                    result.addMethod(obtainGetterMethodsBuilder(realFieldElementStuff, getterSetterMethodNames).build());
+                    // add setter method
+                    result.addMethod(obtainSetterMethodsBuilderDefault(realFieldElementStuff, getterSetterMethodNames).build());
 //                    }
                 } else {
                     // TODO: 12/04/2018 wangjie modifiers ?
@@ -122,25 +133,25 @@ public class OOOProcess {
 //                        if (MoreElements.hasModifiers(Modifier.PRIVATE).apply(fieldElement)
 //                                || MoreElements.hasModifiers(Modifier.PROTECTED).apply(fieldElement)) {
 
-                            // generate origin field getter / setter
-                            IElementStuff realFieldElementStuff = new ElementStuff(fieldElement);
-                            GetterSetterMethodNames getterSetterMethodNames = generateGetterSetterMethodName(realFieldElementStuff);
-                            // add getter method
-                            result.addMethod(obtainGetterMethodsBuilder(realFieldElementStuff, getterSetterMethodNames).build());
-                            // add setter method
-                            MethodSpec.Builder setterMethodBuilder = obtainConversionSetterMethodBuilder(fieldName, fromFieldConversion, realFieldElementStuff, getterSetterMethodNames);
-                            result.addMethod(setterMethodBuilder.build());
+                        // generate origin field getter / setter
+                        IElementStuff realFieldElementStuff = new ElementStuff(fieldElement);
+                        GetterSetterMethodNames getterSetterMethodNames = generateGetterSetterMethodName(realFieldElementStuff);
+                        // add getter method
+                        result.addMethod(obtainGetterMethodsBuilder(realFieldElementStuff, getterSetterMethodNames).build());
+                        // add setter method
+                        MethodSpec.Builder setterMethodBuilder = obtainConversionSetterMethodBuilder(fieldName, fromFieldConversion, realFieldElementStuff, getterSetterMethodNames);
+                        result.addMethod(setterMethodBuilder.build());
 
-                            // generate extra field getter / setter
-                            realFieldElementStuff = fromField.getTargetElementStuff();
-                            getterSetterMethodNames = generateGetterSetterMethodName(realFieldElementStuff);
-                            // add getter method
-                            result.addMethod(obtainGetterMethodsBuilder(realFieldElementStuff, getterSetterMethodNames).build());
-                            // add setter method
+                        // generate extra field getter / setter
+                        realFieldElementStuff = fromField.getTargetElementStuff();
+                        getterSetterMethodNames = generateGetterSetterMethodName(realFieldElementStuff);
+                        // add getter method
+                        result.addMethod(obtainGetterMethodsBuilder(realFieldElementStuff, getterSetterMethodNames).build());
+                        // add setter method
 //                            String inverseConversionMethodName = fromFieldConversion.getInverseConversionMethodName();
 //                            if (!AnnoUtil.oooParamIsNotSet(inverseConversionMethodName)) { // inverseConversionMethodName has set
-                            setterMethodBuilder = obtainInverseConversionSetterMethodBuilder(fromFieldConversion, realFieldElementStuff, getterSetterMethodNames);
-                            result.addMethod(setterMethodBuilder.build());
+                        setterMethodBuilder = obtainInverseConversionSetterMethodBuilder(fromFieldConversion, realFieldElementStuff, getterSetterMethodNames);
+                        result.addMethod(setterMethodBuilder.build());
 //                            }
 
 //                        }
@@ -430,6 +441,108 @@ public class OOOProcess {
         return getterSetterMethodNames;
     }
 
+    private void generateParcelableElements(TypeSpec.Builder result, FromElement fromElement, String targetClassSimpleName) {
+        ClassName parcelClassName = ClassName.bestGuess("android.os.Parcel");
+        MethodSpec.Builder parcelConstructorMethodBuilder = MethodSpec.constructorBuilder()
+                .addModifiers(Modifier.PROTECTED)
+                .addParameter(parcelClassName, "parcel");
+
+        FieldSpec.Builder fieldSpec = FieldSpec.builder(EasyType.bestGuessDeep2("android.os.Parcelable.Creator<" + targetClassSimpleName + ">"), "CREATOR", Modifier.STATIC, Modifier.PUBLIC)
+                .initializer("new Parcelable.Creator<" + targetClassSimpleName + ">() {\n" +
+                        "        @Override\n" +
+                        "        public " + targetClassSimpleName + " createFromParcel($T source) {\n" +
+                        "            return new " + targetClassSimpleName + "(source);\n" +
+                        "        }\n" +
+                        "\n" +
+                        "        @Override\n" +
+                        "        public " + targetClassSimpleName + "[] newArray(int size) {\n" +
+                        "            return new " + targetClassSimpleName + "[size];\n" +
+                        "        }\n" +
+                        "    }", parcelClassName);
+        result.addField(fieldSpec.build());
+
+        // describeContents()
+        MethodSpec.Builder describeContentsMethod = MethodSpec.methodBuilder("describeContents")
+                .returns(int.class)
+                .addAnnotation(Override.class)
+                .addModifiers(Modifier.PUBLIC)
+                .addStatement("return 0");
+
+        result.addMethod(describeContentsMethod.build());
+
+
+        MethodSpec.Builder writeToParcelMethod = MethodSpec.methodBuilder("writeToParcel")
+                .returns(void.class)
+                .addAnnotation(Override.class)
+                .addParameter(parcelClassName, "dest")
+                .addParameter(int.class, "flags")
+                .addModifiers(Modifier.PUBLIC);
+
+        Map<String, FromField> allFromFields = fromElement.getAllFromFields();
+        for (Map.Entry<String, FromField> item : allFromFields.entrySet()) {
+            FromField fromField = item.getValue();
+
+            Element fieldElement = fromField.getFieldOriginElement();
+            String fieldName = fieldElement.getSimpleName().toString();
+            FromFieldConversion fromFieldConversion = fromField.getFromFieldConversion();
+
+            if (null == fromFieldConversion) {
+                IElementStuff elementStuff = new ElementStuff(fieldElement);
+                addParcelableReadStatement(parcelConstructorMethodBuilder, elementStuff);
+                addParcelableWriteStatement(writeToParcelMethod, elementStuff);
+            } else {
+                if (!fromFieldConversion.isReplace()) {
+                    IElementStuff elementStuff = new ElementStuff(fieldElement);
+                    addParcelableReadStatement(parcelConstructorMethodBuilder, elementStuff);
+                    addParcelableWriteStatement(writeToParcelMethod, elementStuff);
+                }
+
+                IElementStuff elementStuff = fromField.getTargetElementStuff();
+                addParcelableReadStatement(parcelConstructorMethodBuilder, elementStuff);
+                addParcelableWriteStatement(writeToParcelMethod, elementStuff);
+            }
+
+        }
+
+        result.addMethod(parcelConstructorMethodBuilder.build());
+        result.addMethod(writeToParcelMethod.build());
+    }
+
+    private void addParcelableReadStatement(MethodSpec.Builder parcelConstructorMethodBuilder, IElementStuff fieldElementStuff) {
+        TypeName typeName = fieldElementStuff.asType();
+        String fieldName = fieldElementStuff.getSimpleName();
+        if (typeName.isPrimitive()) {
+            parcelConstructorMethodBuilder.addStatement("this." + fieldName + " = " + checkNullCondition(TypeNameUtil.getParcelablePrimitiveReadStatement(typeName),
+                    "failed parcelable field: " + typeName + " " + fieldName
+            ));
+        } else if (typeName.isBoxedPrimitive()) {
+            parcelConstructorMethodBuilder.addStatement("this." + fieldName + " = "
+                    + checkNullCondition(TypeNameUtil.getParcelableBoxPrimitiveReadStatement(typeName),
+                    "failed parcelable field: " + typeName + " " + fieldName
+            ));
+        } else {
+            parcelConstructorMethodBuilder.addStatement("this." + fieldName + " = " + checkNullCondition(TypeNameUtil.getParcelableOtherReadStatement(typeName),
+                    "failed parcelable field: " + typeName + " " + fieldName
+            ));
+        }
+    }
+
+    private void addParcelableWriteStatement(MethodSpec.Builder parcelConstructorMethodBuilder, IElementStuff fieldElementStuff) {
+        TypeName typeName = fieldElementStuff.asType();
+        String fieldName = fieldElementStuff.getSimpleName();
+        if (typeName.isPrimitive()) {
+            parcelConstructorMethodBuilder.addStatement(checkNullCondition(TypeNameUtil.getParcelablePrimitiveWriteStatement(typeName, fieldName),
+                    "failed parcelable field: " + typeName + " " + fieldName
+            ));
+        } else if (typeName.isBoxedPrimitive()) {
+            parcelConstructorMethodBuilder.addStatement("dest.writeValue(this." + fieldName + ")");
+        } else {
+            parcelConstructorMethodBuilder.addStatement(checkNullCondition(TypeNameUtil.getParcelableOtherWriteStatement(typeName, fieldName),
+                    "failed parcelable field: " + typeName + " " + fieldName
+            ));
+        }
+    }
+
     private String firstCharUpper(String fieldName) {
         return fieldName.substring(0, 1).toUpperCase() + fieldName.substring(1);
     }
@@ -448,6 +561,12 @@ public class OOOProcess {
         return modifiers;
     }
 
+    private static <T> T checkNullCondition(T t, String s) {
+        if (null == t) {
+            throw new RuntimeException(s);
+        }
+        return t;
+    }
 
     @Override
     public String toString() {

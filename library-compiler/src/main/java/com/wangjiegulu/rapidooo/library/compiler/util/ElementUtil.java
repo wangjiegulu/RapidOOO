@@ -8,6 +8,8 @@ import com.squareup.javapoet.TypeName;
 
 import java.util.List;
 
+import javax.lang.model.element.Element;
+import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.TypeMirror;
 
@@ -81,6 +83,25 @@ public class ElementUtil {
 
     private static boolean equals(String str1, String str2) {
         return null != str1 && str1.equals(str2);
+    }
+
+    public static boolean isSameSimpleName(Class type1, TypeName type2) {
+        return equals(type1.getCanonicalName(), type2.toString());
+    }
+
+    public static Element convertElement(String packageName, String simpleName) {
+        PackageElement packageElement = GlobalEnvironment.getElementUtils().getPackageElement(packageName);
+        LogUtil.logger("[converElement]packageElement: " + packageElement);
+        if (null == packageElement) {
+            return null;
+        }
+        LogUtil.logger("[converElement]packageElement: " + packageElement.getEnclosedElements());
+        for (Element element : packageElement.getEnclosedElements()) {
+            if (equals(element.getSimpleName().toString(), simpleName)) {
+                return element;
+            }
+        }
+        return null;
     }
 
 }
