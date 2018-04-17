@@ -191,7 +191,7 @@ public class PetBO {
 
 ### BO Convert to VO
 
-如下新建 `VOGenerator`:
+Create `VOGenerator` as follows:
 
 ```java
 @OOOs(suffix = VOGenerator.VO_SUFFIX, fromSuffix = BOGenerator.BO_SUFFIX, ooosPackages = {
