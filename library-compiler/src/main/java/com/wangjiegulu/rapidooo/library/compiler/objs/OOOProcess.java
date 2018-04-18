@@ -71,12 +71,11 @@ public class OOOProcess {
                     .addModifiers(Modifier.PUBLIC)
                     .addJavadoc("From POJO: {@link $T}\n", fromClassTypeName);
 
-            // FIXME: 12/04/2018 wangjie super class ?
-            // super class
-            Optional<DeclaredType> superClass = MoreTypes.nonObjectSuperclass(GlobalEnvironment.getProcessingEnv().getTypeUtils(),
-                    GlobalEnvironment.getProcessingEnv().getElementUtils(), (DeclaredType) fromClassElement.asType());
-            if (superClass.isPresent()) {
-                result.superclass(ClassName.get(superClass.get().asElement().asType()));
+            boolean supperParcelableInterface = isSupperParcelableInterfaceDeep(fromClassElement);
+
+            TypeName supperTypeName = fromElement.getTargetSupperType();
+            if (TypeName.OBJECT != supperTypeName) {
+                result.superclass(supperTypeName);
             }
 
             // interfaces
@@ -87,7 +86,7 @@ public class OOOProcess {
                         result.addSuperinterface(ClassName.get(interf));
                     } else if (ElementUtil.isSameType(interf, ClassName.bestGuess("android.os.Parcelable"))) {
                         result.addSuperinterface(ClassName.get(interf));
-                        generateParcelableElements(result, fromElement, targetClassSimpleName);
+                        generateParcelableElements(result, fromElement, targetClassSimpleName, supperParcelableInterface);
                     } else {
                         throw new RuntimeException("Not supported super interface [" + interf.toString() + "] for " + fromClassName);
                     }
@@ -248,8 +247,17 @@ public class OOOProcess {
             // convert to from method
             MethodSpec.Builder toFromMethod = MethodSpec.methodBuilder("to" + fromClassName)
                     .addModifiers(Modifier.PUBLIC)
-                    .returns(fromClassTypeName)
-                    .addStatement(fromClassName + " " + fromParamName + " = new " + fromClassName + "()");
+                    .returns(void.class)
+//                    .addModifiers(Modifier.PUBLIC)
+//                    .returns(fromClassTypeName)
+//                    .addStatement(fromClassName + " " + fromParamName + " = new " + fromClassName + "()");
+                    .addParameter(fromClassTypeName, fromParamName);
+
+            if (fromElement.isTargetSupperTypeId()) {
+                toFromMethod.addStatement("to" + fromElement.getFromEntry().getFromElementById(fromElement.getTargetSupperTypeId()).getElement().getSimpleName()
+                        + "(" + fromParamName + ")");
+            }
+
             for (Map.Entry<String, FromField> item : allFromFields.entrySet()) {
                 FromField fromField = item.getValue();
                 Element fieldElement = fromField.getFieldOriginElement();
@@ -308,8 +316,17 @@ public class OOOProcess {
 
 
             }
-            toFromMethod.addStatement("return " + fromParamName);
+//            toFromMethod.addStatement("return " + fromParamName);
             result.addMethod(toFromMethod.build());
+
+            MethodSpec.Builder toFrom2Method = MethodSpec.methodBuilder("to" + fromClassName)
+                    .addModifiers(Modifier.PUBLIC)
+                    .returns(fromClassTypeName)
+                    .addStatement(fromClassName + " " + fromParamName + " = new " + fromClassName + "()")
+                    .addStatement("to" + fromClassName + "(" + fromParamName + ")")
+                    .addStatement("return " + fromParamName);
+
+            result.addMethod(toFrom2Method.build());
 
             // TODO: 11/04/2018 wangjie, need copy methods here from `from pojo`?
 
@@ -323,6 +340,27 @@ public class OOOProcess {
 
         }
 
+    }
+
+    private boolean isSupperParcelableInterfaceDeep(Element fromClassElement) {
+        Element currentClass = fromClassElement;
+        do {
+            Optional<DeclaredType> superClass = MoreTypes.nonObjectSuperclass(GlobalEnvironment.getProcessingEnv().getTypeUtils(),
+                    GlobalEnvironment.getProcessingEnv().getElementUtils(), (DeclaredType) currentClass.asType());
+            if (superClass.isPresent()) {
+                currentClass = superClass.get().asElement();
+                for (TypeMirror interf : MoreTypes.asTypeElement(currentClass.asType()).getInterfaces()) {
+                    if (ElementUtil.isSameType(interf, ClassName.bestGuess("android.os.Parcelable"))) {
+                        return true;
+                    }
+                }
+//                    allElements.add(currentClass);
+//                    LogUtil.logger("superclass.get().asElement().toString(): " + currentClass.toString());
+            } else {
+                currentClass = null;
+            }
+        } while (null != currentClass);
+        return false;
     }
 
     private MethodSpec.Builder obtainInverseConversionSetterMethodBuilder(FromFieldConversion fromFieldConversion, IElementStuff realFieldElementStuff, GetterSetterMethodNames getterSetterMethodNames) {
@@ -441,11 +479,15 @@ public class OOOProcess {
         return getterSetterMethodNames;
     }
 
-    private void generateParcelableElements(TypeSpec.Builder result, FromElement fromElement, String targetClassSimpleName) {
+    private void generateParcelableElements(TypeSpec.Builder result, FromElement fromElement, String targetClassSimpleName, boolean supperParcelableInterface) {
         ClassName parcelClassName = ClassName.bestGuess("android.os.Parcel");
         MethodSpec.Builder parcelConstructorMethodBuilder = MethodSpec.constructorBuilder()
                 .addModifiers(Modifier.PROTECTED)
                 .addParameter(parcelClassName, "parcel");
+
+        if (supperParcelableInterface) {
+            parcelConstructorMethodBuilder.addStatement("super(parcel)");
+        }
 
         FieldSpec.Builder fieldSpec = FieldSpec.builder(EasyType.bestGuessDeep2("android.os.Parcelable.Creator<" + targetClassSimpleName + ">"), "CREATOR", Modifier.STATIC, Modifier.PUBLIC)
                 .initializer("new Parcelable.Creator<" + targetClassSimpleName + ">() {\n" +
@@ -478,12 +520,15 @@ public class OOOProcess {
                 .addParameter(int.class, "flags")
                 .addModifiers(Modifier.PUBLIC);
 
+        if (supperParcelableInterface) {
+            writeToParcelMethod.addStatement("super.writeToParcel(dest, flags)");
+        }
+
         Map<String, FromField> allFromFields = fromElement.getAllFromFields();
         for (Map.Entry<String, FromField> item : allFromFields.entrySet()) {
             FromField fromField = item.getValue();
 
             Element fieldElement = fromField.getFieldOriginElement();
-            String fieldName = fieldElement.getSimpleName().toString();
             FromFieldConversion fromFieldConversion = fromField.getFromFieldConversion();
 
             if (null == fromFieldConversion) {

@@ -8,7 +8,7 @@ import android.os.Parcelable;
  * Email: tiantian.china.2@gmail.com
  * Date: 10/04/2018.
  */
-public class Pet implements Parcelable {
+public class Pet extends PetParent implements Parcelable {
     private Long petId;
     private String petName;
     private Long ownerId;
@@ -86,6 +86,9 @@ public class Pet implements Parcelable {
         this.owner = owner;
     }
 
+    public Pet() {
+    }
+
     @Override
     public int describeContents() {
         return 0;
@@ -93,6 +96,7 @@ public class Pet implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
+        super.writeToParcel(dest, flags);
         dest.writeValue(this.petId);
         dest.writeString(this.petName);
         dest.writeValue(this.ownerId);
@@ -100,13 +104,11 @@ public class Pet implements Parcelable {
         dest.writeByte(this.delete ? (byte) 1 : (byte) 0);
         dest.writeValue(this.isDog);
         dest.writeValue(this.clear);
-        dest.writeSerializable(this.owner);
-    }
-
-    public Pet() {
+        dest.writeParcelable(this.owner, flags);
     }
 
     protected Pet(Parcel in) {
+        super(in);
         this.petId = (Long) in.readValue(Long.class.getClassLoader());
         this.petName = in.readString();
         this.ownerId = (Long) in.readValue(Long.class.getClassLoader());
@@ -114,10 +116,10 @@ public class Pet implements Parcelable {
         this.delete = in.readByte() != 0;
         this.isDog = (Boolean) in.readValue(Boolean.class.getClassLoader());
         this.clear = (Boolean) in.readValue(Boolean.class.getClassLoader());
-        this.owner = (User) in.readSerializable();
+        this.owner = in.readParcelable(User.class.getClassLoader());
     }
 
-    public static final Parcelable.Creator<Pet> CREATOR = new Parcelable.Creator<Pet>() {
+    public static final Creator<Pet> CREATOR = new Creator<Pet>() {
         @Override
         public Pet createFromParcel(Parcel source) {
             return new Pet(source);

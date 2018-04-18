@@ -25,4 +25,7 @@ public @interface OOO {
 
     OOOConversion[] conversion() default {};
 
+    Class<?> targetSupperType() default Object.class;
+    String targetSupperTypeId() default OOOConstants.NOT_SET;
+
 }

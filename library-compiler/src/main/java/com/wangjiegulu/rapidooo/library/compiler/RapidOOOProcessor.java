@@ -43,13 +43,13 @@ public class RapidOOOProcessor extends BaseAbstractProcessor {
             for (Element element : roundEnv.getElementsAnnotatedWith(OOOs.class)) {
                 OOOProcess oooProcess = doTableAnnotation(element, mapper);
                 try {
-                    logger("TableConfig generate START -> " + oooProcess);
+                    logger("OOO generate START -> " + oooProcess);
                     oooProcess.brewJava(filer);
-                    logger("TableConfig generate END -> " + oooProcess + ", oooProcess: " + oooProcess);
+                    logger("OOO generate END -> " + oooProcess + ", oooProcess: " + oooProcess);
                 } catch (RuntimeException e) {
                     throw e;
                 } catch (Throwable throwable) {
-                    logger("TableConfig generate FAILED -> " + oooProcess + ", oooProcess: " + oooProcess);
+                    logger("OOO generate FAILED -> " + oooProcess + ", oooProcess: " + oooProcess);
                     loggerE(throwable);
                 }
             }

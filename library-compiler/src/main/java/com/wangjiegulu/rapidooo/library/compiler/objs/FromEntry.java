@@ -72,7 +72,6 @@ public class FromEntry {
 
                     FromElement fromElement = generateBaseFromElement(oooClassElement);
                     allFromElements.put(MoreTypes.asTypeElement(oooClassElement.asType()).getQualifiedName().toString(), fromElement);
-                    fromElement.parse();
 
                 }
             }
@@ -100,7 +99,14 @@ public class FromEntry {
             allFromElementIds.put(ooo.id(), fromElement);
 
             fromElement.setOooAnno(ooo);
-            fromElement.parse();
+        }
+
+        for(Map.Entry<String, FromElement> fromElement : allFromElements.entrySet()){
+            fromElement.getValue().parseBase();
+        }
+
+        for(Map.Entry<String, FromElement> fromElement : allFromElements.entrySet()){
+            fromElement.getValue().parse();
         }
 
     }
@@ -158,6 +164,10 @@ public class FromEntry {
 
     public FromElement getFromElementById(String id) {
         return allFromElementIds.get(id);
+    }
+
+    public Map<String, FromElement> getAllFromElementIds() {
+        return allFromElementIds;
     }
 
     @Override

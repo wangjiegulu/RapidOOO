@@ -17,7 +17,6 @@ public class BOTest {
     @Test
     public void test01() throws Exception {
         User user = new User();
-
         user.setUserId(1234L);
         user.setAge(28);
         user.setUsername("Wang Jie");
@@ -55,8 +54,11 @@ public class BOTest {
 
         Assert.assertEquals(1, newPet.getOwner().getGender().intValue());
         Assert.assertEquals("wangjieooo", newPet.getOwner().getNickname());
+    }
 
 
+    @Test
+    public void test02() throws Exception {
 
     }
 }

@@ -3,15 +3,13 @@ package com.wangjiegulu.rapidooo.depmodule.dal.xdo;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import com.wangjiegulu.rapidooo.api.OOOIgnore;
-
 /**
  * Author: wangjie
  * Email: tiantian.china.2@gmail.com
  * Date: 10/04/2018.
  */
-@OOOIgnore
-public class PetChild implements Parcelable {
+//@OOOIgnore
+public class PetParent implements Parcelable {
     String childName;
     double doublePr;
     Double doubleBox;
@@ -166,6 +164,9 @@ public class PetChild implements Parcelable {
         this.longBox = longBox;
     }
 
+    public PetParent() {
+    }
+
     @Override
     public int describeContents() {
         return 0;
@@ -192,10 +193,7 @@ public class PetChild implements Parcelable {
         dest.writeValue(this.longBox);
     }
 
-    public PetChild() {
-    }
-
-    protected PetChild(Parcel in) {
+    protected PetParent(Parcel in) {
         this.childName = in.readString();
         this.doublePr = in.readDouble();
         this.doubleBox = (Double) in.readValue(Double.class.getClassLoader());
@@ -215,15 +213,4 @@ public class PetChild implements Parcelable {
         this.longBox = (Long) in.readValue(Long.class.getClassLoader());
     }
 
-    public static final Parcelable.Creator<PetChild> CREATOR = new Parcelable.Creator<PetChild>() {
-        @Override
-        public PetChild createFromParcel(Parcel source) {
-            return new PetChild(source);
-        }
-
-        @Override
-        public PetChild[] newArray(int size) {
-            return new PetChild[size];
-        }
-    };
 }

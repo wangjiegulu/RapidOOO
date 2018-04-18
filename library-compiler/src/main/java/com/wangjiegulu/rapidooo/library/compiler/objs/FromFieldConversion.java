@@ -60,7 +60,6 @@ public class FromFieldConversion {
         replace = oooConversion.replace();
         targetFieldName = oooConversion.targetFieldName();
         inverseConversionMethodName = oooConversion.inverseConversionMethodName();
-
     }
 
     public void checkConversionMethodValidate() {
@@ -195,6 +194,7 @@ public class FromFieldConversion {
         }
         throw new RuntimeException("getConversionMethodTypeMirror error");
     }
+
 
     public boolean isReplace() {
         return replace;

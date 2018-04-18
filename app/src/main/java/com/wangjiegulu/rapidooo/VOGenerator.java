@@ -5,6 +5,7 @@ import com.wangjiegulu.rapidooo.api.OOOConversion;
 import com.wangjiegulu.rapidooo.api.OOOs;
 import com.wangjiegulu.rapidooo.depmodule.bll.xbo.BOGenerator;
 import com.wangjiegulu.rapidooo.depmodule.bll.xbo.PetBO;
+import com.wangjiegulu.rapidooo.depmodule.bll.xbo.PetParentBO;
 import com.wangjiegulu.rapidooo.depmodule.bll.xbo.User_BO;
 
 /**
@@ -16,6 +17,7 @@ import com.wangjiegulu.rapidooo.depmodule.bll.xbo.User_BO;
 @OOOs(suffix = VOGenerator.VO_SUFFIX, fromSuffix = BOGenerator.BO_SUFFIX, ooosPackages = {
         VOGenerator.PACKAGE_BO
 }, ooos = {
+        @OOO(id = "pet_parent_vo_id", from = PetParentBO.class),
         @OOO(id = "user_vo_id", from = User_BO.class/*, suffix = VOGenerator.VO_SUFFIX_USER*/,
                 fromSuffix = BOGenerator.BO_SUFFIX_USER,
                 conversion = {
@@ -38,7 +40,7 @@ import com.wangjiegulu.rapidooo.depmodule.bll.xbo.User_BO;
                         )
                 }
         ),
-        @OOO(from = PetBO.class,
+        @OOO(targetSupperTypeId = "pet_parent_vo_id", from = PetBO.class,
                 conversion = {
                         @OOOConversion(
                                 fieldName = "ownerUser",
