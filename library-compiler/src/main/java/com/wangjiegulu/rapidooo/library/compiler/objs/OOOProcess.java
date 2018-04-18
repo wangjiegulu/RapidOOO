@@ -63,7 +63,7 @@ public class OOOProcess {
             Element fromClassElement = fromElement.getElement();
             TypeName fromClassTypeName = ClassName.get(fromClassElement.asType());
 
-            String fromClassName = fromClassElement.getSimpleName().toString();
+            String fromClassSimpleName = fromClassElement.getSimpleName().toString();
             // eg. replace "BO" when generate VO
             String targetClassSimpleName = fromElement.getTargetClassSimpleName();
 
@@ -73,8 +73,9 @@ public class OOOProcess {
 
             boolean supperParcelableInterface = isSupperParcelableInterfaceDeep(fromClassElement);
 
+            // super class
             TypeName supperTypeName = fromElement.getTargetSupperType();
-            if (TypeName.OBJECT != supperTypeName) {
+            if (!ElementUtil.isSameType(supperTypeName, TypeName.OBJECT)) {
                 result.superclass(supperTypeName);
             }
 
@@ -88,7 +89,7 @@ public class OOOProcess {
                         result.addSuperinterface(ClassName.get(interf));
                         generateParcelableElements(result, fromElement, targetClassSimpleName, supperParcelableInterface);
                     } else {
-                        throw new RuntimeException("Not supported super interface [" + interf.toString() + "] for " + fromClassName);
+                        throw new RuntimeException("Not supported super interface [" + interf.toString() + "] for " + fromClassSimpleName);
                     }
                 }
             }
@@ -178,16 +179,20 @@ public class OOOProcess {
                     .addModifiers(Modifier.PUBLIC);
             result.addMethod(defaultConstructorMethod.build());
 
+            String fromParamName = firstCharLower(fromClassSimpleName);
 
-            String fromParamName = firstCharLower(fromClassName);
-
-            // from to target create method
+            // from method
             String createTargetParam = firstCharLower(targetClassSimpleName);
-            MethodSpec.Builder createMethod = MethodSpec.methodBuilder("create")
-                    .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
-                    .returns(ClassName.get(fromElement.getTargetClassPackage(), fromElement.getTargetClassSimpleName()))
-                    .addParameter(fromClassTypeName, fromParamName)
-                    .addStatement(targetClassSimpleName + " " + createTargetParam + " = new " + targetClassSimpleName + "()");
+            MethodSpec.Builder fromMethodSpec = MethodSpec.methodBuilder("from" + fromClassElement.getSimpleName())
+                    .addModifiers(Modifier.PUBLIC)
+                    .returns(void.class)
+                    .addParameter(fromClassTypeName, fromParamName);
+
+            if (fromElement.isTargetSupperTypeId()) {
+                fromMethodSpec.addStatement("from" + fromElement.getFromEntry().getFromElementById(fromElement.getTargetSupperTypeId()).getElement().getSimpleName()
+                        + "(" + fromParamName + ")");
+            }
+
             for (Map.Entry<String, FromField> item : allFromFields.entrySet()) {
                 FromField fromField = item.getValue();
                 Element fieldElement = fromField.getFieldOriginElement();
@@ -197,7 +202,7 @@ public class OOOProcess {
                 String fieldElementSimpleName = fieldElement.getSimpleName().toString();
 
                 if (null == fromFieldConversion) {
-                    createMethod.addStatement(createTargetParam + "." + firstCharLower(fieldElementSimpleName) + " = " + fromParamName + "." + getterSetterMethodNames.getGetterMethodName() + "()");
+                    fromMethodSpec.addStatement("this." + firstCharLower(fieldElementSimpleName) + " = " + fromParamName + "." + getterSetterMethodNames.getGetterMethodName() + "()");
                     continue;
                 }
 
@@ -208,20 +213,20 @@ public class OOOProcess {
                     switch (fromFieldConversion.getConversionMethodNameValidateVariableSize()) {
                         case 1:
                             if (!isReplace) {
-                                createMethod.addStatement(createTargetParam + "." + fromFieldConversion.getFieldName() + " = " + fromParamName + "." + getterSetterMethodNames.getGetterMethodName() + "()");
+                                fromMethodSpec.addStatement("this." + fromFieldConversion.getFieldName() + " = " + fromParamName + "." + getterSetterMethodNames.getGetterMethodName() + "()");
                             }
 
-                            createMethod.addStatement(
-                                    createTargetParam + "." + fromFieldConversion.getTargetFieldName() + " = $T." + conversionMethodName + "(" + fromParamName + "." + getterSetterMethodNames.getGetterMethodName() + "())",
+                            fromMethodSpec.addStatement(
+                                    "this." + fromFieldConversion.getTargetFieldName() + " = $T." + conversionMethodName + "(" + fromParamName + "." + getterSetterMethodNames.getGetterMethodName() + "())",
                                     ClassName.get(fromFieldConversion.getConversionMethodType())
                             );
                             continue;
                         case 2:
                             if (!isReplace) {
-                                createMethod.addStatement(createTargetParam + "." + fromFieldConversion.getFieldName() + " = " + fromParamName + "." + getterSetterMethodNames.getGetterMethodName() + "()");
+                                fromMethodSpec.addStatement("this." + fromFieldConversion.getFieldName() + " = " + fromParamName + "." + getterSetterMethodNames.getGetterMethodName() + "()");
                             }
-                            createMethod.addStatement(
-                                    createTargetParam + "." + fromFieldConversion.getTargetFieldName() + " = $T." + conversionMethodName + "(" + createTargetParam + ", " + fromParamName + "." + getterSetterMethodNames.getGetterMethodName() + "())",
+                            fromMethodSpec.addStatement(
+                                    "this." + fromFieldConversion.getTargetFieldName() + " = $T." + conversionMethodName + "(" + createTargetParam + ", " + fromParamName + "." + getterSetterMethodNames.getGetterMethodName() + "())",
                                     ClassName.get(fromFieldConversion.getConversionMethodType())
                             );
                             continue;
@@ -230,27 +235,34 @@ public class OOOProcess {
 
                 if (fromFieldConversion.isTargetTypeId()) {
                     FromElement temp = fromElement.getFromEntry().getFromElementById(fromFieldConversion.getTargetTypeId());
-                    createMethod.addStatement(createTargetParam + "." + fromFieldConversion.getTargetFieldName() + " = " + temp.getTargetClassSimpleName() + ".create(" + fromParamName + "." + getterSetterMethodNames.getGetterMethodName() + "())");
+                    fromMethodSpec.addStatement("this." + fromFieldConversion.getTargetFieldName() + " = " + temp.getTargetClassSimpleName() + ".create(" + fromParamName + "." + getterSetterMethodNames.getGetterMethodName() + "())");
                     continue;
                 }
 
                 if (!isReplace) {
-                    createMethod.addStatement(createTargetParam + "." + fromFieldConversion.getTargetFieldName() + " = " + fromParamName + "." + getterSetterMethodNames.getGetterMethodName() + "()");
+                    fromMethodSpec.addStatement("this." + fromFieldConversion.getTargetFieldName() + " = " + fromParamName + "." + getterSetterMethodNames.getGetterMethodName() + "()");
                     continue;
                 }
 
 
             }
-            createMethod.addStatement("return " + createTargetParam);
-            result.addMethod(createMethod.build());
+            result.addMethod(fromMethodSpec.build());
 
-            // convert to from method
-            MethodSpec.Builder toFromMethod = MethodSpec.methodBuilder("to" + fromClassName)
+            // create static method
+            MethodSpec.Builder createMethod2 = MethodSpec.methodBuilder("create")
+                    .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
+                    .returns(ClassName.get(fromElement.getTargetClassPackage(), fromElement.getTargetClassSimpleName()))
+                    .addParameter(fromClassTypeName, fromParamName)
+                    .addStatement(targetClassSimpleName + " " + createTargetParam + " = new " + targetClassSimpleName + "()")
+                    .addStatement(createTargetParam + ".from" + fromClassSimpleName + "(" + fromParamName + ")")
+                    .addStatement("return " + createTargetParam);
+
+            result.addMethod(createMethod2.build());
+
+            // to method 1
+            MethodSpec.Builder toFromMethod = MethodSpec.methodBuilder("to" + fromClassSimpleName)
                     .addModifiers(Modifier.PUBLIC)
                     .returns(void.class)
-//                    .addModifiers(Modifier.PUBLIC)
-//                    .returns(fromClassTypeName)
-//                    .addStatement(fromClassName + " " + fromParamName + " = new " + fromClassName + "()");
                     .addParameter(fromClassTypeName, fromParamName);
 
             if (fromElement.isTargetSupperTypeId()) {
@@ -272,7 +284,6 @@ public class OOOProcess {
                 }
 
                 boolean isReplace = fromFieldConversion.isReplace();
-
 
                 String inverseConversionMethodName = fromFieldConversion.getInverseConversionMethodName();
                 if (!AnnoUtil.oooParamIsNotSet(inverseConversionMethodName)) {
@@ -316,14 +327,14 @@ public class OOOProcess {
 
 
             }
-//            toFromMethod.addStatement("return " + fromParamName);
             result.addMethod(toFromMethod.build());
 
-            MethodSpec.Builder toFrom2Method = MethodSpec.methodBuilder("to" + fromClassName)
+            // to method 2
+            MethodSpec.Builder toFrom2Method = MethodSpec.methodBuilder("to" + fromClassSimpleName)
                     .addModifiers(Modifier.PUBLIC)
                     .returns(fromClassTypeName)
-                    .addStatement(fromClassName + " " + fromParamName + " = new " + fromClassName + "()")
-                    .addStatement("to" + fromClassName + "(" + fromParamName + ")")
+                    .addStatement(fromClassSimpleName + " " + fromParamName + " = new " + fromClassSimpleName + "()")
+                    .addStatement("to" + fromClassSimpleName + "(" + fromParamName + ")")
                     .addStatement("return " + fromParamName);
 
             result.addMethod(toFrom2Method.build());

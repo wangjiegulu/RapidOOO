@@ -35,7 +35,7 @@ public class FromElement {
     private String suffix;
 
     private String targetSupperTypeId;
-    private TypeName targetSupperType;
+    private TypeName targetSupperType = TypeName.OBJECT;
 
     /**
      * key: field name

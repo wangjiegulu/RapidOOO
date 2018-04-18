@@ -1,4 +1,4 @@
-package com.wangjiegulu.rapidooo.depmodule.dal.xdo;
+package com.wangjiegulu.rapidooo.depmodule.dal.xdo.parcelable;
 
 import com.wangjiegulu.rapidooo.api.OOOIgnore;
 

@@ -1,12 +1,13 @@
-package com.wangjiegulu.rapidooo;
+package com.wangjiegulu.rapidooo.vo.parcelable;
 
+import com.wangjiegulu.rapidooo.AgeConversion;
 import com.wangjiegulu.rapidooo.api.OOO;
 import com.wangjiegulu.rapidooo.api.OOOConversion;
 import com.wangjiegulu.rapidooo.api.OOOs;
-import com.wangjiegulu.rapidooo.depmodule.bll.xbo.BOGenerator;
-import com.wangjiegulu.rapidooo.depmodule.bll.xbo.PetBO;
-import com.wangjiegulu.rapidooo.depmodule.bll.xbo.PetParentBO;
-import com.wangjiegulu.rapidooo.depmodule.bll.xbo.User_BO;
+import com.wangjiegulu.rapidooo.depmodule.bll.xbo.parcelable.ParcelableBOGenerator;
+import com.wangjiegulu.rapidooo.depmodule.bll.xbo.parcelable.PetBO;
+import com.wangjiegulu.rapidooo.depmodule.bll.xbo.parcelable.PetParentBO;
+import com.wangjiegulu.rapidooo.depmodule.bll.xbo.parcelable.User_BO;
 
 /**
  * Generate VOs from BOs
@@ -14,12 +15,12 @@ import com.wangjiegulu.rapidooo.depmodule.bll.xbo.User_BO;
  * Email: tiantian.china.2@gmail.com
  * Date: 10/04/2018.
  */
-@OOOs(suffix = VOGenerator.VO_SUFFIX, fromSuffix = BOGenerator.BO_SUFFIX, ooosPackages = {
-        VOGenerator.PACKAGE_BO
+@OOOs(suffix = ParcelableVOGenerator.VO_SUFFIX, fromSuffix = ParcelableBOGenerator.BO_SUFFIX, ooosPackages = {
+        ParcelableVOGenerator.PACKAGE_BO
 }, ooos = {
         @OOO(id = "pet_parent_vo_id", from = PetParentBO.class),
-        @OOO(id = "user_vo_id", from = User_BO.class/*, suffix = VOGenerator.VO_SUFFIX_USER*/,
-                fromSuffix = BOGenerator.BO_SUFFIX_USER,
+        @OOO(id = "user_vo_id", from = User_BO.class/*, suffix = ParcelableVOGenerator.VO_SUFFIX_USER*/,
+                fromSuffix = ParcelableBOGenerator.BO_SUFFIX_USER,
                 conversion = {
                         @OOOConversion(
                                 fieldName = "gender",
@@ -51,10 +52,10 @@ import com.wangjiegulu.rapidooo.depmodule.bll.xbo.User_BO;
                 }
         )
 })
-public class VOGenerator {
+public class ParcelableVOGenerator {
     public static final String VO_SUFFIX = "VO";
     //    public static final String VO_SUFFIX_USER = "_VO";
-    public static final String PACKAGE_BO = "com.wangjiegulu.rapidooo.depmodule.bll.xbo";
+    public static final String PACKAGE_BO = "com.wangjiegulu.rapidooo.depmodule.bll.xbo.parcelable";
 
     public static String conversionGender(Integer gender) {
         if (null == gender) {

@@ -1,9 +1,9 @@
 package com.wangjiegulu.rapidooo.depmodule.bll;
 
-import com.wangjiegulu.rapidooo.depmodule.bll.xbo.PetBO;
-import com.wangjiegulu.rapidooo.depmodule.bll.xbo.User_BO;
-import com.wangjiegulu.rapidooo.depmodule.dal.xdo.Pet;
-import com.wangjiegulu.rapidooo.depmodule.dal.xdo.User;
+import com.wangjiegulu.rapidooo.depmodule.bll.xbo.parcelable.PetBO;
+import com.wangjiegulu.rapidooo.depmodule.bll.xbo.parcelable.User_BO;
+import com.wangjiegulu.rapidooo.depmodule.dal.xdo.parcelable.Pet;
+import com.wangjiegulu.rapidooo.depmodule.dal.xdo.parcelable.User;
 
 /**
  * Author: wangjie

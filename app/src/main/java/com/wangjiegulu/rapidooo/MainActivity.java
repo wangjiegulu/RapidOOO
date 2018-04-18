@@ -5,7 +5,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 
 import com.wangjiegulu.rapidooo.depmodule.bll.FakeInteractorImpl;
-import com.wangjiegulu.rapidooo.depmodule.bll.xbo.PetBO;
+import com.wangjiegulu.rapidooo.depmodule.bll.xbo.parcelable.PetBO;
 
 public class MainActivity extends AppCompatActivity {
 

@@ -2,8 +2,8 @@ package com.wangjiegulu.rapidooo.depmodule;
 
 
 import com.wangjiegulu.rapidooo.depmodule.bll.xbo.PetBO;
-import com.wangjiegulu.rapidooo.depmodule.dal.xdo.Pet;
-import com.wangjiegulu.rapidooo.depmodule.dal.xdo.User;
+import com.wangjiegulu.rapidooo.depmodule.dal.xdo.parcelable.Pet;
+import com.wangjiegulu.rapidooo.depmodule.dal.xdo.parcelable.User;
 
 import org.junit.Assert;
 import org.junit.Test;

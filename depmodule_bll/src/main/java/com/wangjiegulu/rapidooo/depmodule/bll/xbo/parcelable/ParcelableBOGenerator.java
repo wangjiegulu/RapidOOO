@@ -1,11 +1,11 @@
-package com.wangjiegulu.rapidooo.depmodule.bll.xbo;
+package com.wangjiegulu.rapidooo.depmodule.bll.xbo.parcelable;
 
 import com.wangjiegulu.rapidooo.api.OOO;
 import com.wangjiegulu.rapidooo.api.OOOConversion;
 import com.wangjiegulu.rapidooo.api.OOOs;
-import com.wangjiegulu.rapidooo.depmodule.dal.xdo.Pet;
-import com.wangjiegulu.rapidooo.depmodule.dal.xdo.PetParent;
-import com.wangjiegulu.rapidooo.depmodule.dal.xdo.User;
+import com.wangjiegulu.rapidooo.depmodule.dal.xdo.parcelable.Pet;
+import com.wangjiegulu.rapidooo.depmodule.dal.xdo.parcelable.PetParent;
+import com.wangjiegulu.rapidooo.depmodule.dal.xdo.parcelable.User;
 
 /**
  * Generate BOs from DOs
@@ -13,9 +13,9 @@ import com.wangjiegulu.rapidooo.depmodule.dal.xdo.User;
  * Email: tiantian.china.2@gmail.com
  * Date: 10/04/2018.
  */
-@OOOs(suffix = BOGenerator.BO_SUFFIX, ooos = {
+@OOOs(suffix = ParcelableBOGenerator.BO_SUFFIX, ooos = {
         @OOO(id = "pet_parent_bo_id", from = PetParent.class),
-        @OOO(id = "user_bo_id", from = User.class, suffix = BOGenerator.BO_SUFFIX_USER),
+        @OOO(id = "user_bo_id", from = User.class, suffix = ParcelableBOGenerator.BO_SUFFIX_USER),
         @OOO(from = Pet.class, targetSupperTypeId = "pet_parent_bo_id", conversion = {
                 @OOOConversion(
                         fieldName = "owner",
@@ -27,10 +27,9 @@ import com.wangjiegulu.rapidooo.depmodule.dal.xdo.User;
                 )
         })
 })
-public class BOGenerator {
+public class ParcelableBOGenerator {
     public static final String BO_SUFFIX = "BO";
     public static final String BO_SUFFIX_USER = "_BO";
-//    String PACKAGE_DO = "com.wangjiegulu.rapidooo.depmodule.dal._do";
 
     public static User_BO conversionUserBO(User user) {
         return User_BO.create(user);

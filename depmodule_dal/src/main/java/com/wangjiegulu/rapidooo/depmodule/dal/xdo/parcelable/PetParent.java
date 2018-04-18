@@ -1,4 +1,4 @@
-package com.wangjiegulu.rapidooo.depmodule.dal.xdo;
+package com.wangjiegulu.rapidooo.depmodule.dal.xdo.parcelable;
 
 import android.os.Parcel;
 import android.os.Parcelable;
