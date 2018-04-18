@@ -1,7 +1,10 @@
 package com.wangjiegulu.rapidooo.depmodule.bll.xbo.parcelable;
 
+import android.support.v4.util.Pools;
+
 import com.wangjiegulu.rapidooo.api.OOO;
 import com.wangjiegulu.rapidooo.api.OOOConversion;
+import com.wangjiegulu.rapidooo.api.OOOPool;
 import com.wangjiegulu.rapidooo.api.OOOs;
 import com.wangjiegulu.rapidooo.depmodule.dal.xdo.parcelable.Pet;
 import com.wangjiegulu.rapidooo.depmodule.dal.xdo.parcelable.PetParent;
@@ -25,7 +28,7 @@ import com.wangjiegulu.rapidooo.depmodule.dal.xdo.parcelable.User;
 //                        inverseConversionMethodName = "inverseConversionUserBO",
                         replace = true
                 )
-        })
+        }, pool = @OOOPool(acquireMethod = "acquirePetBO", releaseMethod = "releasePetBO"))
 })
 public class ParcelableBOGenerator {
     public static final String BO_SUFFIX = "BO";
@@ -38,4 +41,16 @@ public class ParcelableBOGenerator {
     public static User inverseConversionUserBO(User_BO owner) {
         return owner.toUser();
     }
+
+
+    private static Pools.Pool<PetBO> petBOPool = new Pools.SimplePool<>(3);
+    public static PetBO acquirePetBO() {
+        PetBO petBO = petBOPool.acquire();
+        return null == petBO ? new PetBO() : petBO;
+    }
+
+    public static void releasePetBO(PetBO petBO) {
+        petBOPool.release(petBO);
+    }
+
 }

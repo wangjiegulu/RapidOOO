@@ -5,8 +5,11 @@ import com.google.auto.common.MoreElements;
 import com.squareup.javapoet.TypeName;
 import com.wangjiegulu.rapidooo.api.OOO;
 import com.wangjiegulu.rapidooo.api.OOOConversion;
+import com.wangjiegulu.rapidooo.api.OOOPool;
 import com.wangjiegulu.rapidooo.library.compiler.util.AnnoUtil;
 import com.wangjiegulu.rapidooo.library.compiler.util.EasyType;
+import com.wangjiegulu.rapidooo.library.compiler.util.ElementUtil;
+import com.wangjiegulu.rapidooo.library.compiler.util.LogUtil;
 
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -16,37 +19,40 @@ import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.type.MirroredTypeException;
+import javax.lang.model.type.TypeMirror;
 
 /**
  * Author: wangjie
  * Email: tiantian.china.2@gmail.com
  * Date: 11/04/2018.
  */
-public class FromElement {
+public class TargetElement {
     private FromEntry fromEntry;
     private OOO oooAnno;
+    private boolean isPoolUsed;
     private Element generatorClassEl;
 
     private String targetClassPackage;
     private String targetClassSimpleName;
 
-    private Element element;
+    private Element fromElement;
     private String fromSuffix;
     private String suffix;
 
     private String targetSupperTypeId;
     private TypeName targetSupperType = TypeName.OBJECT;
 
+    private TypeMirror poolMethodType;
+
     /**
      * key: field name
      */
     private Map<String, FromField> allFromFields = new LinkedHashMap<>();
 
+    public void setFromElement(Element fromElement) {
+        this.fromElement = fromElement;
 
-    public void setElement(Element element) {
-        this.element = element;
-
-        List<? extends Element> eles = element.getEnclosedElements();
+        List<? extends Element> eles = fromElement.getEnclosedElements();
         for (Element e : eles) {
             if (ElementKind.FIELD == e.getKind()) {
                 if (MoreElements.hasModifiers(Modifier.STATIC).apply(e)) {
@@ -72,7 +78,7 @@ public class FromElement {
             }
         }
 
-        String fromClassName = element.getSimpleName().toString();
+        String fromClassName = fromElement.getSimpleName().toString();
         targetClassPackage = generatorClassEl.getEnclosingElement().toString();
         // eg. replace "BO" when generate VO
         targetClassSimpleName =
@@ -90,21 +96,36 @@ public class FromElement {
             String fieldName = oooConversion.fieldName();
             FromField fromField = allFromFields.get(fieldName);
             if (null == fromField) {
-                throw new RuntimeException("Field[" + fieldName + "] is not exist in " + MoreElements.asType(element).getQualifiedName());
+                throw new RuntimeException("Field[" + fieldName + "] is not exist in " + MoreElements.asType(fromElement).getQualifiedName());
             }
 
             FromFieldConversion fromFieldConversion = new FromFieldConversion();
-            fromFieldConversion.setOwnerFromElement(this);
+            fromFieldConversion.setOwnerTargetElement(this);
             fromFieldConversion.setOooConversionAnno(oooConversion);
             fromFieldConversion.setOwnerFromField(fromField);
             fromFieldConversion.parse();
             fromField.setFromFieldConversion(fromFieldConversion);
-            fromField.setOwnerFromElement(this);
+            fromField.setOwnerTargetElement(this);
             fromField.parse();
         }
 
         targetSupperTypeId = oooAnno.targetSupperTypeId();
         targetSupperType = getFromTargetSupperTypeMirror(oooAnno);
+
+        isPoolUsed = isPoolUsedInternal();
+
+        TypeMirror poolSpecialMethodType = getPoolMethodTypeMirror(oooAnno.pool());
+        poolMethodType = ElementUtil.isSameType(poolSpecialMethodType, Object.class) ? generatorClassEl.asType() : poolSpecialMethodType;
+
+    }
+
+    private TypeMirror getPoolMethodTypeMirror(OOOPool pool) {
+        try {
+            pool.poolMethodClass();
+        } catch (MirroredTypeException mte) {
+            return mte.getTypeMirror();
+        }
+        throw new RuntimeException("getPoolMethodTypeMirror error");
     }
 
     public void setOooAnno(OOO oooAnno) {
@@ -112,8 +133,8 @@ public class FromElement {
     }
 
 
-    public Element getElement() {
-        return element;
+    public Element getFromElement() {
+        return fromElement;
     }
 
 
@@ -180,7 +201,7 @@ public class FromElement {
     private TypeName getFromTargetSupperTypeMirror(OOO ooo) {
         // if already id set
         String targetSupperTypeId = ooo.targetSupperTypeId();
-        FromElement temp;
+        TargetElement temp;
         if (!AnnoUtil.oooParamIsNotSet(targetSupperTypeId) && null != (temp = fromEntry.getFromElementById(targetSupperTypeId))) {
             return EasyType.bestGuess(temp.getTargetClassFullName());
         }
@@ -196,4 +217,50 @@ public class FromElement {
     public boolean isTargetSupperTypeId() {
         return null != targetSupperTypeId && !AnnoUtil.oooParamIsNotSet(targetSupperTypeId);
     }
+
+    public boolean isPoolUsed() {
+        return isPoolUsed;
+    }
+
+    public TypeMirror getPoolMethodType() {
+        return poolMethodType;
+    }
+
+    private boolean isPoolUsedInternal() {
+        if (null == oooAnno) {
+            return false;
+        }
+        OOOPool oooPool = oooAnno.pool();
+
+        boolean acquireMethodSet = !AnnoUtil.oooParamIsNotSet(oooPool.acquireMethod());
+        boolean releaseMethodSet = !AnnoUtil.oooParamIsNotSet(oooPool.releaseMethod());
+        if (!acquireMethodSet && !releaseMethodSet) {
+            return false;
+        }
+        if (acquireMethodSet && releaseMethodSet) {
+//            checkPoolMethodValidate();
+            return true;
+        } else {
+            LogUtil.logger("Both AcquireMethod and ReleaseMethodSet need to be set。");
+            return false;
+        }
+    }
+
+//    private void checkPoolMethodValidate() {
+//        List<? extends Element> elements = MoreTypes.asElement(conversionMethodType).getEnclosedElements();
+//        boolean acquireMethodValidate = false;
+//        boolean releaseMethodValidate = false;
+//        for (Element e : elements) {
+//            if (ElementKind.METHOD == e.getKind()) {
+//                ExecutableElement methodElement = MoreElements.asExecutable(e);
+//
+//                if(methodElement){
+//
+//                }
+//
+//            }
+//        }
+//
+//
+//    }
 }

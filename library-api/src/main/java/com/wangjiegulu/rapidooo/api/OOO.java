@@ -28,4 +28,5 @@ public @interface OOO {
     Class<?> targetSupperType() default Object.class;
     String targetSupperTypeId() default OOOConstants.NOT_SET;
 
+    OOOPool pool() default @OOOPool(acquireMethod = OOOConstants.NOT_SET, releaseMethod = OOOConstants.NOT_SET);
 }

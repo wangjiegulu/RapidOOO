@@ -9,6 +9,7 @@ import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
+import com.wangjiegulu.rapidooo.api.OOOPool;
 import com.wangjiegulu.rapidooo.api.OOOs;
 import com.wangjiegulu.rapidooo.library.compiler.base.contract.ElementStuff;
 import com.wangjiegulu.rapidooo.library.compiler.base.contract.IElementStuff;
@@ -42,7 +43,7 @@ public class OOOProcess {
     private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:SSS", Locale.getDefault());
 
     private Element generatorClassEl;
-    //    private List<FromElement> fromElements = new ArrayList<>();
+    //    private List<TargetElement> fromElements = new ArrayList<>();
 //    OOOs ooosAnnotation;
     private FromEntry fromEntry;
 
@@ -57,15 +58,16 @@ public class OOOProcess {
 
     public void brewJava(Filer filer) throws Throwable {
 
-        for (Map.Entry<String, FromElement> from : fromEntry.getAllFromElements().entrySet()) {
-            FromElement fromElement = from.getValue();
+        for (Map.Entry<String, TargetElement> from : fromEntry.getAllFromElements().entrySet()) {
+            TargetElement targetElement = from.getValue();
 
-            Element fromClassElement = fromElement.getElement();
+            Element fromClassElement = targetElement.getFromElement();
             TypeName fromClassTypeName = ClassName.get(fromClassElement.asType());
+            TypeName targetClassTypeName = ClassName.get(targetElement.getTargetClassPackage(), targetElement.getTargetClassSimpleName());
 
             String fromClassSimpleName = fromClassElement.getSimpleName().toString();
             // eg. replace "BO" when generate VO
-            String targetClassSimpleName = fromElement.getTargetClassSimpleName();
+            String targetClassSimpleName = targetElement.getTargetClassSimpleName();
 
             TypeSpec.Builder result = TypeSpec.classBuilder(targetClassSimpleName)
                     .addModifiers(Modifier.PUBLIC)
@@ -74,7 +76,7 @@ public class OOOProcess {
             boolean supperParcelableInterface = isSupperParcelableInterfaceDeep(fromClassElement);
 
             // super class
-            TypeName supperTypeName = fromElement.getTargetSupperType();
+            TypeName supperTypeName = targetElement.getTargetSupperType();
             if (!ElementUtil.isSameType(supperTypeName, TypeName.OBJECT)) {
                 result.superclass(supperTypeName);
             }
@@ -87,14 +89,14 @@ public class OOOProcess {
                         result.addSuperinterface(ClassName.get(interf));
                     } else if (ElementUtil.isSameType(interf, ClassName.bestGuess("android.os.Parcelable"))) {
                         result.addSuperinterface(ClassName.get(interf));
-                        generateParcelableElements(result, fromElement, targetClassSimpleName, supperParcelableInterface);
+                        generateParcelableElements(result, targetElement, targetClassSimpleName, supperParcelableInterface);
                     } else {
                         throw new RuntimeException("Not supported super interface [" + interf.toString() + "] for " + fromClassSimpleName);
                     }
                 }
             }
 
-            Map<String, FromField> allFromFields = fromElement.getAllFromFields();
+            Map<String, FromField> allFromFields = targetElement.getAllFromFields();
             for (Map.Entry<String, FromField> item : allFromFields.entrySet()) {
                 FromField fromField = item.getValue();
 
@@ -188,15 +190,16 @@ public class OOOProcess {
                     .returns(void.class)
                     .addParameter(fromClassTypeName, fromParamName);
 
-            if (fromElement.isTargetSupperTypeId()) {
-                fromMethodSpec.addStatement("from" + fromElement.getFromEntry().getFromElementById(fromElement.getTargetSupperTypeId()).getElement().getSimpleName()
+            if (targetElement.isTargetSupperTypeId()) {
+                fromMethodSpec.addStatement("from" + targetElement.getFromEntry().getFromElementById(targetElement.getTargetSupperTypeId()).getFromElement().getSimpleName()
                         + "(" + fromParamName + ")");
             }
 
             for (Map.Entry<String, FromField> item : allFromFields.entrySet()) {
                 FromField fromField = item.getValue();
                 Element fieldElement = fromField.getFieldOriginElement();
-                GetterSetterMethodNames getterSetterMethodNames = generateGetterSetterMethodName(new ElementStuff(fieldElement));
+                ElementStuff elementStuff = new ElementStuff(fieldElement);
+                GetterSetterMethodNames getterSetterMethodNames = generateGetterSetterMethodName(elementStuff);
 
                 FromFieldConversion fromFieldConversion = fromField.getFromFieldConversion();
                 String fieldElementSimpleName = fieldElement.getSimpleName().toString();
@@ -234,8 +237,10 @@ public class OOOProcess {
                 }
 
                 if (fromFieldConversion.isTargetTypeId()) {
-                    FromElement temp = fromElement.getFromEntry().getFromElementById(fromFieldConversion.getTargetTypeId());
-                    fromMethodSpec.addStatement("this." + fromFieldConversion.getTargetFieldName() + " = " + temp.getTargetClassSimpleName() + ".create(" + fromParamName + "." + getterSetterMethodNames.getGetterMethodName() + "())");
+                    TargetElement temp = targetElement.getFromEntry().getFromElementById(fromFieldConversion.getTargetTypeId());
+                    String tempParam = elementStuff.getSimpleName() + "_";
+                    fromMethodSpec.addStatement("$T " + tempParam + " = " + fromParamName + "." + getterSetterMethodNames.getGetterMethodName() + "()", elementStuff.asType());
+                    fromMethodSpec.addStatement("this." + fromFieldConversion.getTargetFieldName() + " = null == " + tempParam + " ? null : " + temp.getTargetClassSimpleName() + ".create(" + tempParam + ")");
                     continue;
                 }
 
@@ -251,13 +256,27 @@ public class OOOProcess {
             // create static method
             MethodSpec.Builder createMethod2 = MethodSpec.methodBuilder("create")
                     .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
-                    .returns(ClassName.get(fromElement.getTargetClassPackage(), fromElement.getTargetClassSimpleName()))
-                    .addParameter(fromClassTypeName, fromParamName)
-                    .addStatement(targetClassSimpleName + " " + createTargetParam + " = new " + targetClassSimpleName + "()")
-                    .addStatement(createTargetParam + ".from" + fromClassSimpleName + "(" + fromParamName + ")")
+                    .returns(targetClassTypeName)
+                    .addParameter(fromClassTypeName, fromParamName);
+
+            addCreateOOOStatement(createMethod2, targetElement, targetClassSimpleName, createTargetParam);
+
+            createMethod2.addStatement(createTargetParam + ".from" + fromClassSimpleName + "(" + fromParamName + ")")
                     .addStatement("return " + createTargetParam);
 
             result.addMethod(createMethod2.build());
+
+
+            if (targetElement.isPoolUsed()) {
+                // release method for object pool
+                OOOPool oooPool = targetElement.getOooAnno().pool();
+                MethodSpec.Builder releaseMethodBuilder = MethodSpec.methodBuilder("release")
+                        .addModifiers(Modifier.PUBLIC)
+                        .returns(void.class)
+                        .addStatement("$T." + oooPool.releaseMethod() + "(this)", ClassName.get(targetElement.getPoolMethodType()));
+
+                result.addMethod(releaseMethodBuilder.build());
+            }
 
             // to method 1
             MethodSpec.Builder toFromMethod = MethodSpec.methodBuilder("to" + fromClassSimpleName)
@@ -265,8 +284,8 @@ public class OOOProcess {
                     .returns(void.class)
                     .addParameter(fromClassTypeName, fromParamName);
 
-            if (fromElement.isTargetSupperTypeId()) {
-                toFromMethod.addStatement("to" + fromElement.getFromEntry().getFromElementById(fromElement.getTargetSupperTypeId()).getElement().getSimpleName()
+            if (targetElement.isTargetSupperTypeId()) {
+                toFromMethod.addStatement("to" + targetElement.getFromEntry().getFromElementById(targetElement.getTargetSupperTypeId()).getFromElement().getSimpleName()
                         + "(" + fromParamName + ")");
             }
 
@@ -314,8 +333,8 @@ public class OOOProcess {
 
 
                 if (fromFieldConversion.isTargetTypeId()) {
-                    FromElement temp = fromElement.getFromEntry().getFromElementById(fromFieldConversion.getTargetTypeId());
-                    toFromMethod.addStatement(fromParamName + "." + getterSetterMethodNames.getSetterMethodName() + "(" + fromFieldConversion.getTargetFieldName() + ".to" + temp.getElement().getSimpleName().toString() + "())");
+                    TargetElement temp = targetElement.getFromEntry().getFromElementById(fromFieldConversion.getTargetTypeId());
+                    toFromMethod.addStatement(fromParamName + "." + getterSetterMethodNames.getSetterMethodName() + "(" + fromFieldConversion.getTargetFieldName() + ".to" + temp.getFromElement().getSimpleName().toString() + "())");
                     continue;
                 }
 
@@ -333,15 +352,16 @@ public class OOOProcess {
             MethodSpec.Builder toFrom2Method = MethodSpec.methodBuilder("to" + fromClassSimpleName)
                     .addModifiers(Modifier.PUBLIC)
                     .returns(fromClassTypeName)
+                    // TODO: 18/04/2018 feature wangjie `from` class use object pool ?
                     .addStatement(fromClassSimpleName + " " + fromParamName + " = new " + fromClassSimpleName + "()")
                     .addStatement("to" + fromClassSimpleName + "(" + fromParamName + ")")
                     .addStatement("return " + fromParamName);
 
             result.addMethod(toFrom2Method.build());
 
-            // TODO: 11/04/2018 wangjie, need copy methods here from `from pojo`?
+            // TODO: 11/04/2018 optimize wangjie, need copy methods here from `from pojo`?
 
-            JavaFile.builder(fromElement.getTargetClassPackage(), result.build())
+            JavaFile.builder(targetElement.getTargetClassPackage(), result.build())
                     .addFileComment("GENERATED CODE BY RapidOOO. DO NOT MODIFY! $S, POJOGenerator: $S",
                             DATE_FORMAT.format(new Date(System.currentTimeMillis())),
                             generatorClassEl.asType().toString())
@@ -351,6 +371,15 @@ public class OOOProcess {
 
         }
 
+    }
+
+    private void addCreateOOOStatement(MethodSpec.Builder methodSpecBuilder, TargetElement targetElement, String targetClassSimpleName, String createTargetParam) {
+        if (targetElement.isPoolUsed()) {
+            OOOPool oooPool = targetElement.getOooAnno().pool();
+            methodSpecBuilder.addStatement(targetClassSimpleName + " " + createTargetParam + " = $T." + oooPool.acquireMethod() + "()", ClassName.get(targetElement.getPoolMethodType()));
+        } else {
+            methodSpecBuilder.addStatement(targetClassSimpleName + " " + createTargetParam + " = new " + targetClassSimpleName + "()");
+        }
     }
 
     private boolean isSupperParcelableInterfaceDeep(Element fromClassElement) {
@@ -490,7 +519,7 @@ public class OOOProcess {
         return getterSetterMethodNames;
     }
 
-    private void generateParcelableElements(TypeSpec.Builder result, FromElement fromElement, String targetClassSimpleName, boolean supperParcelableInterface) {
+    private void generateParcelableElements(TypeSpec.Builder result, TargetElement targetElement, String targetClassSimpleName, boolean supperParcelableInterface) {
         ClassName parcelClassName = ClassName.bestGuess("android.os.Parcel");
         MethodSpec.Builder parcelConstructorMethodBuilder = MethodSpec.constructorBuilder()
                 .addModifiers(Modifier.PROTECTED)
@@ -535,7 +564,7 @@ public class OOOProcess {
             writeToParcelMethod.addStatement("super.writeToParcel(dest, flags)");
         }
 
-        Map<String, FromField> allFromFields = fromElement.getAllFromFields();
+        Map<String, FromField> allFromFields = targetElement.getAllFromFields();
         for (Map.Entry<String, FromField> item : allFromFields.entrySet()) {
             FromField fromField = item.getValue();
 

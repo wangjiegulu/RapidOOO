@@ -18,10 +18,23 @@ public class MainActivity extends AppCompatActivity {
 
         FakeInteractorImpl fakeInteractor = new FakeInteractorImpl();
 
-        PetBO petBO = fakeInteractor.requestPet();
-
-        Log.i(TAG, "petDTO_: " + petBO.getPetName());
+        for (int i = 0; i < 13; i++) {
+            PetBO petBO1 = fakeInteractor.requestPet();
+            PetBO petBO2 = fakeInteractor.requestPet();
+            PetBO petBO3 = fakeInteractor.requestPet();
+            PetBO petBO4 = fakeInteractor.requestPet();
+            Log.i(TAG, "petBO1: " + petBO1);
+            Log.i(TAG, "petBO2: " + petBO2);
+            Log.i(TAG, "petBO3: " + petBO3);
+            Log.i(TAG, "petBO4: " + petBO4);
+            petBO1.release();
+            petBO2.release();
+            petBO3.release();
+            petBO4.release();
+        }
 
 
     }
+
+
 }

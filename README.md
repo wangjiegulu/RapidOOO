@@ -17,12 +17,9 @@ We always transform data between different layer in Domain-Driven Design, such a
 3. You can perform special conversions for fields by specifying `conversionMethodName`, `inverseConversionMethodName`. similar to `@BindingMethod` in `Databinding`.
 4. Chain POJO generation, such as generating `UserDO` from `User`, `UserBO` from `UserDO`, `UserVO` from `UserBO`...
 5. The conversion method `UserBo.create(User user)`, `userBo.toUser()` in generated class will be automatically generate.
+6. Support POJO `extend`.
+7. Support Object Pool(Such as `android.support.v4.util.Pools`).
 
-
-**feature:**
-
-- POJO extend
-- Object Pool
 
 ## How to use ?
 

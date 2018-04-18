@@ -35,12 +35,12 @@ public class FromEntry {
     /**
      * key: pojo class name
      */
-    private Map<String, FromElement> allFromElements = new LinkedHashMap<>();
+    private Map<String, TargetElement> allFromElements = new LinkedHashMap<>();
 
     /**
      * key: @OOO.id
      */
-    private Map<String, FromElement> allFromElementIds = new HashMap<>();
+    private Map<String, TargetElement> allFromElementIds = new HashMap<>();
 
     public void setOoosAnno(OOOs ooosAnno) {
         this.ooosAnno = ooosAnno;
@@ -70,8 +70,8 @@ public class FromEntry {
                         continue;
                     }
 
-                    FromElement fromElement = generateBaseFromElement(oooClassElement);
-                    allFromElements.put(MoreTypes.asTypeElement(oooClassElement.asType()).getQualifiedName().toString(), fromElement);
+                    TargetElement targetElement = generateBaseFromElement(oooClassElement);
+                    allFromElements.put(MoreTypes.asTypeElement(oooClassElement.asType()).getQualifiedName().toString(), targetElement);
 
                 }
             }
@@ -89,36 +89,36 @@ public class FromEntry {
                 continue;
             }
             String specialQualifiedName = MoreTypes.asTypeElement(fromTypeMirror).getQualifiedName().toString();
-            FromElement fromElement = allFromElements.get(specialQualifiedName);
-            if (null == fromElement) {
-                fromElement = generateBaseFromElement(MoreTypes.asElement(fromTypeMirror));
-                allFromElements.put(specialQualifiedName, fromElement);
+            TargetElement targetElement = allFromElements.get(specialQualifiedName);
+            if (null == targetElement) {
+                targetElement = generateBaseFromElement(MoreTypes.asElement(fromTypeMirror));
+                allFromElements.put(specialQualifiedName, targetElement);
             }
 
             // cache from element ids
-            allFromElementIds.put(ooo.id(), fromElement);
+            allFromElementIds.put(ooo.id(), targetElement);
 
-            fromElement.setOooAnno(ooo);
+            targetElement.setOooAnno(ooo);
         }
 
-        for(Map.Entry<String, FromElement> fromElement : allFromElements.entrySet()){
+        for(Map.Entry<String, TargetElement> fromElement : allFromElements.entrySet()){
             fromElement.getValue().parseBase();
         }
 
-        for(Map.Entry<String, FromElement> fromElement : allFromElements.entrySet()){
+        for(Map.Entry<String, TargetElement> fromElement : allFromElements.entrySet()){
             fromElement.getValue().parse();
         }
 
     }
 
-    private FromElement generateBaseFromElement(Element oooClassElement) {
-        FromElement fromElement = new FromElement();
-        fromElement.setFromEntry(this);
-        fromElement.setElement(oooClassElement);
-        fromElement.setGeneratorClassEl(generatorClassEl);
-        fromElement.setFromSuffix(fromSuffix);
-        fromElement.setSuffix(suffix);
-        return fromElement;
+    private TargetElement generateBaseFromElement(Element oooClassElement) {
+        TargetElement targetElement = new TargetElement();
+        targetElement.setFromEntry(this);
+        targetElement.setFromElement(oooClassElement);
+        targetElement.setGeneratorClassEl(generatorClassEl);
+        targetElement.setFromSuffix(fromSuffix);
+        targetElement.setSuffix(suffix);
+        return targetElement;
     }
 
     public OOOs getOoosAnno() {
@@ -150,7 +150,7 @@ public class FromEntry {
     }
 
 
-    public Map<String, FromElement> getAllFromElements() {
+    public Map<String, TargetElement> getAllFromElements() {
         return allFromElements;
     }
 
@@ -162,11 +162,11 @@ public class FromEntry {
         this.generatorClassEl = generatorClassEl;
     }
 
-    public FromElement getFromElementById(String id) {
+    public TargetElement getFromElementById(String id) {
         return allFromElementIds.get(id);
     }
 
-    public Map<String, FromElement> getAllFromElementIds() {
+    public Map<String, TargetElement> getAllFromElementIds() {
         return allFromElementIds;
     }
 

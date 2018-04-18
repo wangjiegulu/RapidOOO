@@ -15,11 +15,9 @@ Android POJO 转换器:根据 POJO 类编译时自动生成支持扩展互相绑
 3. 字段进行转换时可以通过指定 `conversionMethodName`, `inverseConversionMethodName` 等方法来进行特殊的转换，类似 `Databinding` 中的 `@BindingMethod`。
 4. 链式的 POJO 生成，如从 `User` 生成 `UserDO`, 从 `UserDO` 生成 `UserBO`, 从 `UserBO` 生成 `UserVO`...
 5. 生成类中自动生成转换方法 `UserBo.create(User user)`, `userBo.toUser()`。
+6. 支持 POJO `继承`.
+7. 支持对象池（比如 `android.support.v4.util.Pools`）。
 
-**后续 feature:**
-
-- POJO 继承
-- 配置对象池
 
 ## 怎么使用？
 

@@ -28,7 +28,7 @@ import javax.lang.model.type.TypeMirror;
  */
 public class FromFieldConversion {
     private OOOConversion oooConversion;
-    private FromElement ownerFromElement;
+    private TargetElement ownerTargetElement;
     private FromField ownerFromField;
 
     private String fieldName;
@@ -53,7 +53,7 @@ public class FromFieldConversion {
         fieldName = oooConversion.fieldName();
 
         TypeMirror conversionSpecialMethodType = getConversionMethodTypeMirror(oooConversion);
-        conversionMethodType = ElementUtil.isSameType(conversionSpecialMethodType, Object.class) ? ownerFromElement.getGeneratorClassEl().asType() : conversionSpecialMethodType;
+        conversionMethodType = ElementUtil.isSameType(conversionSpecialMethodType, Object.class) ? ownerTargetElement.getGeneratorClassEl().asType() : conversionSpecialMethodType;
 
         conversionMethodName = oooConversion.conversionMethodName();
         targetType = getConversionFromTargetTypeMirror(oooConversion);
@@ -65,7 +65,7 @@ public class FromFieldConversion {
     public void checkConversionMethodValidate() {
         conversionMethodNameValidateVariableSize = checkMethodValidate(conversionMethodType, conversionMethodName,
                 targetType,
-                ownerFromElement.getTargetClassSimpleName(),
+                ownerTargetElement.getTargetClassSimpleName(),
                 ClassName.get(ownerFromField.getFieldOriginElement().asType())
         );
     }
@@ -73,7 +73,7 @@ public class FromFieldConversion {
     public void checkInverseConversionMethodValidate() {
         inverseConversionMethodNameValidateVariableSize = checkMethodValidate(conversionMethodType, inverseConversionMethodName,
                 ClassName.get(ownerFromField.getFieldOriginElement().asType()),
-                ownerFromElement.getTargetClassSimpleName(),
+                ownerTargetElement.getTargetClassSimpleName(),
                 targetType
         );
     }
@@ -173,8 +173,8 @@ public class FromFieldConversion {
     private TypeName getConversionFromTargetTypeMirror(OOOConversion oooConversion) {
         // if already id set
         String targetTypeId = oooConversion.targetTypeId();
-        FromElement temp;
-        if (!AnnoUtil.oooParamIsNotSet(targetTypeId) && null != (temp = ownerFromElement.getFromEntry().getFromElementById(targetTypeId))) {
+        TargetElement temp;
+        if (!AnnoUtil.oooParamIsNotSet(targetTypeId) && null != (temp = ownerTargetElement.getFromEntry().getFromElementById(targetTypeId))) {
             return EasyType.bestGuess(temp.getTargetClassFullName());
         }
         // else targetType
@@ -212,12 +212,12 @@ public class FromFieldConversion {
         return conversionMethodType;
     }
 
-    public FromElement getOwnerFromElement() {
-        return ownerFromElement;
+    public TargetElement getOwnerTargetElement() {
+        return ownerTargetElement;
     }
 
-    public void setOwnerFromElement(FromElement ownerFromElement) {
-        this.ownerFromElement = ownerFromElement;
+    public void setOwnerTargetElement(TargetElement ownerTargetElement) {
+        this.ownerTargetElement = ownerTargetElement;
     }
 
     public FromField getOwnerFromField() {

@@ -27,7 +27,7 @@ public class FakeInteractorImpl {
         User_BO userBO = User_BO.create(user);
 
         PetBO petBO = PetBO.create(pet);
-//        petDTO_.setOwner(userDTO_);
+        petBO.setOwnerUser(userBO);
 
         return petBO;
     }
