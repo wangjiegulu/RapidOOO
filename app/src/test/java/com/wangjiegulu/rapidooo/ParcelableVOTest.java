@@ -1,7 +1,9 @@
 package com.wangjiegulu.rapidooo;
 
-import com.wangjiegulu.rapidooo.depmodule.bll.xbo.PetBO;
-import com.wangjiegulu.rapidooo.depmodule.bll.xbo.User_BO;
+
+import com.wangjiegulu.rapidooo.depmodule.bll.xbo.parcelable.PetBO;
+import com.wangjiegulu.rapidooo.depmodule.bll.xbo.parcelable.User_BO;
+import com.wangjiegulu.rapidooo.vo.parcelable.PetVO;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -11,7 +13,7 @@ import org.junit.Test;
  * Email: tiantian.china.2@gmail.com
  * Date: 13/04/2018.
  */
-public class VOTest {
+public class ParcelableVOTest {
     @Test
     public void test01() throws Exception {
         User_BO user_bo = new User_BO();
@@ -29,6 +31,8 @@ public class VOTest {
         petBO.setCat(true);
         petBO.setClear(true);
         petBO.setOwnerUser(user_bo);
+        petBO.setChildName("petChildName");
+        petBO.setLongBox(1234L);
 
         // petBO -> petVO
         PetVO petVO = PetVO.create(petBO);
@@ -37,11 +41,14 @@ public class VOTest {
         Assert.assertFalse(petVO.getDog());
         Assert.assertTrue(petVO.isCat());
         Assert.assertTrue(petVO.getClear());
+        Assert.assertEquals("petChildName", petVO.getChildName());
+        Assert.assertEquals(1234L, petVO.getLongBox().longValue());
 
         petVO.setPetName("Max1");
         petVO.setCat(false);
         petVO.getOwnerUser().setGenderDesc("female");
         petVO.getOwnerUser().setNickname("wangjieooo");
+        petVO.setChildName("petChildName2");
 
         // petVO -> new petBO
         PetBO newPetBo = petVO.toPetBO();
@@ -50,6 +57,8 @@ public class VOTest {
         Assert.assertFalse(newPetBo.getDog());
         Assert.assertFalse(newPetBo.isCat());
         Assert.assertTrue(newPetBo.getClear());
+        Assert.assertEquals("petChildName2", newPetBo.getChildName());
+        Assert.assertEquals(1234L, newPetBo.getLongBox().longValue());
 
         Assert.assertEquals(0, newPetBo.getOwnerUser().getGender().intValue());
         Assert.assertEquals("wangjieooo", newPetBo.getOwnerUser().getNickname());
