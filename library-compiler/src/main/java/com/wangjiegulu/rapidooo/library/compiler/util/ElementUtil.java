@@ -74,18 +74,14 @@ public class ElementUtil {
     }
 
     public static boolean isSameSimpleName(TypeMirror type1, TypeName type2) {
-        if (ClassName.get(type1).isPrimitive()) {
-            return equals(type1.toString(), ((ClassName) type2).simpleName());
-        } else {
-            return equals(MoreTypes.asTypeElement(type1).getSimpleName().toString(), ((ClassName) type2).simpleName());
-        }
+        return equals(getSimpleName(type1), getSimpleName(type2));
     }
 
-    private static boolean equals(String str1, String str2) {
+    public static boolean equals(String str1, String str2) {
         return null != str1 && str1.equals(str2);
     }
 
-    public static boolean isSameSimpleName(Class type1, TypeName type2) {
+    public static boolean isSameName(Class type1, TypeName type2) {
         return equals(type1.getCanonicalName(), type2.toString());
     }
 
@@ -104,4 +100,16 @@ public class ElementUtil {
         return null;
     }
 
+    public static boolean isSameSimpleName(TypeMirror type1, String type2) {
+        return equals(getSimpleName(type1), type2);
+    }
+
+    public static String getSimpleName(TypeName typeName) {
+        return typeName.isPrimitive() || typeName == TypeName.VOID ? typeName.toString() : ClassName.bestGuess(typeName.toString()).simpleName();
+    }
+
+    public static String getSimpleName(TypeMirror typeMirror) {
+        TypeName type1Name = ClassName.get(typeMirror);
+        return type1Name.isPrimitive() || type1Name == TypeName.VOID ? type1Name.toString() : MoreTypes.asTypeElement(typeMirror).getSimpleName().toString();
+    }
 }

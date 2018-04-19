@@ -1,6 +1,7 @@
 package com.wangjiegulu.rapidooo.library.compiler.objs;
 
 import com.google.auto.common.MoreElements;
+import com.google.auto.common.MoreTypes;
 
 import com.squareup.javapoet.TypeName;
 import com.wangjiegulu.rapidooo.api.OOO;
@@ -17,6 +18,7 @@ import java.util.Map;
 
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
+import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.type.MirroredTypeException;
 import javax.lang.model.type.TypeMirror;
@@ -112,11 +114,10 @@ public class TargetElement {
         targetSupperTypeId = oooAnno.targetSupperTypeId();
         targetSupperType = getFromTargetSupperTypeMirror(oooAnno);
 
-        isPoolUsed = isPoolUsedInternal();
-
         TypeMirror poolSpecialMethodType = getPoolMethodTypeMirror(oooAnno.pool());
         poolMethodType = ElementUtil.isSameType(poolSpecialMethodType, Object.class) ? generatorClassEl.asType() : poolSpecialMethodType;
 
+        isPoolUsed = isPoolUsedInternal();
     }
 
     private TypeMirror getPoolMethodTypeMirror(OOOPool pool) {
@@ -238,7 +239,7 @@ public class TargetElement {
             return false;
         }
         if (acquireMethodSet && releaseMethodSet) {
-//            checkPoolMethodValidate();
+            checkPoolMethodValidate();
             return true;
         } else {
             LogUtil.logger("Both AcquireMethod and ReleaseMethodSet need to be set。");
@@ -246,21 +247,73 @@ public class TargetElement {
         }
     }
 
-//    private void checkPoolMethodValidate() {
-//        List<? extends Element> elements = MoreTypes.asElement(conversionMethodType).getEnclosedElements();
-//        boolean acquireMethodValidate = false;
-//        boolean releaseMethodValidate = false;
-//        for (Element e : elements) {
-//            if (ElementKind.METHOD == e.getKind()) {
-//                ExecutableElement methodElement = MoreElements.asExecutable(e);
-//
-//                if(methodElement){
-//
-//                }
-//
-//            }
-//        }
-//
-//
-//    }
+    private void checkPoolMethodValidate() {
+        List<? extends Element> elements = MoreTypes.asElement(poolMethodType).getEnclosedElements();
+        OOOPool oooPool = oooAnno.pool();
+        String acquireMethodName = oooPool.acquireMethod();
+        String releaseMethodName = oooPool.releaseMethod();
+        boolean acquireMethodValidate = false;
+        boolean releaseMethodValidate = false;
+        for (Element e : elements) {
+            if (ElementKind.METHOD == e.getKind()) {
+                ExecutableElement methodElement = MoreElements.asExecutable(e);
+                // public & static
+                if (!MoreElements.hasModifiers(Modifier.STATIC).apply(methodElement)
+                        ||
+                        !MoreElements.hasModifiers(Modifier.PUBLIC).apply(methodElement)
+                        ) {
+                    continue;
+                }
+
+                if (ElementUtil.equals(methodElement.getSimpleName().toString(), acquireMethodName)) {
+                    if (
+                            methodElement.getParameters().size() == 0 &&
+                                    ElementUtil.isSameSimpleName(methodElement.getReturnType(), targetClassSimpleName)
+                            ) {
+                        acquireMethodValidate = true;
+                        if (releaseMethodValidate) {
+                            break;
+                        }
+                    }
+                }
+                if (ElementUtil.equals(methodElement.getSimpleName().toString(), releaseMethodName)) {
+                    if (methodElement.getParameters().size() != 1) {
+                        continue;
+                    }
+
+                    if (
+                            methodElement.getParameters().size() == 1
+                                    &&
+                                    ElementUtil.equals(
+                                            MoreTypes.asTypeElement(methodElement.getParameters().get(0).asType()).getSimpleName().toString(),
+                                            targetClassSimpleName
+                                    )
+                                    &&
+                                    ElementUtil.isSameType(methodElement.getReturnType(), TypeName.VOID)
+                            ) {
+                        releaseMethodValidate = true;
+                        if (acquireMethodValidate) {
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
+        if (!acquireMethodValidate) {
+            throw new RuntimeException("No such acquire method \n[public static "
+                    + targetClassSimpleName + " "
+                    + acquireMethodName + "()] \n"
+                    + " for OBJECT POOL in "
+                    + MoreTypes.asTypeElement(poolMethodType).getQualifiedName());
+        }
+
+        if (!releaseMethodValidate) {
+            throw new RuntimeException("No such release method \n[public static void "
+                    + releaseMethodName + "(" + targetClassSimpleName + ")] \n"
+                    + " for OBJECT POOL in "
+                    + MoreTypes.asTypeElement(poolMethodType).getQualifiedName());
+        }
+
+    }
 }

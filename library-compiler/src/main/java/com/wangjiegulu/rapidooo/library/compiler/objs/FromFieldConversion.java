@@ -9,7 +9,6 @@ import com.wangjiegulu.rapidooo.api.OOOConversion;
 import com.wangjiegulu.rapidooo.library.compiler.util.AnnoUtil;
 import com.wangjiegulu.rapidooo.library.compiler.util.EasyType;
 import com.wangjiegulu.rapidooo.library.compiler.util.ElementUtil;
-import com.wangjiegulu.rapidooo.library.compiler.util.LogUtil;
 
 import java.util.List;
 
@@ -89,12 +88,12 @@ public class FromFieldConversion {
                         ||
                         !MoreElements.hasModifiers(Modifier.PUBLIC).apply(methodElement)
                         ) {
-                    LogUtil.logger("Method[" + methodElement.getSimpleName() + "] must be `public` and `static`");
+//                    LogUtil.logger("Method[" + methodElement.getSimpleName() + "] must be `public` and `static`");
                     continue;
                 }
 
                 if (!e.getSimpleName().toString().equals(conversionMethodName)) {
-                    LogUtil.logger("Method name not matched: " + e.getSimpleName().toString() + " & " + conversionMethodName);
+//                    LogUtil.logger("Method name not matched: " + e.getSimpleName().toString() + " & " + conversionMethodName);
                     continue;
                 }
 
@@ -104,7 +103,7 @@ public class FromFieldConversion {
 //                }
 
                 if (!ElementUtil.isSameSimpleName(methodElement.getReturnType(), returnType)) {
-                    LogUtil.logger("Method return type not matched");
+//                    LogUtil.logger("Method return type not matched");
                     continue;
                 }
                 List<? extends VariableElement> variableElements = methodElement.getParameters();
@@ -112,7 +111,7 @@ public class FromFieldConversion {
                 switch (variableElementSize) {
                     case 1: {
                         if (!ElementUtil.isSameSimpleName(variableElements.get(0).asType(), param2Type)) {
-                            LogUtil.logger("Method variable size 1, and first type not matched");
+//                            LogUtil.logger("Method variable size 1, and first type not matched");
                             continue;
                         }
                         validateVariableSize = 1;
@@ -120,12 +119,12 @@ public class FromFieldConversion {
                     }
                     case 2: {
                         if (!MoreTypes.asTypeElement(variableElements.get(0).asType()).getSimpleName().toString().equals(param1Name)) {
-                            LogUtil.logger("Method variable size 2, and first type not matched");
+//                            LogUtil.logger("Method variable size 2, and first type not matched");
                             continue;
                         }
 
                         if (!ElementUtil.isSameType(variableElements.get(1).asType(), param2Type)) {
-                            LogUtil.logger("Method variable size 2, and second type not matched");
+//                            LogUtil.logger("Method variable size 2, and second type not matched");
                             continue;
                         }
                         validateVariableSize = 2;
@@ -139,10 +138,10 @@ public class FromFieldConversion {
 
         if (-1 == validateVariableSize) {
             throw new RuntimeException("No such method \n[public static "
-                    + ((ClassName) returnType).simpleName() + " "
+                    + ElementUtil.getSimpleName(returnType) + " "
                     + conversionMethodName + "(" + param1Name + ", " + param2Type + ")] \n"
                     + " OR \n[public static "
-                    + ((ClassName) returnType).simpleName() + " "
+                    + ElementUtil.getSimpleName(returnType) + " "
                     + conversionMethodName + "(" + param2Type + ")"
                     + " in "
                     + MoreTypes.asTypeElement(conversionMethodType).getQualifiedName());

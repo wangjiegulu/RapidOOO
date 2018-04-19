@@ -53,7 +53,7 @@ public class TypeNameUtil {
     }
 
     public static String getParcelableOtherReadStatement(TypeName typeName) {
-        if (ElementUtil.isSameSimpleName(String.class, typeName)) {
+        if (ElementUtil.isSameName(String.class, typeName)) {
             return "parcel.readString()";
         }
 
@@ -85,7 +85,7 @@ public class TypeNameUtil {
 
 
     public static String getParcelableOtherWriteStatement(TypeName typeName, String fieldName) {
-        if (ElementUtil.isSameSimpleName(String.class, typeName)) {
+        if (ElementUtil.isSameName(String.class, typeName)) {
             return "dest.writeString(this." + fieldName + ")";
         }
         // TODO: 17/04/2018 wangjie other type, such as Serializable
