@@ -16,7 +16,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        FakeInteractorImpl fakeInteractor = new FakeInteractorImpl();
+        final FakeInteractorImpl fakeInteractor = new FakeInteractorImpl();
 
         for (int i = 0; i < 13; i++) {
             PetBO petBO1 = fakeInteractor.requestPet();
@@ -33,6 +33,18 @@ public class MainActivity extends AppCompatActivity {
             petBO4.release();
         }
 
+//        new Thread(new Runnable() {
+//            @Override
+//            public void run() {
+//                PetBO petBO = fakeInteractor.requestPet();
+//                long start = SystemClock.elapsedRealtime();
+//                for(int i = 0; i < 100000; i++){
+//                    PetVO petVO = PetVO.create(petBO);
+//                    PetBO newPetBO = petVO.toPetBO();
+//                }
+//                Log.i(TAG, "cost: " + (SystemClock.elapsedRealtime() - start));
+//            }
+//        }).start();
 
     }
 
