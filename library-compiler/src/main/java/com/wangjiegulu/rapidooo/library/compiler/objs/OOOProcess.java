@@ -71,7 +71,9 @@ public class OOOProcess {
 
             TypeSpec.Builder result = TypeSpec.classBuilder(targetClassSimpleName)
                     .addModifiers(Modifier.PUBLIC)
-                    .addJavadoc("From POJO: {@link $T}\n", fromClassTypeName);
+                    .addJavadoc("From POJO: {@link $T}\nGenerate By: {@link $T}\nGenerate Time: " + DATE_FORMAT.format(new Date(System.currentTimeMillis())) + "\n",
+                            fromClassTypeName, ClassName.get(generatorClassEl.asType())
+                    );
 
             boolean supperParcelableInterface = isSupperParcelableInterfaceDeep(fromClassElement);
 
@@ -362,9 +364,7 @@ public class OOOProcess {
             // TODO: 11/04/2018 optimize wangjie, need copy methods here from `from pojo`?
 
             JavaFile.builder(targetElement.getTargetClassPackage(), result.build())
-                    .addFileComment("GENERATED CODE BY RapidOOO. DO NOT MODIFY! $S, POJOGenerator: $S",
-                            DATE_FORMAT.format(new Date(System.currentTimeMillis())),
-                            generatorClassEl.asType().toString())
+                    .addFileComment("GENERATED CODE BY RapidOOO. DO NOT MODIFY! https://github.com/wangjiegulu/RapidOOO")
                     .skipJavaLangImports(true)
                     .build()
                     .writeTo(filer);

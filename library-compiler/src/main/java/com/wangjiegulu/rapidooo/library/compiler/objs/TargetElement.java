@@ -242,7 +242,7 @@ public class TargetElement {
             checkPoolMethodValidate();
             return true;
         } else {
-            LogUtil.logger("Both AcquireMethod and ReleaseMethodSet need to be set。");
+            LogUtil.logger("Both AcquireMethod and ReleaseMethodSet need to be set.");
             return false;
         }
     }
