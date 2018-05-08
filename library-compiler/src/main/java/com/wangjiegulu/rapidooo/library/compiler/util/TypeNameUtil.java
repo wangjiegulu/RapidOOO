@@ -72,7 +72,7 @@ public class TypeNameUtil {
         } else if (typeName == TypeName.INT) {
             return "dest.writeInt(this." + fieldName + ")";
         } else if (typeName == TypeName.BOOLEAN) {
-            return "dest.writeByte(this." + fieldName + " ? (byte) 1 : (byte) 0);";
+            return "dest.writeByte(this." + fieldName + " ? (byte) 1 : (byte) 0)";
         } else if (typeName == TypeName.SHORT) {
             return "dest.writeInt(this." + fieldName + ")";
         } else if (typeName == TypeName.CHAR) {
