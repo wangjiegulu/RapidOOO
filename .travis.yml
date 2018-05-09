@@ -26,13 +26,6 @@ android:
     - sys-img-armeabi-v7a-android-26
     - sys-img-armeabi-v7a-android-17
 
-    licenses:
-        - 'android-sdk-preview-license-.+'
-        - 'android-sdk-license-.+'
-        - 'google-gdk-license-.+'
-
-#before_install:
-#  - yes | sdkmanager "platforms;android-27"
 
 before_cache:
   - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
