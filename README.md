@@ -1,5 +1,7 @@
 # RapidOOO
 
+[![Build Status](https://travis-ci.org/wangjiegulu/RapidOOO.svg?branch=master)](https://travis-ci.org/wangjiegulu/RapidOOO)
+
 Android POJO Converter:Generate scalable and bindable domain objects java class file automatically in compile time.
 
 [中文版本](README_zh.md)
