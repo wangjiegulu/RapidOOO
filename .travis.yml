@@ -10,7 +10,7 @@ android:
     - platform-tools
 
     # The BuildTools version used by your project
-    - build-tools-27.0.2
+    - build-tools-26.0.2
 
     # The SDK version used to compile your project
     - android-27
@@ -23,7 +23,7 @@ android:
 
     # Specify at least one system image,
     # if you need to run emulator(s) during your tests
-    - sys-img-armeabi-v7a-android-27
+#    - sys-img-armeabi-v7a-android-27
 #    - sys-img-armeabi-v7a-android-17
 
   licenses:
