@@ -1,8 +1,8 @@
 # RapidOOO
 
-[![Build Status](https://travis-ci.org/wangjiegulu/RapidOOO.svg?branch=master)](https://travis-ci.org/wangjiegulu/RapidOOO) [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.github.wangjiegulu/rapidooo-api/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.github.wangjiegulu/rapidooo-api) [![](https://img.shields.io/badge/license-Apache 2-orange.svg)](http://www.apache.org/licenses/LICENSE-2.0) ![API](https://img.shields.io/badge/API-1%2B-brightgreen.svg?style=flat)
+[![Build Status](https://travis-ci.org/wangjiegulu/RapidOOO.svg?branch=master)](https://travis-ci.org/wangjiegulu/RapidOOO) [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.github.wangjiegulu/rapidooo-api/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.github.wangjiegulu/rapidooo-api) [![](https://img.shields.io/badge/license-Apache%202-orange.svg)](http://www.apache.org/licenses/LICENSE-2.0) ![API](https://img.shields.io/badge/API-1%2B-brightgreen.svg?style=flat)
 
-[![](https://img.shields.io/badge/blog-Wang Jie-228377.svg)](https://blog.wangjiegulu.com) [![](https://img.shields.io/badge/twitter-@wangjiegulu-blue.svg)](https://twitter.com/wangjiegulu)
+[![](https://img.shields.io/badge/blog-Wang%20Jie-228377.svg)](https://blog.wangjiegulu.com) [![](https://img.shields.io/badge/twitter-@wangjiegulu-blue.svg)](https://twitter.com/wangjiegulu)
 
 Android POJO Converter:Generate scalable and bindable domain objects java class file automatically in compile time.
 
