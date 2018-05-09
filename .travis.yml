@@ -26,6 +26,8 @@ android:
     - sys-img-armeabi-v7a-android-27
     - sys-img-armeabi-v7a-android-17
 
+before_install:
+  - yes | sdkmanager "platforms;android-27"
 
 before_cache:
   - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
