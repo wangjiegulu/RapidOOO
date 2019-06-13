@@ -93,22 +93,22 @@ public class TargetElement {
             return;
         }
 
-        OOOConversion[] oooConversions = oooAnno.conversion();
+        OOOConversion[] oooConversions = oooAnno.conversions();
         for (OOOConversion oooConversion : oooConversions) {
-            String fieldName = oooConversion.fieldName();
-            FromField fromField = allFromFields.get(fieldName);
-            if (null == fromField) {
-                throw new RuntimeException("Field[" + fieldName + "] is not exist in " + MoreElements.asType(fromElement).getQualifiedName());
-            }
-
-            FromFieldConversion fromFieldConversion = new FromFieldConversion();
-            fromFieldConversion.setOwnerTargetElement(this);
-            fromFieldConversion.setOooConversionAnno(oooConversion);
-            fromFieldConversion.setOwnerFromField(fromField);
-            fromFieldConversion.parse();
-            fromField.setFromFieldConversion(fromFieldConversion);
-            fromField.setOwnerTargetElement(this);
-            fromField.parse();
+//            String fieldName = oooConversion.fieldName();
+//            FromField fromField = allFromFields.get(fieldName);
+//            if (null == fromField) {
+//                throw new RuntimeException("Field[" + fieldName + "] is not exist in " + MoreElements.asType(fromElement).getQualifiedName());
+//            }
+//
+//            FromFieldConversion fromFieldConversion = new FromFieldConversion();
+//            fromFieldConversion.setOwnerTargetElement(this);
+//            fromFieldConversion.setOooConversionAnno(oooConversion);
+//            fromFieldConversion.setOwnerFromField(fromField);
+//            fromFieldConversion.parse();
+//            fromField.setFromFieldConversion(fromFieldConversion);
+//            fromField.setOwnerTargetElement(this);
+//            fromField.parse();
         }
 
         targetSupperTypeId = oooAnno.targetSupperTypeId();

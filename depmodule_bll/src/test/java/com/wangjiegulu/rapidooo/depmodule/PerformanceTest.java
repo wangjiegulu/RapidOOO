@@ -43,7 +43,7 @@ public class PerformanceTest {
         // TODO: 10/04/2018 wangjie
         Pet pet = new Pet();
         pet.setPetId(2001L);
-        pet.setPetName("Max");
+        pet.setFirstName("Max");
 
         User user = new User();
         user.setUserId(1001L);

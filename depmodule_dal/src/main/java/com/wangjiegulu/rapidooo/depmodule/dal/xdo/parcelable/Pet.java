@@ -10,7 +10,8 @@ import android.os.Parcelable;
  */
 public class Pet extends PetParent implements Parcelable {
     private Long petId;
-    private String petName;
+    private String firstName;
+    private String lastName;
     private Long ownerId;
 
     private boolean isCat;
@@ -29,12 +30,12 @@ public class Pet extends PetParent implements Parcelable {
         this.petId = petId;
     }
 
-    public String getPetName() {
-        return petName;
+    public String getFirstName() {
+        return firstName;
     }
 
-    public void setPetName(String petName) {
-        this.petName = petName;
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
     }
 
     public Long getOwnerId() {
@@ -86,6 +87,14 @@ public class Pet extends PetParent implements Parcelable {
         this.owner = owner;
     }
 
+    public String getLastName() {
+        return lastName;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
+
     public Pet() {
     }
 
@@ -98,7 +107,8 @@ public class Pet extends PetParent implements Parcelable {
     public void writeToParcel(Parcel dest, int flags) {
         super.writeToParcel(dest, flags);
         dest.writeValue(this.petId);
-        dest.writeString(this.petName);
+        dest.writeString(this.firstName);
+        dest.writeString(this.lastName);
         dest.writeValue(this.ownerId);
         dest.writeByte(this.isCat ? (byte) 1 : (byte) 0);
         dest.writeByte(this.delete ? (byte) 1 : (byte) 0);
@@ -110,7 +120,8 @@ public class Pet extends PetParent implements Parcelable {
     protected Pet(Parcel in) {
         super(in);
         this.petId = (Long) in.readValue(Long.class.getClassLoader());
-        this.petName = in.readString();
+        this.firstName = in.readString();
+        this.lastName = in.readString();
         this.ownerId = (Long) in.readValue(Long.class.getClassLoader());
         this.isCat = in.readByte() != 0;
         this.delete = in.readByte() != 0;

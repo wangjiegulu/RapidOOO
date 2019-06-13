@@ -48,15 +48,15 @@ public class FromFieldConversion {
     }
 
     public void parse() {
-        targetTypeId = oooConversion.targetTypeId();
-        fieldName = oooConversion.fieldName();
+        targetTypeId = oooConversion.targetFieldTypeId();
+//        fieldName = oooConversion.fieldName();
 
         TypeMirror conversionSpecialMethodType = getConversionMethodTypeMirror(oooConversion);
         conversionMethodType = ElementUtil.isSameType(conversionSpecialMethodType, Object.class) ? ownerTargetElement.getGeneratorClassEl().asType() : conversionSpecialMethodType;
 
         conversionMethodName = oooConversion.conversionMethodName();
         targetType = getConversionFromTargetTypeMirror(oooConversion);
-        replace = oooConversion.replace();
+//        replace = oooConversion.replace();
         targetFieldName = oooConversion.targetFieldName();
         inverseConversionMethodName = oooConversion.inverseConversionMethodName();
     }
@@ -171,14 +171,14 @@ public class FromFieldConversion {
 
     private TypeName getConversionFromTargetTypeMirror(OOOConversion oooConversion) {
         // if already id set
-        String targetTypeId = oooConversion.targetTypeId();
+        String targetTypeId = oooConversion.targetFieldTypeId();
         TargetElement temp;
         if (!AnnoUtil.oooParamIsNotSet(targetTypeId) && null != (temp = ownerTargetElement.getFromEntry().getFromElementById(targetTypeId))) {
             return EasyType.bestGuess(temp.getTargetClassFullName());
         }
         // else targetType
         try {
-            oooConversion.targetType();
+            oooConversion.targetFieldType();
         } catch (MirroredTypeException mte) {
             return TypeName.get(mte.getTypeMirror());
         }

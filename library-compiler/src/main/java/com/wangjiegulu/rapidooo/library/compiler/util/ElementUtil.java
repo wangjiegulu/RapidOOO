@@ -6,9 +6,11 @@ import com.google.auto.common.MoreTypes;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.TypeName;
 
+import java.lang.reflect.Type;
 import java.util.List;
 
 import javax.lang.model.element.Element;
+import javax.lang.model.element.Name;
 import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.TypeMirror;
@@ -19,6 +21,24 @@ import javax.lang.model.type.TypeMirror;
  * Date: 3/16/16.
  */
 public class ElementUtil {
+
+    public static TypeName getTypeName(Element element){
+        return ClassName.get(element.asType());
+    }
+    public static TypeName getTypeName(Type type){
+        return TypeName.get(type);
+    }
+    public static TypeName getTypeName(TypeMirror typeMirror){
+        return TypeName.get(typeMirror);
+    }
+    public static ClassName getClassName(TypeMirror typeMirror){
+        return ClassName.get(MoreTypes.asTypeElement(typeMirror));
+    }
+    public static Name getName(TypeMirror typeMirror){
+        return MoreTypes.asTypeElement(typeMirror).getQualifiedName();
+    }
+
+
     /**
      * 两组参数类型相同
      */

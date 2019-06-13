@@ -5,16 +5,16 @@ package com.wangjiegulu.rapidooo;
  * Email: tiantian.china.2@gmail.com
  * Date: 12/04/2018.
  */
-public class AgeConversion {
+public class AgeBinder {
 
-    public static String conversionAge(Integer age) {
+    public static String bindAge(Integer age) {
         if (null == age || age < 0) {
             return "unknown";
         }
         return age + " years old";
     }
 
-    public static Integer inverseConversionAge(String ageDesc) {
+    public static Integer inverseBindAge(String ageDesc) {
         if (null == ageDesc) {
             return -1;
         }

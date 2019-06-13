@@ -14,17 +14,17 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.ANNOTATION_TYPE)
 public @interface OOOConversion {
-    String fieldName();
-
     String targetFieldName();
+    Class<?> targetFieldType() default Object.class;
+    
+    String targetFieldTypeId() default OOOConstants.NOT_SET;
 
-    Class<?> targetType() default Object.class;
-    String targetTypeId() default OOOConstants.NOT_SET;
+    Class<?> bindMethodClass() default Object.class;
+    String bindMethodName() default OOOConstants.NOT_SET;
+    String inverseBindMethodName() default OOOConstants.NOT_SET;
 
     Class<?> conversionMethodClass() default Object.class;
     String conversionMethodName() default OOOConstants.NOT_SET;
     String inverseConversionMethodName() default OOOConstants.NOT_SET;
-
-    boolean replace();
 
 }

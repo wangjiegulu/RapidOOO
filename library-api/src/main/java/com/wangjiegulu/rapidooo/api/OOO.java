@@ -23,10 +23,14 @@ public @interface OOO {
 
     Class<?> from();
 
-    OOOConversion[] conversion() default {};
+    String[] includes() default {};
+    String[] excludes() default {};
+
+
+    OOOConversion[] conversions() default {};
 
     Class<?> targetSupperType() default Object.class;
     String targetSupperTypeId() default OOOConstants.NOT_SET;
 
-    OOOPool pool() default @OOOPool(acquireMethod = OOOConstants.NOT_SET, releaseMethod = OOOConstants.NOT_SET);
+    OOOPool pool() default @OOOPool();
 }

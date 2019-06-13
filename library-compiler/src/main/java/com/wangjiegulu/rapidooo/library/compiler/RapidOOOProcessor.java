@@ -5,7 +5,7 @@ import com.google.auto.service.AutoService;
 
 import com.wangjiegulu.rapidooo.api.OOOs;
 import com.wangjiegulu.rapidooo.library.compiler.base.BaseAbstractProcessor;
-import com.wangjiegulu.rapidooo.library.compiler.objs.OOOProcess;
+import com.wangjiegulu.rapidooo.library.compiler.v1.OOOProcessV1;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -38,10 +38,10 @@ public class RapidOOOProcessor extends BaseAbstractProcessor {
 //        logger("[process]roundEnv: " + roundEnv);
         try {
 
-            HashMap<String, OOOProcess> mapper = new HashMap<>();
+            HashMap<String, OOOProcessV1> mapper = new HashMap<>();
 
             for (Element element : roundEnv.getElementsAnnotatedWith(OOOs.class)) {
-                OOOProcess oooProcess = doTableAnnotation(element, mapper);
+                OOOProcessV1 oooProcess = doTableAnnotation(element, mapper);
                 try {
                     logger("OOO generate START -> " + oooProcess);
                     oooProcess.brewJava(filer);
@@ -80,16 +80,16 @@ public class RapidOOOProcessor extends BaseAbstractProcessor {
         return true;
     }
 
-    private OOOProcess doTableAnnotation(Element ele, HashMap<String, OOOProcess> mapper) {
+    private OOOProcessV1 doTableAnnotation(Element ele, HashMap<String, OOOProcessV1> mapper) {
         return obtainTableEntrySafe(ele, mapper);
     }
 
-    private OOOProcess obtainTableEntrySafe(Element ele, HashMap<String, OOOProcess> tableMapper) {
+    private OOOProcessV1 obtainTableEntrySafe(Element ele, HashMap<String, OOOProcessV1> tableMapper) {
         Element classEle = getElementOwnerElement(ele);
         String className = classEle.asType().toString();
-        OOOProcess oooProcess = tableMapper.get(MoreElements.asType(classEle).getQualifiedName().toString());
+        OOOProcessV1 oooProcess = tableMapper.get(MoreElements.asType(classEle).getQualifiedName().toString());
         if (null == oooProcess) {
-            oooProcess = new OOOProcess();
+            oooProcess = new OOOProcessV1();
             oooProcess.setGeneratorClassEl(classEle);
             tableMapper.put(className, oooProcess);
         }

@@ -28,18 +28,6 @@ public class PetParent implements Parcelable {
     long longPr;
     Long longBox;
 
-    public static final Creator<PetParent> CREATOR = new Creator<PetParent>() {
-        @Override
-        public PetParent createFromParcel(Parcel in) {
-            return new PetParent(in);
-        }
-
-        @Override
-        public PetParent[] newArray(int size) {
-            return new PetParent[size];
-        }
-    };
-
     public String getChildName() {
         return childName;
     }
@@ -225,4 +213,15 @@ public class PetParent implements Parcelable {
         this.longBox = (Long) in.readValue(Long.class.getClassLoader());
     }
 
+    public static final Creator<PetParent> CREATOR = new Creator<PetParent>() {
+        @Override
+        public PetParent createFromParcel(Parcel source) {
+            return new PetParent(source);
+        }
+
+        @Override
+        public PetParent[] newArray(int size) {
+            return new PetParent[size];
+        }
+    };
 }

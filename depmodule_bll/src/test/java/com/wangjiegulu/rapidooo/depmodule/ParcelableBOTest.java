@@ -25,7 +25,7 @@ public class ParcelableBOTest {
 
         Pet pet = new Pet();
         pet.setPetId(2000L);
-        pet.setPetName("Max");
+        pet.setFirstName("Max");
         pet.setDog(false);
         pet.setCat(true);
         pet.setClear(true);
@@ -52,7 +52,7 @@ public class ParcelableBOTest {
         // petBO -> new pet
         Pet newPet = petBO.toPet();
         Assert.assertEquals(2000L, newPet.getPetId().longValue());
-        Assert.assertEquals("Max1", newPet.getPetName());
+        Assert.assertEquals("Max1", newPet.getFirstName());
         Assert.assertFalse(newPet.getDog());
         Assert.assertFalse(newPet.isCat());
         Assert.assertTrue(newPet.getClear());

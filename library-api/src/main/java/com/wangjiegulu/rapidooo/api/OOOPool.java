@@ -16,8 +16,8 @@ import java.lang.annotation.Target;
 public @interface OOOPool {
 
     Class<?> poolMethodClass() default Object.class;
-    String acquireMethod();
+    String acquireMethod() default OOOConstants.NOT_SET;
 
-    String releaseMethod();
+    String releaseMethod() default OOOConstants.NOT_SET;
 
 }

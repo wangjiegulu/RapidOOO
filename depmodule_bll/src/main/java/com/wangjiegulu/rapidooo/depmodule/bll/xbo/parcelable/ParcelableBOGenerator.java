@@ -19,20 +19,35 @@ import com.wangjiegulu.rapidooo.depmodule.dal.xdo.parcelable.User;
 @OOOs(suffix = ParcelableBOGenerator.BO_SUFFIX, ooos = {
         @OOO(id = "pet_parent_bo_id", from = PetParent.class),
         @OOO(id = "user_bo_id", from = User.class, suffix = ParcelableBOGenerator.BO_SUFFIX_USER),
-        @OOO(from = Pet.class, targetSupperTypeId = "pet_parent_bo_id", conversion = {
+        @OOO(from = Pet.class, targetSupperTypeId = "pet_parent_bo_id", conversions = {
                 @OOOConversion(
-                        fieldName = "owner",
-                        targetTypeId = "user_bo_id",
-                        targetFieldName = "ownerUser",
-//                        conversionMethodName = "conversionUserBO",
-//                        inverseConversionMethodName = "inverseConversionUserBO",
-                        replace = true
+                        targetFieldTypeId = "user_bo_id",
+                        targetFieldName = "ownerUser"
+                ),
+                @OOOConversion(
+                        targetFieldName = "fullName",
+                        targetFieldType = String.class,
+                        bindMethodName = "bindPetFullName",
+                        inverseBindMethodName = "inverseBindPetFullName"
                 )
         }, pool = @OOOPool(acquireMethod = "acquirePetBO", releaseMethod = "releasePetBO"))
 })
 public class ParcelableBOGenerator {
     public static final String BO_SUFFIX = "BO";
     public static final String BO_SUFFIX_USER = "_BO";
+
+
+    public static String bindPetFullName(String lastName, boolean isCat, PetBO self, String firstName){
+        return firstName + " " + lastName;
+    }
+    public static void inverseBindPetFullName(String fullName, PetBO self){
+        String[] names = fullName.split(" ");
+        if(names.length == 2){
+            self.setFirstName(names[0]);
+            self.setLastName(names[1]);
+        }
+    }
+
 
     public static User_BO conversionUserBO(User user) {
         return User_BO.create(user);

@@ -1,6 +1,10 @@
 package com.wangjiegulu.rapidooo.library.compiler.util;
 
 import com.wangjiegulu.rapidooo.api.OOOConstants;
+import com.wangjiegulu.rapidooo.library.compiler.util.func.Func0R;
+
+import javax.lang.model.type.MirroredTypeException;
+import javax.lang.model.type.TypeMirror;
 
 /**
  * Author: wangjie
@@ -11,4 +15,14 @@ public class AnnoUtil {
     public static boolean oooParamIsNotSet(String stuff) {
         return OOOConstants.NOT_SET.equals(stuff);
     }
+
+    public static TypeMirror getType(Func0R<Object> func){
+        try {
+            func.call();
+        } catch (MirroredTypeException mte) {
+            return mte.getTypeMirror();
+        }
+        throw new RuntimeException("AnnoUtil::getType error");
+    }
+
 }
