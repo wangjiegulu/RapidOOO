@@ -164,7 +164,7 @@ public class OOOConversionEntry implements IOOOVariable {
             // 检查 bind method 是否存在
             ExecutableElement method = findPublicStaticMethodInClass(bindMethodClass, bindMethodName, targetFieldType);
             if (null == method) {
-                throw new RapidOOOCompileException("Method[public static " + targetFieldType.toString() + " " + bindMethodName + "(...)] not found in " + bindMethodClass.toString() + " class.");
+                throw new RapidOOOCompileException("Method[public static " + targetFieldType.toString() + " " + bindMethodName + "(...)] not found \nin " + bindMethodClass.toString() + " class.");
             }
             // 检查 bind method 方法中的所有参数是否存在在 OOO 中
             bindTargetParamFields = findBindMethodVariables(method);
@@ -173,7 +173,7 @@ public class OOOConversionEntry implements IOOOVariable {
             // 检查 bind method 是否存在
             ExecutableElement method = findPublicStaticMethodInClass(bindMethodClass, inverseBindMethodName, ElementUtil.getTypeName(void.class));
             if (null == method) {
-                throw new RapidOOOCompileException("Method[public static void " + inverseBindMethodName + "(...)] not found in " + bindMethodClass.toString() + " class.");
+                throw new RapidOOOCompileException("Method[public static void " + inverseBindMethodName + "(...)] not found \nin " + bindMethodClass.toString() + " class.");
             }
             // 检查 bind method 方法中的所有参数是否存在在 OOO 中
             inverseBindTargetParamFields = findBindMethodVariables(method);
@@ -185,7 +185,7 @@ public class OOOConversionEntry implements IOOOVariable {
             // 检查 conversion method 是否存在
             ExecutableElement method = findPublicStaticMethodInClass(conversionMethodClass, conversionMethodName, targetFieldType);
             if (null == method) {
-                throw new RapidOOOCompileException("Method[public static " + targetFieldType.toString() + " " + conversionMethodName + "(...)] not found in " + conversionMethodClass.toString() + " class.");
+                throw new RapidOOOCompileException("Method[public static " + targetFieldType.toString() + " " + conversionMethodName + "(...)] not found \nin " + conversionMethodClass.toString() + " class.");
             }
             // 检查 conversion method 方法中的所有参数是否存在在 OOO 中
             conversionTargetParamFields = findConversionMethodVariables(method);
@@ -194,7 +194,7 @@ public class OOOConversionEntry implements IOOOVariable {
             // 检查 conversion method 是否存在
             ExecutableElement method = findPublicStaticMethodInClass(conversionMethodClass, inverseConversionMethodName, ElementUtil.getTypeName(void.class));
             if (null == method) {
-                throw new RapidOOOCompileException("Method[public static void " + inverseConversionMethodName + "(...)] not found in " + conversionMethodClass.toString() + " class.");
+                throw new RapidOOOCompileException("Method[public static void " + inverseConversionMethodName + "(...)] not found \nin " + conversionMethodClass.toString() + " class.");
             }
             // 检查 conversion method 方法中的所有参数是否存在在 OOO 中
             inverseConversionTargetParamFields = findConversionMethodVariables(method);
@@ -219,7 +219,7 @@ public class OOOConversionEntry implements IOOOVariable {
                 // 检查某个参数是否存在在 OOO 中
                 IOOOVariable fieldEntry = findFieldInOOO(ve);
                 if (null == fieldEntry) {
-                    throw new RapidOOOCompileException("Can not found field[" + ve.getSimpleName() + "-" + method.getSimpleName() + "] in " + oooEntry.getTargetClassSimpleName());
+                    throw new RapidOOOCompileException("Can not found field[" + ve.getSimpleName() + "-" + method.getSimpleName() + "] \nin " + oooEntry.getTargetClassSimpleName());
                 }
                 variableElements.put(fieldEntry.fieldName(), fieldEntry);
             }

@@ -70,12 +70,12 @@ public class OOOSEntry {
 
                     final String qualifiedName = ElementUtil.getName(oooClassElement.asType()).toString();
 
-                    if(TextUtil.pickFirst(new Func1R<OOOEntry, Boolean>() {
+                    if(TextUtil.pickFirst(ooos, new Func1R<OOOEntry, Boolean>() {
                         @Override
                         public Boolean call(OOOEntry oooEntry) {
                             return TextUtil.equals(ElementUtil.getName(oooEntry.getFrom()).toString(), qualifiedName);
                         }
-                    }, ooos) == null){ // 显式设置过，则增加
+                    }) == null){ // 显式设置过，则增加
                         ooos.add(new OOOEntry(this, oooClassElement));
                     }
                 }

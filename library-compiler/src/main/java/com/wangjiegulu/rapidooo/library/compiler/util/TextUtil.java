@@ -42,7 +42,7 @@ public class TextUtil {
         return null == collection ? 0 : collection.size();
     }
 
-    public static <T> T pickFirst(Func1R<T, Boolean> func, Collection<T> collection){
+    public static <T> T pickFirst(Collection<T> collection, Func1R<T, Boolean> func){
         if(null == collection){
             return null;
         }

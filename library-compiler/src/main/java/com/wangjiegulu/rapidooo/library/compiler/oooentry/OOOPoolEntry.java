@@ -60,12 +60,12 @@ public class OOOPoolEntry {
 
             ExecutableElement acquireMethodEle = findAcquireMethodInClass();
             if (null == acquireMethodEle) {
-                throw new RapidOOOCompileException("Method[public static " + oooEntry.getTargetClassType() + " " + acquireMethod + "()] not found in " + poolMethodClass + " class");
+                throw new RapidOOOCompileException("Method[public static " + oooEntry.getTargetClassType() + " " + acquireMethod + "()] not found \nin " + poolMethodClass + " class");
             }
 
             ExecutableElement releaseMethodEle = findReleaseMethodInClass();
             if (null == releaseMethodEle) {
-                throw new RapidOOOCompileException("Method[public static void " + releaseMethod + "(" + oooEntry.getTargetClassType() + ")] not found in " + poolMethodClass + " class");
+                throw new RapidOOOCompileException("Method[public static void " + releaseMethod + "(" + oooEntry.getTargetClassType() + ")] not found \nin " + poolMethodClass + " class");
             }
 
             isPoolUsed = true;

@@ -12,6 +12,7 @@ import com.wangjiegulu.rapidooo.library.compiler.exception.RapidOOOCompileExcept
 import com.wangjiegulu.rapidooo.library.compiler.util.AnnoUtil;
 import com.wangjiegulu.rapidooo.library.compiler.util.EasyType;
 import com.wangjiegulu.rapidooo.library.compiler.util.ElementUtil;
+import com.wangjiegulu.rapidooo.library.compiler.util.TextUtil;
 import com.wangjiegulu.rapidooo.library.compiler.util.func.Func0R;
 
 import java.util.ArrayList;
@@ -90,6 +91,7 @@ public class OOOEntry {
 
         includes = Arrays.asList(ooo.includes());
         excludes = Arrays.asList(ooo.excludes());
+        validateIncludesExcludes();
 
         targetSupperType = ElementUtil.getTypeName(AnnoUtil.getType(new Func0R<Object>() {
             @Override
@@ -108,6 +110,7 @@ public class OOOEntry {
 
         init();
     }
+
 
     /**
      * 隐式配置
@@ -179,6 +182,22 @@ public class OOOEntry {
             ee.getValue().parse();
         }
 
+    }
+
+    /**
+     * validate fields available
+     */
+    private void validateIncludesExcludes() {
+        for (String field : includes) {
+            if (null == TextUtil.pickFirst(fromElement.getEnclosedElements(), o -> TextUtil.equals(o.getSimpleName().toString(), field))) {
+                throw new RapidOOOCompileException("Field[" + field + "] is not found in `includes` \n" + this.from + "\n" + ooosEntry.getOooGenerator().getGeneratorClassType());
+            }
+        }
+        for (String field : excludes) {
+            if (null == TextUtil.pickFirst(fromElement.getEnclosedElements(), o -> TextUtil.equals(o.getSimpleName().toString(), field))) {
+                throw new RapidOOOCompileException("Field[" + field + "] is not found in `excludes` \n" + this.from + "\n" + ooosEntry.getOooGenerator().getGeneratorClassType());
+            }
+        }
     }
 
     public boolean includeField(String fieldName) {
