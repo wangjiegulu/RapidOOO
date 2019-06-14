@@ -48,6 +48,7 @@ public class OOOSEntry {
 
         // 使用 package 隐式的配置
         for (String ooosPackage : ooosPackages) {
+            LogUtil.logger(">>>>>ooosPackage: " + ooosPackage);
             PackageElement packageElement = GlobalEnvironment.getElementUtils().getPackageElement(ooosPackage);
             if (null == packageElement) {
                 throw new RuntimeException("package[" + ooosPackage + "] is not exist.");

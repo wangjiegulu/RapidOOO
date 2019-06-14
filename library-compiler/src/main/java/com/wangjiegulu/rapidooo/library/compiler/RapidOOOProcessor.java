@@ -35,7 +35,7 @@ public class RapidOOOProcessor extends BaseAbstractProcessor {
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
         long start = System.currentTimeMillis();
         logger("[process]annotations: " + Arrays.toString(annotations.toArray()));
-//        logger("[process]roundEnv: " + roundEnv);
+        logger("[process]roundEnv: " + roundEnv);
         try {
 
             HashMap<String, OOOProcessV1> mapper = new HashMap<>();

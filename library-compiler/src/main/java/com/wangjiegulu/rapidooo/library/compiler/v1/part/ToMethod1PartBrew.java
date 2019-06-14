@@ -2,9 +2,12 @@ package com.wangjiegulu.rapidooo.library.compiler.v1.part;
 
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeSpec;
+import com.wangjiegulu.rapidooo.api.OOOControlMode;
 import com.wangjiegulu.rapidooo.library.compiler.objs.GetterSetterMethodNames;
 import com.wangjiegulu.rapidooo.library.compiler.util.PoetUtil;
 import com.wangjiegulu.rapidooo.library.compiler.util.TextUtil;
+import com.wangjiegulu.rapidooo.library.compiler.util.func.Func1R;
+import com.wangjiegulu.rapidooo.library.compiler.v1.IOOOVariable;
 import com.wangjiegulu.rapidooo.library.compiler.v1.OOOConversionEntry;
 import com.wangjiegulu.rapidooo.library.compiler.v1.OOOEntry;
 import com.wangjiegulu.rapidooo.library.compiler.v1.OOOFieldEntry;
@@ -37,11 +40,26 @@ public class ToMethod1PartBrew implements PartBrew{
             toFromMethod.addStatement(fromParamName + "." + getterSetterMethodNames.getSetterMethodName() + "(" + fieldEntry.getSimpleName() + ")");
 
         }
+
         // Conversion fields
         for (Map.Entry<String, OOOConversionEntry> conversionFieldE : oooEntry.getConversions().entrySet()) {
             OOOConversionEntry conversionEntry = conversionFieldE.getValue();
-            // TODO: 2019-06-13 wangjie
+            // 只有 conversion mode 才需要转换
+            if(OOOControlMode.CONVERSION == conversionEntry.getControlMode()){
+                // TODO: 2019-06-13 wangjie
+                String paramsStr = TextUtil.joinHashMap(conversionEntry.getInverseConversionTargetParamFields(), ", ", new Func1R<IOOOVariable, String>() {
+                    @Override
+                    public String call(IOOOVariable ioooTargetVariable) {
+                        return ioooTargetVariable.inputCode();
+                    }
+                });
+                toFromMethod.addComment(conversionEntry.getTargetFieldName() + conversionEntry.getControlMode().getDesc());
+                toFromMethod.addStatement(
+                        "$T." + conversionEntry.getInverseConversionMethodName() + "(" + paramsStr + ")",
+                        conversionEntry.getConversionMethodClassType()
+                );
 
+            }
         }
 
         result.addMethod(toFromMethod.build());

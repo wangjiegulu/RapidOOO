@@ -9,6 +9,7 @@ import com.wangjiegulu.rapidooo.library.compiler.v1.part.DefaultConstructorMetho
 import com.wangjiegulu.rapidooo.library.compiler.v1.part.FieldAndGetterSetterPartBrew;
 import com.wangjiegulu.rapidooo.library.compiler.v1.part.FromMethodPartBrew;
 import com.wangjiegulu.rapidooo.library.compiler.v1.part.PartBrew;
+import com.wangjiegulu.rapidooo.library.compiler.v1.part.PoolPartBrew;
 import com.wangjiegulu.rapidooo.library.compiler.v1.part.ToMethod1PartBrew;
 import com.wangjiegulu.rapidooo.library.compiler.v1.part.ToMethod2PartBrew;
 
@@ -42,6 +43,7 @@ public class OOOProcessV1 {
         partBrews.add(new CreateMethodPartBrew());
         partBrews.add(new ToMethod1PartBrew());
         partBrews.add(new ToMethod2PartBrew());
+        partBrews.add(new PoolPartBrew());
     }
 
     public void setGeneratorClassEl(Element mGeneratorClassEl) {

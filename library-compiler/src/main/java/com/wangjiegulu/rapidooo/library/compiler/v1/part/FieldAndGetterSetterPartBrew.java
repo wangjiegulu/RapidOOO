@@ -3,11 +3,12 @@ package com.wangjiegulu.rapidooo.library.compiler.v1.part;
 import com.squareup.javapoet.FieldSpec;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeSpec;
+import com.wangjiegulu.rapidooo.api.OOOControlMode;
 import com.wangjiegulu.rapidooo.library.compiler.objs.GetterSetterMethodNames;
 import com.wangjiegulu.rapidooo.library.compiler.util.PoetUtil;
 import com.wangjiegulu.rapidooo.library.compiler.util.TextUtil;
 import com.wangjiegulu.rapidooo.library.compiler.util.func.Func1R;
-import com.wangjiegulu.rapidooo.library.compiler.v1.IOOOTargetVariable;
+import com.wangjiegulu.rapidooo.library.compiler.v1.IOOOVariable;
 import com.wangjiegulu.rapidooo.library.compiler.v1.OOOConversionEntry;
 import com.wangjiegulu.rapidooo.library.compiler.v1.OOOEntry;
 import com.wangjiegulu.rapidooo.library.compiler.v1.OOOFieldEntry;
@@ -46,23 +47,28 @@ public class FieldAndGetterSetterPartBrew implements PartBrew {
 
             // 数据 setter 绑定关联
             for(HashMap.Entry<String, OOOConversionEntry> ce : oooEntry.getConversions().entrySet()){
-                OOOConversionEntry _ce = ce.getValue();
-                for(Map.Entry<String, IOOOTargetVariable> variableE : _ce.getBindTargetParamFields().entrySet()){
-                    IOOOTargetVariable targetVariable = variableE.getValue();
-                    // 该字段被某个 conversion 的 bind 方法作为参数使用到，则需要绑定
-                    if(TextUtil.equals(fieldEntry.getSimpleName(), targetVariable.fieldName())){
+                OOOConversionEntry conversionEntry = ce.getValue();
+                // 只有 bind mode 才需要关联
+                if(OOOControlMode.BIND == conversionEntry.getControlMode()){
+                    for(Map.Entry<String, IOOOVariable> variableE : conversionEntry.getBindTargetParamFields().entrySet()){
+                        IOOOVariable targetVariable = variableE.getValue();
+                        // 该字段被某个 conversion 的 bind 方法作为参数使用到，则需要绑定
+                        if(TextUtil.equals(fieldEntry.getSimpleName(), targetVariable.fieldName())){
 
-                        String paramsStr = TextUtil.joinHashMap(_ce.getBindTargetParamFields(), ", ", new Func1R<IOOOTargetVariable, String>() {
-                            @Override
-                            public String call(IOOOTargetVariable ioooTargetVariable) {
-                                return ioooTargetVariable.inputCode();
-                            }
-                        });
+                            String paramsStr = TextUtil.joinHashMap(conversionEntry.getBindTargetParamFields(), ", ", new Func1R<IOOOVariable, String>() {
+                                @Override
+                                public String call(IOOOVariable ioooTargetVariable) {
+                                    return ioooTargetVariable.inputCode();
+                                }
+                            });
 
-                        setterMethodBuilder.addStatement(
-                                "this." + _ce.getTargetFieldName() + " = $T." + _ce.getBindMethodName() + "(" + paramsStr + ")",
-                                _ce.getBindMethodClassType()
-                        );
+                            setterMethodBuilder.addComment(conversionEntry.getTargetFieldName() + ", " + conversionEntry.getControlMode().getDesc());
+
+                            setterMethodBuilder.addStatement(
+                                    "this." + conversionEntry.getTargetFieldName() + " = $T." + conversionEntry.getBindMethodName() + "(" + paramsStr + ")",
+                                    conversionEntry.getBindMethodClassType()
+                            );
+                        }
                     }
                 }
             }
@@ -89,14 +95,14 @@ public class FieldAndGetterSetterPartBrew implements PartBrew {
             // 数据 setter 绑定关联
             for(HashMap.Entry<String, OOOConversionEntry> ce : oooEntry.getConversions().entrySet()){
                 OOOConversionEntry _ce = ce.getValue();
-                for(Map.Entry<String, IOOOTargetVariable> variableE : _ce.getInverseBindTargetParamFields().entrySet()){
-                    IOOOTargetVariable targetVariable = variableE.getValue();
+                for(Map.Entry<String, IOOOVariable> variableE : _ce.getInverseBindTargetParamFields().entrySet()){
+                    IOOOVariable targetVariable = variableE.getValue();
                     // 该字段被某个 conversion 的 bind 方法作为参数使用到，则需要绑定
                     if(TextUtil.equals(conversionEntry.getTargetFieldName(), targetVariable.fieldName())){
 
-                        String paramsStr = TextUtil.joinHashMap(_ce.getInverseBindTargetParamFields(), ", ", new Func1R<IOOOTargetVariable, String>() {
+                        String paramsStr = TextUtil.joinHashMap(_ce.getInverseBindTargetParamFields(), ", ", new Func1R<IOOOVariable, String>() {
                             @Override
-                            public String call(IOOOTargetVariable ioooTargetVariable) {
+                            public String call(IOOOVariable ioooTargetVariable) {
                                 return ioooTargetVariable.inputCode();
                             }
                         });

@@ -4,12 +4,15 @@ import com.google.auto.common.MoreElements;
 import com.google.auto.common.MoreTypes;
 
 import com.squareup.javapoet.TypeName;
+import com.wangjiegulu.rapidooo.api.OOOControlMode;
 import com.wangjiegulu.rapidooo.api.OOOConversion;
 import com.wangjiegulu.rapidooo.library.compiler.util.AnnoUtil;
 import com.wangjiegulu.rapidooo.library.compiler.util.ElementUtil;
 import com.wangjiegulu.rapidooo.library.compiler.util.TextUtil;
 import com.wangjiegulu.rapidooo.library.compiler.util.func.Func0R;
-import com.wangjiegulu.rapidooo.library.compiler.v1.targetvariable.SelfTargetVariable;
+import com.wangjiegulu.rapidooo.library.compiler.v1.variables.OtherFieldVariable;
+import com.wangjiegulu.rapidooo.library.compiler.v1.variables.OtherObjectVariable;
+import com.wangjiegulu.rapidooo.library.compiler.v1.variables.SelfObjectVariable;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -24,7 +27,7 @@ import javax.lang.model.type.TypeMirror;
 /**
  * Author: wangjie Email: tiantian.china.2@gmail.com Date: 2019-06-12.
  */
-public class OOOConversionEntry implements IOOOTargetVariable {
+public class OOOConversionEntry implements IOOOVariable {
     private OOOEntry oooEntry;
     private OOOConversion oooConversion;
 
@@ -32,18 +35,25 @@ public class OOOConversionEntry implements IOOOTargetVariable {
     private TypeName targetFieldType;
     private String targetFieldTypeId;
 
+    // attach
+    private String attachFieldName;
+//    private String attachFieldType; // as some as targetFieldType
+
+    // bind
     private TypeName bindMethodClassType;
     private TypeMirror bindMethodClass;
     private String bindMethodName;
     private String inverseBindMethodName;
-    private HashMap<String, IOOOTargetVariable> bindTargetParamFields = new LinkedHashMap<>();
-    private HashMap<String, IOOOTargetVariable> inverseBindTargetParamFields = new LinkedHashMap<>();
+    private HashMap<String, IOOOVariable> bindTargetParamFields = new LinkedHashMap<>();
+    private HashMap<String, IOOOVariable> inverseBindTargetParamFields = new LinkedHashMap<>();
 
-
+    // conversion
     private TypeName conversionMethodClassType;
     private TypeMirror conversionMethodClass;
     private String conversionMethodName;
     private String inverseConversionMethodName;
+    private HashMap<String, IOOOVariable> conversionTargetParamFields = new LinkedHashMap<>();
+    private HashMap<String, IOOOVariable> inverseConversionTargetParamFields = new LinkedHashMap<>();
 
     private OOOControlMode controlMode;
 
@@ -60,6 +70,9 @@ public class OOOConversionEntry implements IOOOTargetVariable {
         }));
         targetFieldTypeId = oooConversion.targetFieldTypeId();
 
+
+        // attach mode
+        attachFieldName = oooConversion.attachFieldName();
 
         // bind mode
         bindMethodClass = AnnoUtil.getType(new Func0R<Object>() {
@@ -125,9 +138,17 @@ public class OOOConversionEntry implements IOOOTargetVariable {
             controlMode = OOOControlMode.CONVERSION;
             parseConversionMode();
         } else {
-            controlMode = OOOControlMode.UNKNOWN;
+            controlMode = OOOControlMode.ATTACH;
+            if (AnnoUtil.oooParamIsNotSet(attachFieldName)) {
+                attachFieldName = targetFieldName;
+            }
+            parseAttachMode();
         }
 
+    }
+
+    private void parseAttachMode() {
+        // TODO: 2019-06-14 wangjie check if attachFieldName in targetClassType.
     }
 
     private void parseBindMode() {
@@ -138,7 +159,7 @@ public class OOOConversionEntry implements IOOOTargetVariable {
                 throw new RuntimeException("Method[" + bindMethodName + "] not found in " + bindMethodClass.toString() + " class.");
             }
             // 检查 bind method 方法中的所有参数是否存在在 OOO 中
-            bindTargetParamFields = findMethodVariablesInOOO(method);
+            bindTargetParamFields = findBindMethodVariables(method);
         }
         if (isInverseBindMethodSet()) {
             // 检查 bind method 是否存在
@@ -147,7 +168,7 @@ public class OOOConversionEntry implements IOOOTargetVariable {
                 throw new RuntimeException("Method[" + inverseBindMethodName + "] not found in " + bindMethodClass.toString() + " class.");
             }
             // 检查 bind method 方法中的所有参数是否存在在 OOO 中
-            inverseBindTargetParamFields = findMethodVariablesInOOO(method);
+            inverseBindTargetParamFields = findBindMethodVariables(method);
         }
     }
 
@@ -160,7 +181,7 @@ public class OOOConversionEntry implements IOOOTargetVariable {
                 throw new RuntimeException("Method[" + conversionMethodName + "] not found in " + conversionMethodClass.toString() + " class.");
             }
             // 检查 conversion method 方法中的所有参数是否存在在 OOO 中
-//            conversionTargetParamFields = findMethodVariablesInOOO(method);
+            conversionTargetParamFields = findConversionMethodVariables(method);
         }
         if (isInverseConversionMethodSet()) {
             // 检查 conversion method 是否存在
@@ -169,15 +190,15 @@ public class OOOConversionEntry implements IOOOTargetVariable {
                 throw new RuntimeException("Method[" + inverseConversionMethodName + "] not found in " + conversionMethodClass.toString() + " class.");
             }
             // 检查 conversion method 方法中的所有参数是否存在在 OOO 中
-//            inverseBindTargetParamFields = findMethodVariablesInOOO(method);
+            inverseConversionTargetParamFields = findConversionMethodVariables(method);
         }
     }
 
     /**
-     * 检查 bind/conversion method 方法中的所有参数是否存在在 OOO 中
+     * 检查 bind method 方法中的所有参数是否存在在 OOO 中
      */
-    private HashMap<String, IOOOTargetVariable> findMethodVariablesInOOO(ExecutableElement method) {
-        HashMap<String, IOOOTargetVariable> variableElements = new LinkedHashMap<>();
+    private HashMap<String, IOOOVariable> findBindMethodVariables(ExecutableElement method) {
+        HashMap<String, IOOOVariable> variableElements = new LinkedHashMap<>();
         for (VariableElement ve : method.getParameters()) {
             if (
                     TextUtil.equals(ve.getSimpleName().toString(), "self")
@@ -185,11 +206,11 @@ public class OOOConversionEntry implements IOOOTargetVariable {
                             // TODO: 2019-06-13 wangjie 这里使用了 Class Type Simple Name 进行了对比，待优化
                             TextUtil.equals(ve.asType().toString(), oooEntry.getTargetClassSimpleName())
             ) {
-                SelfTargetVariable selfTargetVariable = new SelfTargetVariable(ve.getSimpleName().toString());
-                variableElements.put(selfTargetVariable.fieldName(), selfTargetVariable);
+                SelfObjectVariable selfObjectVariable = new SelfObjectVariable(ve.getSimpleName().toString());
+                variableElements.put(selfObjectVariable.fieldName(), selfObjectVariable);
             } else {
                 // 检查某个参数是否存在在 OOO 中
-                IOOOTargetVariable fieldEntry = findFieldInOOO(ve);
+                IOOOVariable fieldEntry = findFieldInOOO(ve);
                 if (null == fieldEntry) {
                     throw new RuntimeException("Can not found field[" + ve.getSimpleName() + "-" + method.getSimpleName() + "] in " + oooEntry.getTargetClassSimpleName());
                 }
@@ -201,10 +222,50 @@ public class OOOConversionEntry implements IOOOTargetVariable {
     }
 
     /**
+     * 检查 conversion method 方法中的所有参数是否存在在 OOO 中
+     */
+    private HashMap<String, IOOOVariable> findConversionMethodVariables(ExecutableElement method) {
+        HashMap<String, IOOOVariable> variableElements = new LinkedHashMap<>();
+        for (VariableElement ve : method.getParameters()) {
+            if (
+                    TextUtil.equals(ve.getSimpleName().toString(), "self")
+                            &&
+                            // TODO: 2019-06-13 wangjie 这里使用了 Class Type Simple Name 进行了对比，待优化
+                            TextUtil.equals(MoreTypes.asTypeElement(ve.asType()).getSimpleName().toString(), oooEntry.getTargetClassSimpleName())
+            ) {
+                SelfObjectVariable selfObjectVariable = new SelfObjectVariable(ve.getSimpleName().toString());
+                variableElements.put(selfObjectVariable.fieldName(), selfObjectVariable);
+            } else if (
+                    TextUtil.equals(ve.getSimpleName().toString(), "other")
+                            &&
+                            // TODO: 2019-06-13 wangjie 这里使用了 Class Type Simple Name 进行了对比，待优化
+                            // TODO: 2019-06-14 wangjie error!
+                            TextUtil.equals(MoreTypes.asTypeElement(ve.asType()).getSimpleName().toString(), oooEntry.getFromSimpleName())
+            ) {
+                OtherObjectVariable otherObjectVariable = new OtherObjectVariable(ve.getSimpleName().toString(), TextUtil.firstCharLower(oooEntry.getFromSimpleName()));
+                variableElements.put(otherObjectVariable.fieldName(), otherObjectVariable);
+            } else {
+                // 检查某个参数是否存在在 OOO 中
+                IOOOVariable fieldEntry = findFieldInOOO(ve);
+                if (null != fieldEntry) {
+                    variableElements.put(fieldEntry.fieldName(), fieldEntry);
+                } else {
+                    // TODO: 2019-06-14 wangjie 校验 ve 是否存在 other class 里面？
+                    OtherFieldVariable otherFieldVariable = new OtherFieldVariable(ve, TextUtil.firstCharLower(oooEntry.getFromSimpleName()));
+                    variableElements.put(otherFieldVariable.fieldName(), otherFieldVariable);
+                }
+            }
+        }
+
+        return variableElements;
+    }
+
+
+    /**
      * 检查某个参数是否存在在 OOO 中
      */
-    private IOOOTargetVariable findFieldInOOO(VariableElement variableElement) {
-        // TODO: 2019-06-13 wangjie 需支持父类字段
+    private IOOOVariable findFieldInOOO(VariableElement variableElement) {
+        // TODO: 2019-06-13 wangjie 支持父类字段？
         for (Map.Entry<String, OOOFieldEntry> e : oooEntry.getAllContinuingFields().entrySet()) {
             OOOFieldEntry fieldEntry = e.getValue();
             if (
@@ -266,7 +327,6 @@ public class OOOConversionEntry implements IOOOTargetVariable {
         return targetFieldTypeId;
     }
 
-
     public String getBindMethodName() {
         return bindMethodName;
     }
@@ -312,12 +372,33 @@ public class OOOConversionEntry implements IOOOTargetVariable {
         return !AnnoUtil.oooParamIsNotSet(inverseConversionMethodName);
     }
 
-    public HashMap<String, IOOOTargetVariable> getBindTargetParamFields() {
+    public HashMap<String, IOOOVariable> getBindTargetParamFields() {
         return bindTargetParamFields;
     }
 
-    public HashMap<String, IOOOTargetVariable> getInverseBindTargetParamFields() {
+    public HashMap<String, IOOOVariable> getInverseBindTargetParamFields() {
         return inverseBindTargetParamFields;
+    }
+
+    public HashMap<String, IOOOVariable> getConversionTargetParamFields() {
+        return conversionTargetParamFields;
+    }
+
+    public HashMap<String, IOOOVariable> getInverseConversionTargetParamFields() {
+        return inverseConversionTargetParamFields;
+    }
+
+    public boolean isTargetFieldTypeId() {
+        return null != targetFieldTypeId && !AnnoUtil.oooParamIsNotSet(targetFieldTypeId);
+    }
+
+    public TypeName getAttachFieldType() {
+        // attach 属性类型与 target 一样
+        return targetFieldType;
+    }
+
+    public String getAttachFieldName() {
+        return attachFieldName;
     }
 
     @Override

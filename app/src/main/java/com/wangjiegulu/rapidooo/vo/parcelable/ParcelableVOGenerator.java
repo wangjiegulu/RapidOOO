@@ -9,6 +9,7 @@ import com.wangjiegulu.rapidooo.depmodule.bll.xbo.parcelable.PetBO;
 import com.wangjiegulu.rapidooo.depmodule.bll.xbo.parcelable.PetParentBO;
 import com.wangjiegulu.rapidooo.depmodule.bll.xbo.parcelable.User_BO;
 
+
 /**
  * Generate VOs from BOs
  * Author: wangjie
@@ -21,23 +22,27 @@ import com.wangjiegulu.rapidooo.depmodule.bll.xbo.parcelable.User_BO;
         @OOO(id = "pet_parent_vo_id", from = PetParentBO.class),
         @OOO(id = "user_vo_id", from = User_BO.class/*, suffix = ParcelableVOGenerator.VO_SUFFIX_USER*/,
                 fromSuffix = ParcelableBOGenerator.BO_SUFFIX_USER,
+                excludes = {"gender"},
                 conversions = {
                         @OOOConversion(
                                 targetFieldName = "genderDesc",
                                 targetFieldType = String.class,
-                                bindMethodName = "bindGender"
-//                                inverseBindMethodName = "inverseBindGender"
+
+                                conversionMethodName = "conversionGenderDesc",
+                                inverseConversionMethodName = "inverseConversionGender"
                         ),
                         @OOOConversion(
-                                targetFieldName = "ageDes",
+                                targetFieldName = "ageDesc",
                                 targetFieldType = String.class,
+
+                                bindMethodClass = AgeBinder.class,
                                 bindMethodName = "bindAge",
-                                bindMethodClass = AgeBinder.class
-//                                inverseConversionMethodName = "inverseBindAge",
+                                inverseBindMethodName = "inverseBindAge"
                         )
                 }
         ),
         @OOO(targetSupperTypeId = "pet_parent_vo_id", from = PetBO.class,
+                excludes = {"ownerUser"},
                 conversions = {
                         @OOOConversion(
                                 targetFieldName = "ownerUser",
@@ -51,7 +56,7 @@ public class ParcelableVOGenerator {
     //    public static final String VO_SUFFIX_USER = "_VO";
     public static final String PACKAGE_BO = "com.wangjiegulu.rapidooo.depmodule.bll.xbo.parcelable";
 
-    public static String bindGender(Integer gender) {
+    public static String conversionGenderDesc(Integer gender, String username) {
         if (null == gender) {
             return "unknown";
         }
@@ -65,20 +70,20 @@ public class ParcelableVOGenerator {
         }
     }
 
-//    public static void inverseBindGender(String genderDesc, UserVO userVO) {
-//        int age;
-//        switch (genderDesc) {
-//            case "male":
-//                age = 1;
-//                break;
-//            case "female":
-//                age = 0;
-//                break;
-//            default:
-//                age = -1;
-//                break;
-//        }
-//        userVO.setAge(age);
-//    }
+    public static void inverseConversionGender(String genderDesc, UserVO self, User_BO other) {
+        int gender;
+        switch (genderDesc) {
+            case "male":
+                gender = 1;
+                break;
+            case "female":
+                gender = 0;
+                break;
+            default:
+                gender = -1;
+                break;
+        }
+        other.setGender(gender);
+    }
 
 }

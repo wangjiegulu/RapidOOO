@@ -16,13 +16,17 @@ import java.lang.annotation.Target;
 public @interface OOOConversion {
     String targetFieldName();
     Class<?> targetFieldType() default Object.class;
-    
     String targetFieldTypeId() default OOOConstants.NOT_SET;
 
+    // attach
+    String attachFieldName() default OOOConstants.NOT_SET;
+
+    // bind
     Class<?> bindMethodClass() default Object.class;
     String bindMethodName() default OOOConstants.NOT_SET;
     String inverseBindMethodName() default OOOConstants.NOT_SET;
 
+    // conversion
     Class<?> conversionMethodClass() default Object.class;
     String conversionMethodName() default OOOConstants.NOT_SET;
     String inverseConversionMethodName() default OOOConstants.NOT_SET;

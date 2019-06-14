@@ -1,5 +1,7 @@
 package com.wangjiegulu.rapidooo;
 
+import com.wangjiegulu.rapidooo.vo.parcelable.UserVO;
+
 /**
  * Author: wangjie
  * Email: tiantian.china.2@gmail.com
@@ -14,11 +16,14 @@ public class AgeBinder {
         return age + " years old";
     }
 
-    public static Integer inverseBindAge(String ageDesc) {
+    public static void inverseBindAge(String ageDesc, UserVO self) {
+        Integer age;
         if (null == ageDesc) {
-            return -1;
+            age = -1;
+        }else{
+            age = Integer.valueOf(ageDesc.split(" ")[0]);
         }
-        return Integer.valueOf(ageDesc.split(" ")[0]);
+        self.setAge(age);
     }
 
 }

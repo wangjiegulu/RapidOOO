@@ -27,10 +27,11 @@ public class MainActivity extends AppCompatActivity {
             Log.i(TAG, "petBO2: " + petBO2);
             Log.i(TAG, "petBO3: " + petBO3);
             Log.i(TAG, "petBO4: " + petBO4);
-            petBO1.release();
-            petBO2.release();
-            petBO3.release();
-            petBO4.release();
+            // TODO: 2019-06-14 wangjie
+//            petBO1.release();
+//            petBO2.release();
+//            petBO3.release();
+//            petBO4.release();
         }
 
 //        new Thread(new Runnable() {

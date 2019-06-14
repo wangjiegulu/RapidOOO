@@ -11,7 +11,7 @@ import javax.lang.model.element.Modifier;
 /**
  * Author: wangjie Email: tiantian.china.2@gmail.com Date: 2019-06-12.
  */
-public class OOOFieldEntry implements IOOOTargetVariable {
+public class OOOFieldEntry implements IOOOVariable {
     private TypeName typeName;
     private String simpleName;
     private Modifier[] modifiers;
