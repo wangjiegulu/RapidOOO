@@ -1,16 +1,17 @@
-package com.wangjiegulu.rapidooo.library.compiler.v1.part;
+package com.wangjiegulu.rapidooo.library.compiler.part.impl;
 
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeSpec;
 import com.wangjiegulu.rapidooo.api.OOOControlMode;
-import com.wangjiegulu.rapidooo.library.compiler.objs.GetterSetterMethodNames;
+import com.wangjiegulu.rapidooo.library.compiler.entry.GetterSetterMethodNames;
 import com.wangjiegulu.rapidooo.library.compiler.util.PoetUtil;
 import com.wangjiegulu.rapidooo.library.compiler.util.TextUtil;
 import com.wangjiegulu.rapidooo.library.compiler.util.func.Func1R;
-import com.wangjiegulu.rapidooo.library.compiler.v1.IOOOVariable;
-import com.wangjiegulu.rapidooo.library.compiler.v1.OOOConversionEntry;
-import com.wangjiegulu.rapidooo.library.compiler.v1.OOOEntry;
-import com.wangjiegulu.rapidooo.library.compiler.v1.OOOFieldEntry;
+import com.wangjiegulu.rapidooo.library.compiler.variables.IOOOVariable;
+import com.wangjiegulu.rapidooo.library.compiler.oooentry.OOOConversionEntry;
+import com.wangjiegulu.rapidooo.library.compiler.oooentry.OOOEntry;
+import com.wangjiegulu.rapidooo.library.compiler.oooentry.OOOFieldEntry;
+import com.wangjiegulu.rapidooo.library.compiler.part.PartBrew;
 
 import java.util.Map;
 
@@ -19,7 +20,7 @@ import javax.lang.model.element.Modifier;
 /**
  * Author: wangjie Email: tiantian.china.2@gmail.com Date: 2019-06-13.
  */
-public class ToMethod1PartBrew implements PartBrew{
+public class ToMethod1PartBrew implements PartBrew {
     @Override
     public void brew(OOOEntry oooEntry, TypeSpec.Builder result) {
         String fromParamName = TextUtil.firstCharLower(oooEntry.getFromSimpleName());
@@ -46,7 +47,6 @@ public class ToMethod1PartBrew implements PartBrew{
             OOOConversionEntry conversionEntry = conversionFieldE.getValue();
             // 只有 conversion mode 才需要转换
             if(OOOControlMode.CONVERSION == conversionEntry.getControlMode()){
-                // TODO: 2019-06-13 wangjie
                 String paramsStr = TextUtil.joinHashMap(conversionEntry.getInverseConversionTargetParamFields(), ", ", new Func1R<IOOOVariable, String>() {
                     @Override
                     public String call(IOOOVariable ioooTargetVariable) {

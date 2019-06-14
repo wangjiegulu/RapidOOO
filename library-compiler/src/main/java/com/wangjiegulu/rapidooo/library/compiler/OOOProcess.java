@@ -1,17 +1,21 @@
-package com.wangjiegulu.rapidooo.library.compiler.v1;
+package com.wangjiegulu.rapidooo.library.compiler;
 
 import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
 import com.wangjiegulu.rapidooo.library.compiler.util.ElementUtil;
-import com.wangjiegulu.rapidooo.library.compiler.v1.part.CreateMethodPartBrew;
-import com.wangjiegulu.rapidooo.library.compiler.v1.part.DefaultConstructorMethodPartBrew;
-import com.wangjiegulu.rapidooo.library.compiler.v1.part.FieldAndGetterSetterPartBrew;
-import com.wangjiegulu.rapidooo.library.compiler.v1.part.FromMethodPartBrew;
-import com.wangjiegulu.rapidooo.library.compiler.v1.part.PartBrew;
-import com.wangjiegulu.rapidooo.library.compiler.v1.part.PoolPartBrew;
-import com.wangjiegulu.rapidooo.library.compiler.v1.part.ToMethod1PartBrew;
-import com.wangjiegulu.rapidooo.library.compiler.v1.part.ToMethod2PartBrew;
+import com.wangjiegulu.rapidooo.library.compiler.oooentry.OOOEntry;
+import com.wangjiegulu.rapidooo.library.compiler.oooentry.OOOGenerator;
+import com.wangjiegulu.rapidooo.library.compiler.oooentry.OOOSEntry;
+import com.wangjiegulu.rapidooo.library.compiler.part.impl.CreateMethodPartBrew;
+import com.wangjiegulu.rapidooo.library.compiler.part.impl.DefaultConstructorMethodPartBrew;
+import com.wangjiegulu.rapidooo.library.compiler.part.impl.FieldAndGetterSetterPartBrew;
+import com.wangjiegulu.rapidooo.library.compiler.part.impl.FromMethodPartBrew;
+import com.wangjiegulu.rapidooo.library.compiler.part.impl.InterfacePartBrew;
+import com.wangjiegulu.rapidooo.library.compiler.part.PartBrew;
+import com.wangjiegulu.rapidooo.library.compiler.part.impl.PoolPartBrew;
+import com.wangjiegulu.rapidooo.library.compiler.part.impl.ToMethod1PartBrew;
+import com.wangjiegulu.rapidooo.library.compiler.part.impl.ToMethod2PartBrew;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -29,14 +33,15 @@ import javax.lang.model.element.Modifier;
  * Email: tiantian.china.2@gmail.com
  * Date: 11/04/2018.
  */
-public class OOOProcessV1 {
+public class OOOProcess {
     private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:SSS", Locale.getDefault());
 
     private OOOGenerator oooGenerator;
 
     private List<PartBrew> partBrews = new ArrayList<>();
 
-    public OOOProcessV1() {
+    public OOOProcess() {
+        partBrews.add(new InterfacePartBrew());
         partBrews.add(new DefaultConstructorMethodPartBrew());
         partBrews.add(new FieldAndGetterSetterPartBrew());
         partBrews.add(new FromMethodPartBrew());
@@ -51,7 +56,6 @@ public class OOOProcessV1 {
         oooGenerator.parse();
     }
 
-
     public void brewJava(Filer filer) throws Throwable {
         OOOSEntry ooosEntry = oooGenerator.getOoosEntry();
         for(Map.Entry<String, OOOEntry> oooE : ooosEntry.getOoos().entrySet()){
@@ -64,15 +68,11 @@ public class OOOProcessV1 {
                             oooEntry.getFromTypeName(), oooGenerator.getGeneratorClassType()
                     );
 
-
             ///////////////////// super class /////////////////////
             TypeName supperTypeName = oooEntry.getTargetSupperType();
             if (!ElementUtil.isSameType(supperTypeName, TypeName.OBJECT)) {
                 result.superclass(supperTypeName);
             }
-
-            ///////////////////// interfaces /////////////////////
-            // TODO: 2019-06-12 wangjie
 
             for(PartBrew partBrew : partBrews){
                 partBrew.brew(oooEntry, result);

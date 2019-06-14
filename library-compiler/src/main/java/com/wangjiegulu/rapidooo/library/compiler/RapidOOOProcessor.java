@@ -5,7 +5,7 @@ import com.google.auto.service.AutoService;
 
 import com.wangjiegulu.rapidooo.api.OOOs;
 import com.wangjiegulu.rapidooo.library.compiler.base.BaseAbstractProcessor;
-import com.wangjiegulu.rapidooo.library.compiler.v1.OOOProcessV1;
+import com.wangjiegulu.rapidooo.library.compiler.exception.RapidOOOCompileException;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -38,14 +38,16 @@ public class RapidOOOProcessor extends BaseAbstractProcessor {
         logger("[process]roundEnv: " + roundEnv);
         try {
 
-            HashMap<String, OOOProcessV1> mapper = new HashMap<>();
+            HashMap<String, OOOProcess> mapper = new HashMap<>();
 
             for (Element element : roundEnv.getElementsAnnotatedWith(OOOs.class)) {
-                OOOProcessV1 oooProcess = doTableAnnotation(element, mapper);
+                OOOProcess oooProcess = doTableAnnotation(element, mapper);
                 try {
                     logger("OOO generate START -> " + oooProcess);
                     oooProcess.brewJava(filer);
                     logger("OOO generate END -> " + oooProcess + ", oooProcess: " + oooProcess);
+                } catch (RapidOOOCompileException e) {
+                    throw e;
                 } catch (RuntimeException e) {
                     throw e;
                 } catch (Throwable throwable) {
@@ -80,16 +82,16 @@ public class RapidOOOProcessor extends BaseAbstractProcessor {
         return true;
     }
 
-    private OOOProcessV1 doTableAnnotation(Element ele, HashMap<String, OOOProcessV1> mapper) {
+    private OOOProcess doTableAnnotation(Element ele, HashMap<String, OOOProcess> mapper) {
         return obtainTableEntrySafe(ele, mapper);
     }
 
-    private OOOProcessV1 obtainTableEntrySafe(Element ele, HashMap<String, OOOProcessV1> tableMapper) {
+    private OOOProcess obtainTableEntrySafe(Element ele, HashMap<String, OOOProcess> tableMapper) {
         Element classEle = getElementOwnerElement(ele);
         String className = classEle.asType().toString();
-        OOOProcessV1 oooProcess = tableMapper.get(MoreElements.asType(classEle).getQualifiedName().toString());
+        OOOProcess oooProcess = tableMapper.get(MoreElements.asType(classEle).getQualifiedName().toString());
         if (null == oooProcess) {
-            oooProcess = new OOOProcessV1();
+            oooProcess = new OOOProcess();
             oooProcess.setGeneratorClassEl(classEle);
             tableMapper.put(className, oooProcess);
         }

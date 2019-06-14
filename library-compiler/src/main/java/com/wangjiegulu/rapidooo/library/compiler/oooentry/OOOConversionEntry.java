@@ -1,4 +1,4 @@
-package com.wangjiegulu.rapidooo.library.compiler.v1;
+package com.wangjiegulu.rapidooo.library.compiler.oooentry;
 
 import com.google.auto.common.MoreElements;
 import com.google.auto.common.MoreTypes;
@@ -6,13 +6,16 @@ import com.google.auto.common.MoreTypes;
 import com.squareup.javapoet.TypeName;
 import com.wangjiegulu.rapidooo.api.OOOControlMode;
 import com.wangjiegulu.rapidooo.api.OOOConversion;
+import com.wangjiegulu.rapidooo.library.compiler.exception.RapidOOOCompileException;
 import com.wangjiegulu.rapidooo.library.compiler.util.AnnoUtil;
 import com.wangjiegulu.rapidooo.library.compiler.util.ElementUtil;
+import com.wangjiegulu.rapidooo.library.compiler.util.LogicUtil;
 import com.wangjiegulu.rapidooo.library.compiler.util.TextUtil;
 import com.wangjiegulu.rapidooo.library.compiler.util.func.Func0R;
-import com.wangjiegulu.rapidooo.library.compiler.v1.variables.OtherFieldVariable;
-import com.wangjiegulu.rapidooo.library.compiler.v1.variables.OtherObjectVariable;
-import com.wangjiegulu.rapidooo.library.compiler.v1.variables.SelfObjectVariable;
+import com.wangjiegulu.rapidooo.library.compiler.variables.IOOOVariable;
+import com.wangjiegulu.rapidooo.library.compiler.variables.impl.OtherFieldVariable;
+import com.wangjiegulu.rapidooo.library.compiler.variables.impl.OtherObjectVariable;
+import com.wangjiegulu.rapidooo.library.compiler.variables.impl.SelfObjectVariable;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -21,6 +24,7 @@ import java.util.Map;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
+import javax.lang.model.element.Modifier;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.TypeMirror;
 
@@ -70,9 +74,9 @@ public class OOOConversionEntry implements IOOOVariable {
         }));
         targetFieldTypeId = oooConversion.targetFieldTypeId();
 
-
         // attach mode
         attachFieldName = oooConversion.attachFieldName();
+
 
         // bind mode
         bindMethodClass = AnnoUtil.getType(new Func0R<Object>() {
@@ -82,8 +86,7 @@ public class OOOConversionEntry implements IOOOVariable {
             }
         });
         bindMethodClassType = ElementUtil.getTypeName(bindMethodClass);
-
-        if (ElementUtil.isSameType(bindMethodClassType, TypeName.get(Object.class))) {
+        if (ElementUtil.isSameType(bindMethodClassType, TypeName.get(Object.class))) { // 如果没有配置，则默认是 Generator 类
             bindMethodClassType = oooEntry.getOoosEntry().getOooGenerator().getGeneratorClassType();
             bindMethodClass = oooEntry.getOoosEntry().getOooGenerator().getGeneratorClassEl().asType();
         }
@@ -99,7 +102,7 @@ public class OOOConversionEntry implements IOOOVariable {
             }
         });
         conversionMethodClassType = ElementUtil.getTypeName(conversionMethodClass);
-        if (ElementUtil.isSameType(conversionMethodClassType, TypeName.get(Object.class))) {
+        if (ElementUtil.isSameType(conversionMethodClassType, TypeName.get(Object.class))) { // 如果没有配置，则默认是 Generator 类
             conversionMethodClassType = oooEntry.getOoosEntry().getOooGenerator().getGeneratorClassType();
             conversionMethodClass = oooEntry.getOoosEntry().getOooGenerator().getGeneratorClassEl().asType();
         }
@@ -111,7 +114,7 @@ public class OOOConversionEntry implements IOOOVariable {
     }
 
     public OOOConversionEntry prepare() {
-        if (!AnnoUtil.oooParamIsNotSet(targetFieldTypeId)) {
+        if (!AnnoUtil.oooParamIsNotSet(targetFieldTypeId)) { // 设置了 type id，则从缓存中查询
             targetFieldType = oooEntry.getOoosEntry().queryTypeIds(targetFieldTypeId).getTargetClassType();
         }
         return this;
@@ -125,11 +128,15 @@ public class OOOConversionEntry implements IOOOVariable {
 
     }
 
+    /**
+     * 解析 control mode 的类型，并做好校验工作
+     */
     private void parseControlMode() {
+        boolean attachSet = !AnnoUtil.oooParamIsNotSet(attachFieldName);
         boolean bindSet = !AnnoUtil.oooParamIsNotSet(bindMethodName) || !AnnoUtil.oooParamIsNotSet(inverseBindMethodName);
         boolean conversionSet = !AnnoUtil.oooParamIsNotSet(conversionMethodName) || !AnnoUtil.oooParamIsNotSet(inverseConversionMethodName);
-        if (bindSet && conversionSet) {
-            throw new RuntimeException("Can not be set BIND or CONVERSION at the same time.");
+        if (LogicUtil.countBoolean(attachSet, bindSet, conversionSet).size() > 1) {
+            throw new RapidOOOCompileException("Can not be set ATTACH or BIND or CONVERSION at the same time.");
         }
         if (bindSet) {
             controlMode = OOOControlMode.BIND;
@@ -148,24 +155,25 @@ public class OOOConversionEntry implements IOOOVariable {
     }
 
     private void parseAttachMode() {
-        // TODO: 2019-06-14 wangjie check if attachFieldName in targetClassType.
+        // TODO: 2019-06-14 wangjie check if attachFieldName in fromClassType?
+
     }
 
     private void parseBindMode() {
         if (isBindMethodSet()) {
             // 检查 bind method 是否存在
-            ExecutableElement method = findMethodInClass(bindMethodClass, bindMethodName);
+            ExecutableElement method = findPublicStaticMethodInClass(bindMethodClass, bindMethodName, targetFieldType);
             if (null == method) {
-                throw new RuntimeException("Method[" + bindMethodName + "] not found in " + bindMethodClass.toString() + " class.");
+                throw new RapidOOOCompileException("Method[public static " + targetFieldType.toString() + " " + bindMethodName + "(...)] not found in " + bindMethodClass.toString() + " class.");
             }
             // 检查 bind method 方法中的所有参数是否存在在 OOO 中
             bindTargetParamFields = findBindMethodVariables(method);
         }
         if (isInverseBindMethodSet()) {
             // 检查 bind method 是否存在
-            ExecutableElement method = findMethodInClass(bindMethodClass, inverseBindMethodName);
+            ExecutableElement method = findPublicStaticMethodInClass(bindMethodClass, inverseBindMethodName, ElementUtil.getTypeName(void.class));
             if (null == method) {
-                throw new RuntimeException("Method[" + inverseBindMethodName + "] not found in " + bindMethodClass.toString() + " class.");
+                throw new RapidOOOCompileException("Method[public static void " + inverseBindMethodName + "(...)] not found in " + bindMethodClass.toString() + " class.");
             }
             // 检查 bind method 方法中的所有参数是否存在在 OOO 中
             inverseBindTargetParamFields = findBindMethodVariables(method);
@@ -173,21 +181,20 @@ public class OOOConversionEntry implements IOOOVariable {
     }
 
     private void parseConversionMode() {
-        // TODO: 2019-06-13 wangjie
         if (isConversionMethodSet()) {
             // 检查 conversion method 是否存在
-            ExecutableElement method = findMethodInClass(conversionMethodClass, conversionMethodName);
+            ExecutableElement method = findPublicStaticMethodInClass(conversionMethodClass, conversionMethodName, targetFieldType);
             if (null == method) {
-                throw new RuntimeException("Method[" + conversionMethodName + "] not found in " + conversionMethodClass.toString() + " class.");
+                throw new RapidOOOCompileException("Method[public static " + targetFieldType.toString() + " " + conversionMethodName + "(...)] not found in " + conversionMethodClass.toString() + " class.");
             }
             // 检查 conversion method 方法中的所有参数是否存在在 OOO 中
             conversionTargetParamFields = findConversionMethodVariables(method);
         }
         if (isInverseConversionMethodSet()) {
             // 检查 conversion method 是否存在
-            ExecutableElement method = findMethodInClass(conversionMethodClass, inverseConversionMethodName);
+            ExecutableElement method = findPublicStaticMethodInClass(conversionMethodClass, inverseConversionMethodName, ElementUtil.getTypeName(void.class));
             if (null == method) {
-                throw new RuntimeException("Method[" + inverseConversionMethodName + "] not found in " + conversionMethodClass.toString() + " class.");
+                throw new RapidOOOCompileException("Method[public static void " + inverseConversionMethodName + "(...)] not found in " + conversionMethodClass.toString() + " class.");
             }
             // 检查 conversion method 方法中的所有参数是否存在在 OOO 中
             inverseConversionTargetParamFields = findConversionMethodVariables(method);
@@ -212,7 +219,7 @@ public class OOOConversionEntry implements IOOOVariable {
                 // 检查某个参数是否存在在 OOO 中
                 IOOOVariable fieldEntry = findFieldInOOO(ve);
                 if (null == fieldEntry) {
-                    throw new RuntimeException("Can not found field[" + ve.getSimpleName() + "-" + method.getSimpleName() + "] in " + oooEntry.getTargetClassSimpleName());
+                    throw new RapidOOOCompileException("Can not found field[" + ve.getSimpleName() + "-" + method.getSimpleName() + "] in " + oooEntry.getTargetClassSimpleName());
                 }
                 variableElements.put(fieldEntry.fieldName(), fieldEntry);
             }
@@ -239,7 +246,6 @@ public class OOOConversionEntry implements IOOOVariable {
                     TextUtil.equals(ve.getSimpleName().toString(), "other")
                             &&
                             // TODO: 2019-06-13 wangjie 这里使用了 Class Type Simple Name 进行了对比，待优化
-                            // TODO: 2019-06-14 wangjie error!
                             TextUtil.equals(MoreTypes.asTypeElement(ve.asType()).getSimpleName().toString(), oooEntry.getFromSimpleName())
             ) {
                 OtherObjectVariable otherObjectVariable = new OtherObjectVariable(ve.getSimpleName().toString(), TextUtil.firstCharLower(oooEntry.getFromSimpleName()));
@@ -298,11 +304,22 @@ public class OOOConversionEntry implements IOOOVariable {
     /**
      * 检查对应名字的 method 是否在某个类中存在
      */
-    private ExecutableElement findMethodInClass(TypeMirror methodClass, String methodName) {
+    private ExecutableElement findPublicStaticMethodInClass(TypeMirror methodClass, String methodName, TypeName returnType) {
         for (Element e : MoreTypes.asElement(methodClass).getEnclosedElements()) {
             if (e.getKind() == ElementKind.METHOD) {
+                // Must public static
                 ExecutableElement method = MoreElements.asExecutable(e);
-                if (TextUtil.equals(methodName, method.getSimpleName().toString())) {
+                if (!MoreElements.hasModifiers(Modifier.STATIC).apply(method)
+                        ||
+                        !MoreElements.hasModifiers(Modifier.PUBLIC).apply(method)
+                ) {
+                    continue;
+                }
+                if (
+                        TextUtil.equals(methodName, method.getSimpleName().toString())
+                        &&
+                                ElementUtil.isSameType(method.getReturnType(), returnType)
+                ) {
                     return method;
                 }
             }

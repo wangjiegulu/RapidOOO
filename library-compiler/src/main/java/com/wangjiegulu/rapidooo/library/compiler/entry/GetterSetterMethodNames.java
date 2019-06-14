@@ -1,4 +1,4 @@
-package com.wangjiegulu.rapidooo.library.compiler.objs;
+package com.wangjiegulu.rapidooo.library.compiler.entry;
 
 /**
  * Author: wangjie

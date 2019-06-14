@@ -1,9 +1,9 @@
-package com.wangjiegulu.rapidooo.library.compiler.v1.variables;
+package com.wangjiegulu.rapidooo.library.compiler.variables.impl;
 
-import com.wangjiegulu.rapidooo.library.compiler.objs.GetterSetterMethodNames;
+import com.wangjiegulu.rapidooo.library.compiler.entry.GetterSetterMethodNames;
 import com.wangjiegulu.rapidooo.library.compiler.util.ElementUtil;
 import com.wangjiegulu.rapidooo.library.compiler.util.PoetUtil;
-import com.wangjiegulu.rapidooo.library.compiler.v1.IOOOVariable;
+import com.wangjiegulu.rapidooo.library.compiler.variables.IOOOVariable;
 
 import javax.lang.model.element.VariableElement;
 

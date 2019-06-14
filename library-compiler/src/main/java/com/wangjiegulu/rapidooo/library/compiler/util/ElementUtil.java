@@ -2,6 +2,7 @@ package com.wangjiegulu.rapidooo.library.compiler.util;
 
 import com.google.auto.common.MoreElements;
 import com.google.auto.common.MoreTypes;
+import com.google.common.base.Optional;
 
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.TypeName;
@@ -13,6 +14,7 @@ import javax.lang.model.element.Element;
 import javax.lang.model.element.Name;
 import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.VariableElement;
+import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeMirror;
 
 /**
@@ -131,5 +133,27 @@ public class ElementUtil {
     public static String getSimpleName(TypeMirror typeMirror) {
         TypeName type1Name = ClassName.get(typeMirror);
         return type1Name.isPrimitive() || type1Name == TypeName.VOID ? type1Name.toString() : MoreTypes.asTypeElement(typeMirror).getSimpleName().toString();
+    }
+
+
+    public static boolean isSupperParcelableInterfaceDeep(Element fromClassElement) {
+        Element currentClass = fromClassElement;
+        do {
+            Optional<DeclaredType> superClass = MoreTypes.nonObjectSuperclass(GlobalEnvironment.getProcessingEnv().getTypeUtils(),
+                    GlobalEnvironment.getProcessingEnv().getElementUtils(), (DeclaredType) currentClass.asType());
+            if (superClass.isPresent()) {
+                currentClass = superClass.get().asElement();
+                for (TypeMirror interf : MoreTypes.asTypeElement(currentClass.asType()).getInterfaces()) {
+                    if (ElementUtil.isSameType(interf, ClassName.bestGuess("android.os.Parcelable"))) {
+                        return true;
+                    }
+                }
+//                    allElements.add(currentClass);
+//                    LogUtil.logger("superclass.get().asElement().toString(): " + currentClass.toString());
+            } else {
+                currentClass = null;
+            }
+        } while (null != currentClass);
+        return false;
     }
 }

@@ -1,17 +1,18 @@
-package com.wangjiegulu.rapidooo.library.compiler.v1.part;
+package com.wangjiegulu.rapidooo.library.compiler.part.impl;
 
 import com.squareup.javapoet.FieldSpec;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeSpec;
 import com.wangjiegulu.rapidooo.api.OOOControlMode;
-import com.wangjiegulu.rapidooo.library.compiler.objs.GetterSetterMethodNames;
+import com.wangjiegulu.rapidooo.library.compiler.entry.GetterSetterMethodNames;
 import com.wangjiegulu.rapidooo.library.compiler.util.PoetUtil;
 import com.wangjiegulu.rapidooo.library.compiler.util.TextUtil;
 import com.wangjiegulu.rapidooo.library.compiler.util.func.Func1R;
-import com.wangjiegulu.rapidooo.library.compiler.v1.IOOOVariable;
-import com.wangjiegulu.rapidooo.library.compiler.v1.OOOConversionEntry;
-import com.wangjiegulu.rapidooo.library.compiler.v1.OOOEntry;
-import com.wangjiegulu.rapidooo.library.compiler.v1.OOOFieldEntry;
+import com.wangjiegulu.rapidooo.library.compiler.variables.IOOOVariable;
+import com.wangjiegulu.rapidooo.library.compiler.oooentry.OOOConversionEntry;
+import com.wangjiegulu.rapidooo.library.compiler.oooentry.OOOEntry;
+import com.wangjiegulu.rapidooo.library.compiler.oooentry.OOOFieldEntry;
+import com.wangjiegulu.rapidooo.library.compiler.part.PartBrew;
 
 import java.util.HashMap;
 import java.util.Map;

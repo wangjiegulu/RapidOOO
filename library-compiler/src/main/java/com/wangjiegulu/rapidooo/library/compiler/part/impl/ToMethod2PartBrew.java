@@ -1,16 +1,17 @@
-package com.wangjiegulu.rapidooo.library.compiler.v1.part;
+package com.wangjiegulu.rapidooo.library.compiler.part.impl;
 
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeSpec;
 import com.wangjiegulu.rapidooo.library.compiler.util.TextUtil;
-import com.wangjiegulu.rapidooo.library.compiler.v1.OOOEntry;
+import com.wangjiegulu.rapidooo.library.compiler.oooentry.OOOEntry;
+import com.wangjiegulu.rapidooo.library.compiler.part.PartBrew;
 
 import javax.lang.model.element.Modifier;
 
 /**
  * Author: wangjie Email: tiantian.china.2@gmail.com Date: 2019-06-13.
  */
-public class ToMethod2PartBrew implements PartBrew{
+public class ToMethod2PartBrew implements PartBrew {
     @Override
     public void brew(OOOEntry oooEntry, TypeSpec.Builder result) {
         String fromParamName = TextUtil.firstCharLower(oooEntry.getFromSimpleName());

@@ -1,6 +1,7 @@
 package com.wangjiegulu.rapidooo.library.compiler.util;
 
 import com.wangjiegulu.rapidooo.api.OOOConstants;
+import com.wangjiegulu.rapidooo.library.compiler.exception.RapidOOOCompileException;
 import com.wangjiegulu.rapidooo.library.compiler.util.func.Func0R;
 
 import javax.lang.model.type.MirroredTypeException;
@@ -22,7 +23,7 @@ public class AnnoUtil {
         } catch (MirroredTypeException mte) {
             return mte.getTypeMirror();
         }
-        throw new RuntimeException("AnnoUtil::getType error");
+        throw new RapidOOOCompileException("AnnoUtil::getType error");
     }
 
 }

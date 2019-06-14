@@ -2,6 +2,7 @@ package com.wangjiegulu.rapidooo.library.compiler.util;
 
 import com.wangjiegulu.rapidooo.library.compiler.util.func.Func1R;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -32,5 +33,12 @@ public class TextUtil {
             isFirst = false;
         }
         return sb.toString();
+    }
+
+    public static boolean isEmpty(Collection<?> collection){
+        return null == collection || collection.isEmpty();
+    }
+    public static int size(Collection<?> collection){
+        return null == collection ? 0 : collection.size();
     }
 }

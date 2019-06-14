@@ -1,4 +1,4 @@
-package com.wangjiegulu.rapidooo.library.compiler.v1;
+package com.wangjiegulu.rapidooo.library.compiler.oooentry;
 
 import com.squareup.javapoet.TypeName;
 import com.wangjiegulu.rapidooo.api.OOOs;

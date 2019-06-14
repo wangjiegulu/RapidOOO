@@ -1,4 +1,4 @@
-package com.wangjiegulu.rapidooo.library.compiler.v1;
+package com.wangjiegulu.rapidooo.library.compiler.oooentry;
 
 import com.google.auto.common.MoreElements;
 import com.google.auto.common.MoreTypes;
@@ -8,10 +8,10 @@ import com.squareup.javapoet.TypeName;
 import com.wangjiegulu.rapidooo.api.OOO;
 import com.wangjiegulu.rapidooo.api.OOOConstants;
 import com.wangjiegulu.rapidooo.api.OOOConversion;
+import com.wangjiegulu.rapidooo.library.compiler.exception.RapidOOOCompileException;
 import com.wangjiegulu.rapidooo.library.compiler.util.AnnoUtil;
 import com.wangjiegulu.rapidooo.library.compiler.util.EasyType;
 import com.wangjiegulu.rapidooo.library.compiler.util.ElementUtil;
-import com.wangjiegulu.rapidooo.library.compiler.util.LogUtil;
 import com.wangjiegulu.rapidooo.library.compiler.util.func.Func0R;
 
 import java.util.ArrayList;
@@ -51,9 +51,8 @@ public class OOOEntry {
     private String targetSupperTypeId = OOOConstants.NOT_SET;
 
     private OOOPoolEntry pool;
-    private boolean isPoolUsed;
 
-//    private List<OOOConversionEntry> conversions = new ArrayList<>();
+    //    private List<OOOConversionEntry> conversions = new ArrayList<>();
     private HashMap<String, OOOConversionEntry> conversions = new LinkedHashMap<>();
 
     private String targetClassPackage;
@@ -61,13 +60,16 @@ public class OOOEntry {
     private TypeName targetClassType;
 
     private HashMap<String, OOOFieldEntry> allContinuingFields = new LinkedHashMap<>();
-//    private HashMap<String, OOOConversionEntry> allTargetConvFields = new LinkedHashMap<>();
 
+    /**
+     * 显式配置
+     */
     public OOOEntry(OOOSEntry ooosEntry, final OOO ooo) {
         this.ooosEntry = ooosEntry;
         this.ooo = ooo;
 
         id = ooo.id();
+        // 缓存 id
         if (!AnnoUtil.oooParamIsNotSet(id)) {
             ooosEntry.addTypeIds(id, this);
         }
@@ -98,7 +100,6 @@ public class OOOEntry {
         targetSupperTypeId = ooo.targetSupperTypeId();
 
         pool = new OOOPoolEntry(this, ooo.pool());
-        isPoolUsed = isPoolUsedInternal();
 
         for (OOOConversion oooConversion : ooo.conversions()) {
             OOOConversionEntry oce = new OOOConversionEntry(this, oooConversion);
@@ -108,6 +109,9 @@ public class OOOEntry {
         init();
     }
 
+    /**
+     * 隐式配置
+     */
     public OOOEntry(OOOSEntry ooosEntry, final Element element) {
         this.ooosEntry = ooosEntry;
         from = element.asType();
@@ -136,25 +140,25 @@ public class OOOEntry {
 
         // All fields need to add to target new Class
         List<? extends Element> eles = fromElement.getEnclosedElements();
-        for (Element e : eles) {
-            if (ElementKind.FIELD == e.getKind()) {
-                if (MoreElements.hasModifiers(Modifier.STATIC).apply(e)) {
+        for (Element field : eles) {
+            if (ElementKind.FIELD == field.getKind()) {
+                if (MoreElements.hasModifiers(Modifier.STATIC).apply(field)) {
                     continue;
                 }
-                Element field = e;
                 String fieldName = field.getSimpleName().toString();
-                if(includeField(fieldName)){
+                if (includeField(fieldName)) {
                     allContinuingFields.put(fieldName, new OOOFieldEntry(field));
                 }
             }
         }
 
         // All conversion fields need to add to target new Class -> `conversions`
-
+        // it's `conversions`
 
     }
 
     public OOOEntry prepare() {
+        // 设置了父类的 type id，则从缓存中查询
         if (!AnnoUtil.oooParamIsNotSet(targetSupperTypeId)) {
             targetSupperType = ooosEntry.queryTypeIds(targetSupperTypeId).targetClassType;
         }
@@ -177,36 +181,20 @@ public class OOOEntry {
 
     }
 
-    public boolean includeField(String fieldName){
-        if(includes.isEmpty() && excludes.isEmpty()){
+    public boolean includeField(String fieldName) {
+        if (includes.isEmpty() && excludes.isEmpty()) {
             return true;
         }
 
-        if(!includes.isEmpty() && !excludes.isEmpty()){
-            throw new  RuntimeException("`includes` and `excludes` can only be set up to one.");
+        if (!includes.isEmpty() && !excludes.isEmpty()) {
+            throw new RapidOOOCompileException("`includes` and `excludes` can only be set up to one.");
         }
 
-        if(!includes.isEmpty()){
+        if (!includes.isEmpty()) {
             return includes.contains(fieldName);
         }
 
         return !excludes.contains(fieldName);
-    }
-
-    private boolean isPoolUsedInternal() {
-        boolean acquireMethodSet = !AnnoUtil.oooParamIsNotSet(pool.getAcquireMethod());
-        boolean releaseMethodSet = !AnnoUtil.oooParamIsNotSet(pool.getReleaseMethod());
-        if (!acquireMethodSet && !releaseMethodSet) {
-            return false;
-        }
-        if (acquireMethodSet && releaseMethodSet) {
-            // TODO: 2019-06-13 wangjie
-//            checkPoolMethodValidate();
-            return true;
-        } else {
-            LogUtil.logger("Both AcquireMethod and ReleaseMethodSet need to be set.");
-            return false;
-        }
     }
 
     public OOOSEntry getOoosEntry() {
@@ -278,7 +266,7 @@ public class OOOEntry {
     }
 
     public boolean isPoolUsed() {
-        return isPoolUsed;
+        return null != pool && pool.isPoolUsed();
     }
 
     @Override

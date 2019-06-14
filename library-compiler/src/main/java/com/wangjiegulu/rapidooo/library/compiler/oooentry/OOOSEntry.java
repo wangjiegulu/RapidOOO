@@ -1,8 +1,9 @@
-package com.wangjiegulu.rapidooo.library.compiler.v1;
+package com.wangjiegulu.rapidooo.library.compiler.oooentry;
 
 import com.wangjiegulu.rapidooo.api.OOO;
 import com.wangjiegulu.rapidooo.api.OOOIgnore;
 import com.wangjiegulu.rapidooo.api.OOOs;
+import com.wangjiegulu.rapidooo.library.compiler.exception.RapidOOOCompileException;
 import com.wangjiegulu.rapidooo.library.compiler.util.ElementUtil;
 import com.wangjiegulu.rapidooo.library.compiler.util.GlobalEnvironment;
 import com.wangjiegulu.rapidooo.library.compiler.util.LogUtil;
@@ -48,10 +49,9 @@ public class OOOSEntry {
 
         // 使用 package 隐式的配置
         for (String ooosPackage : ooosPackages) {
-            LogUtil.logger(">>>>>ooosPackage: " + ooosPackage);
             PackageElement packageElement = GlobalEnvironment.getElementUtils().getPackageElement(ooosPackage);
             if (null == packageElement) {
-                throw new RuntimeException("package[" + ooosPackage + "] is not exist.");
+                throw new RapidOOOCompileException("package[" + ooosPackage + "] is not exist.");
             }
 
             List<? extends Element> oooClassesElements = packageElement.getEnclosedElements();
@@ -115,7 +115,7 @@ public class OOOSEntry {
 
     public void addTypeIds(String id, OOOEntry oooEntry) {
         if(allTypeIds.containsKey(id)){
-            throw new RuntimeException("[" + oooGenerator.getGeneratorClassEl().getSimpleName() + "]id[" + "] is already exist in " + oooEntry.getFromClassName().simpleName() + ".");
+            throw new RapidOOOCompileException("[" + oooGenerator.getGeneratorClassEl().getSimpleName() + "]id[" + "] is already exist in " + oooEntry.getFromClassName().simpleName() + ".");
         }
         this.allTypeIds.put(id, oooEntry);
     }

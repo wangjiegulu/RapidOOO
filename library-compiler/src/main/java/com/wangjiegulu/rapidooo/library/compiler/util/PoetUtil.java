@@ -2,7 +2,7 @@ package com.wangjiegulu.rapidooo.library.compiler.util;
 
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeName;
-import com.wangjiegulu.rapidooo.library.compiler.objs.GetterSetterMethodNames;
+import com.wangjiegulu.rapidooo.library.compiler.entry.GetterSetterMethodNames;
 
 import javax.lang.model.element.Modifier;
 
