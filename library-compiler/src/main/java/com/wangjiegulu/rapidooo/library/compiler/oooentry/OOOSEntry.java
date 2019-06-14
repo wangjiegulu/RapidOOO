@@ -124,13 +124,4 @@ public class OOOSEntry {
         return allTypeIds;
     }
 
-    @Override
-    public String toString() {
-        return "OOOSEntry{" +
-                ", fromSuffix='" + fromSuffix + '\'' +
-                ", suffix='" + suffix + '\'' +
-                ", ooosPackages=" + ooosPackages +
-                ", ooos=" + ooos +
-                '}';
-    }
 }

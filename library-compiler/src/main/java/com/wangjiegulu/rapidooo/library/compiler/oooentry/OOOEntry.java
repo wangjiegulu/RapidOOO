@@ -269,21 +269,4 @@ public class OOOEntry {
         return null != pool && pool.isPoolUsed();
     }
 
-    @Override
-    public String toString() {
-        return "OOOEntry{" +
-                ", id='" + id + '\'' +
-                ", fromSuffix='" + fromSuffix + '\'' +
-                ", suffix='" + suffix + '\'' +
-                ", from=" + from +
-                ", includes=" + includes +
-                ", excludes=" + excludes +
-                ", targetSupperType=" + targetSupperType +
-                ", targetSupperTypeId='" + targetSupperTypeId + '\'' +
-                ", pool=" + pool +
-                ", conversions=" + conversions +
-                '}';
-    }
-
-
 }

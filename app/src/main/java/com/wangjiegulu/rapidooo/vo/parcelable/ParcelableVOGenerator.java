@@ -42,7 +42,7 @@ import com.wangjiegulu.rapidooo.depmodule.bll.xbo.parcelable.User_BO;
                 }
         ),
         @OOO(targetSupperTypeId = "pet_parent_vo_id", from = PetBO.class,
-                excludes = {"ownerUser"},
+                excludes = {"ownerUser", "fullName"},
                 conversions = {
                         @OOOConversion(
                                 targetFieldName = "ownerUser",

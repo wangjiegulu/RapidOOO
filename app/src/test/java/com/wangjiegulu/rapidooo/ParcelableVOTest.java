@@ -26,7 +26,8 @@ public class ParcelableVOTest {
 
         PetBO petBO = new PetBO();
         petBO.setPetId(2000L);
-        petBO.setPetName("Max");
+        petBO.setFirstName("Max");
+        petBO.setLastName("Will");
         petBO.setDog(false);
         petBO.setCat(true);
         petBO.setClear(true);
@@ -37,14 +38,15 @@ public class ParcelableVOTest {
         // petBO -> petVO
         PetVO petVO = PetVO.create(petBO);
         Assert.assertEquals(2000L, petVO.getPetId().longValue());
-        Assert.assertEquals("Max", petVO.getPetName());
+        Assert.assertEquals("Max", petVO.getFirstName());
+        Assert.assertEquals("Will", petVO.getLastName());
         Assert.assertFalse(petVO.getDog());
         Assert.assertTrue(petVO.isCat());
         Assert.assertTrue(petVO.getClear());
         Assert.assertEquals("petChildName", petVO.getChildName());
         Assert.assertEquals(1234L, petVO.getLongBox().longValue());
 
-        petVO.setPetName("Max1");
+        petVO.setFirstName("Max1");
         petVO.setCat(false);
         petVO.getOwnerUser().setGenderDesc("female");
         petVO.getOwnerUser().setNickname("wangjieooo");
@@ -53,7 +55,8 @@ public class ParcelableVOTest {
         // petVO -> new petBO
         PetBO newPetBo = petVO.toPetBO();
         Assert.assertEquals(2000L, newPetBo.getPetId().longValue());
-        Assert.assertEquals("Max1", newPetBo.getPetName());
+        Assert.assertEquals("Max1", newPetBo.getFirstName());
+        Assert.assertEquals("Will", newPetBo.getLastName());
         Assert.assertFalse(newPetBo.getDog());
         Assert.assertFalse(newPetBo.isCat());
         Assert.assertTrue(newPetBo.getClear());

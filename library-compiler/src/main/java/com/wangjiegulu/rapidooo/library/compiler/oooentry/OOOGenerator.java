@@ -39,12 +39,4 @@ public class OOOGenerator {
         return ooosEntry;
     }
 
-    @Override
-    public String toString() {
-        return "OOOGenerator{" +
-                "generatorClassEl=" + generatorClassEl +
-                ", generatorClassType=" + generatorClassType +
-                ", ooosEntry=" + ooosEntry +
-                '}';
-    }
 }

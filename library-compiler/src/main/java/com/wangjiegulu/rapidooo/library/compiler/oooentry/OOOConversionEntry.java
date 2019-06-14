@@ -210,7 +210,7 @@ public class OOOConversionEntry implements IOOOVariable {
             if (
                     TextUtil.equals(ve.getSimpleName().toString(), "self")
                             &&
-                            // TODO: 2019-06-13 wangjie 这里使用了 Class Type Simple Name 进行了对比，待优化
+                            // TODO: 2019-06-13 wangjie validate class type simple name here, need optimize
                             TextUtil.equals(ve.asType().toString(), oooEntry.getTargetClassSimpleName())
             ) {
                 SelfObjectVariable selfObjectVariable = new SelfObjectVariable(ve.getSimpleName().toString());
@@ -237,7 +237,7 @@ public class OOOConversionEntry implements IOOOVariable {
             if (
                     TextUtil.equals(ve.getSimpleName().toString(), "self")
                             &&
-                            // TODO: 2019-06-13 wangjie 这里使用了 Class Type Simple Name 进行了对比，待优化
+                            // TODO: 2019-06-13 wangjie validate class type simple name here, need optimize
                             TextUtil.equals(MoreTypes.asTypeElement(ve.asType()).getSimpleName().toString(), oooEntry.getTargetClassSimpleName())
             ) {
                 SelfObjectVariable selfObjectVariable = new SelfObjectVariable(ve.getSimpleName().toString());
@@ -245,7 +245,7 @@ public class OOOConversionEntry implements IOOOVariable {
             } else if (
                     TextUtil.equals(ve.getSimpleName().toString(), "other")
                             &&
-                            // TODO: 2019-06-13 wangjie 这里使用了 Class Type Simple Name 进行了对比，待优化
+                            // TODO: 2019-06-13 wangjie validate class type simple name here, need optimize
                             TextUtil.equals(MoreTypes.asTypeElement(ve.asType()).getSimpleName().toString(), oooEntry.getFromSimpleName())
             ) {
                 OtherObjectVariable otherObjectVariable = new OtherObjectVariable(ve.getSimpleName().toString(), TextUtil.firstCharLower(oooEntry.getFromSimpleName()));
@@ -416,21 +416,6 @@ public class OOOConversionEntry implements IOOOVariable {
 
     public String getAttachFieldName() {
         return attachFieldName;
-    }
-
-    @Override
-    public String toString() {
-        return "OOOConversionEntry{" +
-                ", targetFieldName='" + targetFieldName + '\'' +
-                ", targetFieldType=" + targetFieldType +
-                ", targetFieldTypeId='" + targetFieldTypeId + '\'' +
-                ", bindMethodClassType=" + bindMethodClassType +
-                ", bindMethodName='" + bindMethodName + '\'' +
-                ", inverseBindMethodName='" + inverseBindMethodName + '\'' +
-                ", conversionMethodClassType=" + conversionMethodClassType +
-                ", conversionMethodName='" + conversionMethodName + '\'' +
-                ", inverseConversionMethodName='" + inverseConversionMethodName + '\'' +
-                '}';
     }
 
     @Override

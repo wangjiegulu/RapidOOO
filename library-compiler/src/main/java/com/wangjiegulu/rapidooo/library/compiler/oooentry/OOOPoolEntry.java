@@ -87,7 +87,7 @@ public class OOOPoolEntry {
                 }
                 if (TextUtil.equals(acquireMethod, method.getSimpleName().toString())
                                 &&
-                                // TODO: 2019-06-14 wangjie 这里使用了 Class Type Simple Name 进行了对比，待优化
+                                // TODO: 2019-06-14 wangjie validate class type simple name here, need optimize
                                 TextUtil.equals(method.getReturnType().toString(), oooEntry.getTargetClassSimpleName())
                                 &&
                                 TextUtil.isEmpty(method.getParameters())
@@ -116,7 +116,7 @@ public class OOOPoolEntry {
                                 &&
                                 TextUtil.size(method.getParameters()) == 1
                                 &&
-                                // TODO: 2019-06-14 wangjie 这里使用了 Class Type Simple Name 进行了对比，待优化
+                                // TODO: 2019-06-14 wangjie validate class type simple name here, need optimize
                                 TextUtil.equals(method.getParameters().get(0).asType().toString(), oooEntry.getTargetClassSimpleName())
                 ) {
                     return method;
@@ -146,12 +146,4 @@ public class OOOPoolEntry {
         return isPoolUsed;
     }
 
-    @Override
-    public String toString() {
-        return "OOOPoolEntry{" +
-                ", poolMethodClassTypeName=" + poolMethodClassTypeName +
-                ", acquireMethod='" + acquireMethod + '\'' +
-                ", releaseMethod='" + releaseMethod + '\'' +
-                '}';
-    }
 }
