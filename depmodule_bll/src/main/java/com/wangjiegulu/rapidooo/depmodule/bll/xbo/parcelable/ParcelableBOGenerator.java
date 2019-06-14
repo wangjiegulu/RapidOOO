@@ -16,8 +16,8 @@ import com.wangjiegulu.rapidooo.depmodule.dal.xdo.parcelable.User;
 @OOOs(suffix = ParcelableBOGenerator.BO_SUFFIX, ooos = {
         @OOO(id = "pet_parent_bo_id", from = PetParent.class),
         @OOO(id = "user_bo_id", from = User.class, suffix = ParcelableBOGenerator.BO_SUFFIX_USER),
-        @OOO(from = Pet.class, targetSupperTypeId = "pet_parent_bo_id",
-                excludes = {"owner"},
+        @OOO(from = Pet.class, targetSupperTypeId = "pet_parent_bo_id", suffix = "2BO", excludes = {"owner"}),
+        @OOO(from = Pet.class, targetSupperTypeId = "pet_parent_bo_id", excludes = {"owner"},
                 conversions = {
                         @OOOConversion(
                                 targetFieldName = "ownerUser",

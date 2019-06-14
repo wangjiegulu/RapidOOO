@@ -3,26 +3,25 @@ package com.wangjiegulu.rapidooo.library.compiler;
 import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
-import com.wangjiegulu.rapidooo.library.compiler.util.ElementUtil;
 import com.wangjiegulu.rapidooo.library.compiler.oooentry.OOOEntry;
 import com.wangjiegulu.rapidooo.library.compiler.oooentry.OOOGenerator;
 import com.wangjiegulu.rapidooo.library.compiler.oooentry.OOOSEntry;
+import com.wangjiegulu.rapidooo.library.compiler.part.PartBrew;
 import com.wangjiegulu.rapidooo.library.compiler.part.impl.CreateMethodPartBrew;
 import com.wangjiegulu.rapidooo.library.compiler.part.impl.DefaultConstructorMethodPartBrew;
 import com.wangjiegulu.rapidooo.library.compiler.part.impl.FieldAndGetterSetterPartBrew;
 import com.wangjiegulu.rapidooo.library.compiler.part.impl.FromMethodPartBrew;
 import com.wangjiegulu.rapidooo.library.compiler.part.impl.InterfacePartBrew;
-import com.wangjiegulu.rapidooo.library.compiler.part.PartBrew;
 import com.wangjiegulu.rapidooo.library.compiler.part.impl.PoolPartBrew;
 import com.wangjiegulu.rapidooo.library.compiler.part.impl.ToMethod1PartBrew;
 import com.wangjiegulu.rapidooo.library.compiler.part.impl.ToMethod2PartBrew;
+import com.wangjiegulu.rapidooo.library.compiler.util.ElementUtil;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 
 import javax.annotation.processing.Filer;
 import javax.lang.model.element.Element;
@@ -58,8 +57,7 @@ public class OOOProcess {
 
     public void brewJava(Filer filer) throws Throwable {
         OOOSEntry ooosEntry = oooGenerator.getOoosEntry();
-        for(Map.Entry<String, OOOEntry> oooE : ooosEntry.getOoos().entrySet()){
-            OOOEntry oooEntry = oooE.getValue();
+        for(OOOEntry oooEntry : ooosEntry.getOoos()){
 
             ///////////////////// class /////////////////////
             TypeSpec.Builder result = TypeSpec.classBuilder(oooEntry.getTargetClassSimpleName())

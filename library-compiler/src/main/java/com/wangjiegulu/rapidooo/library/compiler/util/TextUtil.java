@@ -41,4 +41,16 @@ public class TextUtil {
     public static int size(Collection<?> collection){
         return null == collection ? 0 : collection.size();
     }
+
+    public static <T> T pickFirst(Func1R<T, Boolean> func, Collection<T> collection){
+        if(null == collection){
+            return null;
+        }
+        for(T t : collection){
+            if(func.call(t)){
+                return t;
+            }
+        }
+        return null;
+    }
 }

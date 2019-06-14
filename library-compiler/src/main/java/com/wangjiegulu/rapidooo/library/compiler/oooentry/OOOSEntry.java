@@ -7,10 +7,12 @@ import com.wangjiegulu.rapidooo.library.compiler.exception.RapidOOOCompileExcept
 import com.wangjiegulu.rapidooo.library.compiler.util.ElementUtil;
 import com.wangjiegulu.rapidooo.library.compiler.util.GlobalEnvironment;
 import com.wangjiegulu.rapidooo.library.compiler.util.LogUtil;
+import com.wangjiegulu.rapidooo.library.compiler.util.TextUtil;
+import com.wangjiegulu.rapidooo.library.compiler.util.func.Func1R;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -29,7 +31,7 @@ public class OOOSEntry {
     private String suffix;
     private List<String> ooosPackages;
 
-    private HashMap<String, OOOEntry> ooos = new LinkedHashMap<>();
+    private List<OOOEntry> ooos = new ArrayList<>();
 
     private Map<String, OOOEntry> allTypeIds = new HashMap<>();
 
@@ -44,7 +46,7 @@ public class OOOSEntry {
         // 添加使用 @OOO 显式的配置
         for(OOO ooo : ooosAnno.ooos()){
             OOOEntry oooEntry = new OOOEntry(this, ooo);
-            ooos.put(ElementUtil.getName(oooEntry.getFrom()).toString(), oooEntry);
+            ooos.add(oooEntry);
         }
 
         // 使用 package 隐式的配置
@@ -66,9 +68,15 @@ public class OOOSEntry {
                         continue;
                     }
 
-                    String qualifiedName = ElementUtil.getName(oooClassElement.asType()).toString();
-                    if(!ooos.containsKey(qualifiedName)){ // 显式设置过，则增加
-                        ooos.put(qualifiedName, new OOOEntry(this, oooClassElement));
+                    final String qualifiedName = ElementUtil.getName(oooClassElement.asType()).toString();
+
+                    if(TextUtil.pickFirst(new Func1R<OOOEntry, Boolean>() {
+                        @Override
+                        public Boolean call(OOOEntry oooEntry) {
+                            return TextUtil.equals(ElementUtil.getName(oooEntry.getFrom()).toString(), qualifiedName);
+                        }
+                    }, ooos) == null){ // 显式设置过，则增加
+                        ooos.add(new OOOEntry(this, oooClassElement));
                     }
                 }
             }
@@ -76,15 +84,15 @@ public class OOOSEntry {
     }
 
     public OOOSEntry prepare(){
-        for(Map.Entry<String, OOOEntry> oooEE : ooos.entrySet()){
-            oooEE.getValue().prepare();
+        for(OOOEntry oooEE : ooos){
+            oooEE.prepare();
         }
         return this;
     }
 
     public void parse(){
-        for(Map.Entry<String, OOOEntry> oooEE : ooos.entrySet()){
-            oooEE.getValue().parse();
+        for(OOOEntry oooEE : ooos){
+            oooEE.parse();
         }
     }
 
@@ -105,7 +113,7 @@ public class OOOSEntry {
         return ooosPackages;
     }
 
-    public HashMap<String, OOOEntry> getOoos() {
+    public List<OOOEntry> getOoos() {
         return ooos;
     }
 
