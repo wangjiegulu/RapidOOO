@@ -57,6 +57,7 @@ public class ParcelableVOTest {
         Assert.assertEquals(2000L, newPetBo.getPetId().longValue());
         Assert.assertEquals("Max1", newPetBo.getFirstName());
         Assert.assertEquals("Will", newPetBo.getLastName());
+        Assert.assertEquals("Max1 Will", newPetBo.getFullName());
         Assert.assertFalse(newPetBo.getDog());
         Assert.assertFalse(newPetBo.isCat());
         Assert.assertTrue(newPetBo.getClear());
