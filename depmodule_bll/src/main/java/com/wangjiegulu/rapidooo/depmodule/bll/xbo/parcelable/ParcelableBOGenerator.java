@@ -53,14 +53,6 @@ public class ParcelableBOGenerator {
         }
     }
 
-    public static User_BO conversionOwnerUser(User user) {
-        return User_BO.create(user);
-    }
-
-    public static void inverseConversionOwnerUser(User_BO ownerUser, Pet pet) {
-        pet.setOwner(ownerUser.toUser());
-    }
-
     private static Pools.Pool<PetBO> petBOPool = new Pools.SimplePool<>(3);
 
     public static PetBO acquirePetBO() {
