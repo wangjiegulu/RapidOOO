@@ -53,7 +53,7 @@ public class OOOSEntry {
         for (String ooosPackage : ooosPackages) {
             PackageElement packageElement = GlobalEnvironment.getElementUtils().getPackageElement(ooosPackage);
             if (null == packageElement) {
-                throw new RapidOOOCompileException("package[" + ooosPackage + "] is not exist.");
+                throw new RapidOOOCompileException("package[" + ooosPackage + "] is not exist.\nIn " + oooGenerator.getGeneratorClassType());
             }
 
             List<? extends Element> oooClassesElements = packageElement.getEnclosedElements();
