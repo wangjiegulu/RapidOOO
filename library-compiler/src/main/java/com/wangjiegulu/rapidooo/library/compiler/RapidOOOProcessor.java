@@ -56,28 +56,11 @@ public class RapidOOOProcessor extends BaseAbstractProcessor {
                 }
             }
 
-//            for (Map.Entry<String, OOOProcess> entry : mapper.entrySet()) {
-//                logger("oooProcess: " + entry.getValue());
-//                String key = entry.getKey();
-//                OOOProcess oooProcess = entry.getValue();
-//                try {
-//                    logger("TableConfig generate START -> " + key);
-//                    oooProcess.brewJava(filer);
-//                    logger("TableConfig generate END -> " + key + ", oooProcess: " + oooProcess);
-//                } catch (RuntimeException e) {
-//                    throw e;
-//                } catch (Throwable throwable) {
-//                    logger("TableConfig generate FAILED -> " + key + ", oooProcess: " + oooProcess);
-//                    loggerE(throwable);
-//                }
-//            }
-
         }/*catch (Throwable throwable) {
             loggerE(throwable);
         }*/ finally {
             logger("[process] tasks: " + (System.currentTimeMillis() - start) + "ms");
         }
-
 
         return true;
     }

@@ -34,7 +34,7 @@ public class FieldAndGetterSetterPartBrew implements PartBrew {
             OOOFieldEntry fieldEntry = fieldE.getValue();
 
             FieldSpec.Builder fieldSpecBuilder = FieldSpec.builder(fieldEntry.getTypeName(), fieldEntry.getSimpleName(), fieldEntry.getModifiers())
-                    .addJavadoc("field name: {@link $T#$L}\n",
+                    .addJavadoc("Field name: {@link $T#$L}\n",
                             oooEntry.getFromTypeName(),
                             fieldEntry.getSimpleName()
                     );
@@ -82,7 +82,7 @@ public class FieldAndGetterSetterPartBrew implements PartBrew {
         for (Map.Entry<String, OOOConversionEntry> conversionFieldE : oooEntry.getConversions().entrySet()){
             OOOConversionEntry conversionEntry = conversionFieldE.getValue();
             FieldSpec.Builder fieldSpecBuilder = FieldSpec.builder(conversionEntry.getTargetFieldType(), conversionEntry.getTargetFieldName(), Modifier.PRIVATE)
-                    .addJavadoc("field name conversion : {@link $T}\n",
+                    .addJavadoc("Field name conversion : {@link $T}\n",
                             oooEntry.getOoosEntry().getOooGenerator().getGeneratorClassType()
                     );
             result.addField(fieldSpecBuilder.build());
