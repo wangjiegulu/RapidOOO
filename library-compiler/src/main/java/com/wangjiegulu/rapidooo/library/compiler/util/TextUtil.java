@@ -10,12 +10,12 @@ import java.util.Map;
  * Author: wangjie Email: tiantian.china.2@gmail.com Date: 2019-06-13.
  */
 public class TextUtil {
-    public static  String firstCharUpper(String fieldName) {
-        return fieldName.substring(0, 1).toUpperCase() + fieldName.substring(1);
+    public static  String firstCharUpper(String str) {
+        return str.substring(0, 1).toUpperCase() + str.substring(1);
     }
 
-    public static String firstCharLower(String fieldName) {
-        return fieldName.substring(0, 1).toLowerCase() + fieldName.substring(1);
+    public static String firstCharLower(String str) {
+        return str.substring(0, 1).toLowerCase() + str.substring(1);
     }
 
     public static boolean equals(String s1, String s2){

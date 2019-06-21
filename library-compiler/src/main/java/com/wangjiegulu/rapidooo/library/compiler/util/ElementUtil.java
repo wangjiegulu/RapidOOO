@@ -7,36 +7,45 @@ import com.google.common.base.Optional;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.TypeName;
 
+import java.io.Serializable;
 import java.lang.reflect.Type;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.lang.model.element.Element;
 import javax.lang.model.element.Name;
 import javax.lang.model.element.PackageElement;
+import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeMirror;
+import javax.lang.model.type.WildcardType;
+import javax.lang.model.util.Elements;
+import javax.lang.model.util.Types;
 
 /**
- * Author: wangjie
- * Email: tiantian.china.2@gmail.com
- * Date: 3/16/16.
+ * Author: wangjie Email: tiantian.china.2@gmail.com Date: 3/16/16.
  */
 public class ElementUtil {
 
-    public static TypeName getTypeName(Element element){
+    public static TypeName getTypeName(Element element) {
         return ClassName.get(element.asType());
     }
-    public static TypeName getTypeName(Type type){
+
+    public static TypeName getTypeName(Type type) {
         return TypeName.get(type);
     }
-    public static TypeName getTypeName(TypeMirror typeMirror){
+
+    public static TypeName getTypeName(TypeMirror typeMirror) {
         return TypeName.get(typeMirror);
     }
-    public static ClassName getClassName(TypeMirror typeMirror){
+
+    public static ClassName getClassName(TypeMirror typeMirror) {
         return ClassName.get(MoreTypes.asTypeElement(typeMirror));
     }
-    public static Name getName(TypeMirror typeMirror){
+
+    public static Name getName(TypeMirror typeMirror) {
         return MoreTypes.asTypeElement(typeMirror).getQualifiedName();
     }
 
@@ -88,6 +97,7 @@ public class ElementUtil {
     }
 
     public static boolean isSameType(TypeMirror type1, TypeName type2) {
+        LogUtil.logger("isSameTypeisSameTypeisSameType: " + type1 + ", " + type2);
         return equals(ClassName.get(type1).toString(), type2.toString());
     }
 
@@ -148,12 +158,76 @@ public class ElementUtil {
                         return true;
                     }
                 }
-//                    allElements.add(currentClass);
-//                    LogUtil.logger("superclass.get().asElement().toString(): " + currentClass.toString());
             } else {
                 currentClass = null;
             }
         } while (null != currentClass);
         return false;
     }
+
+    public static boolean isSubType(TypeMirror typeMirror, Class clazz) {
+        return isSubType(typeMirror, clazz.getCanonicalName());
+    }
+
+    public static boolean isSubType(TypeMirror typeMirror, String canonicalName) {
+        LogUtil.logger("[isSubType]===>typeMirror: " + typeMirror + ", isSubType: " + canonicalName);
+        Types types = GlobalEnvironment.getProcessingEnv().getTypeUtils();
+        Elements elements = GlobalEnvironment.getProcessingEnv().getElementUtils();
+        return types.isAssignable(typeMirror, elements.getTypeElement(canonicalName).asType());
+    }
+
+
+    private static WildcardType WILDCARD_TYPE_NULL = GlobalEnvironment.getProcessingEnv().getTypeUtils().getWildcardType(null, null);
+    private static Map<String,DeclaredType> cachedParentTypes = new HashMap<String, DeclaredType>();
+    public static boolean isAssignable(TypeMirror type, Class clazz) {
+        return isAssignable(type, GlobalEnvironment.getProcessingEnv().getElementUtils().getTypeElement(clazz.getCanonicalName()));
+    }
+    public static boolean isAssignable(TypeMirror type, TypeElement typeElement) {
+
+        // Have we used this type before?
+        DeclaredType parentType = cachedParentTypes.get(typeElement.getQualifiedName().toString());
+        if (parentType == null) {
+            // How many generic type parameters does this typeElement require?
+            int genericsCount = typeElement.getTypeParameters().size();
+
+            // Fill the right number of types with nulls
+            TypeMirror[] types = new TypeMirror[genericsCount];
+            for (int i = 0; i < genericsCount; i++) {
+                types[i] = WILDCARD_TYPE_NULL;
+            }
+
+            // Locate the correct DeclaredType to match with the type
+            parentType = GlobalEnvironment.getProcessingEnv().getTypeUtils().getDeclaredType(typeElement, types);
+
+            // Remember this DeclaredType
+            cachedParentTypes.put(typeElement.getQualifiedName().toString(), parentType);
+        }
+
+        // Is the given type able to be assigned as the typeElement?
+        return GlobalEnvironment.getProcessingEnv().getTypeUtils().isAssignable(type, parentType);
+    }
+
+    public static boolean isParcelable(Element field) {
+        TypeName typeName = getTypeName(field);
+        if (typeName.isPrimitive() || typeName.isBoxedPrimitive()) {
+            return true;
+        }
+        TypeMirror fieldType = field.asType();
+        if (isSubType(fieldType, String.class) ||
+                isAssignable(fieldType, Map.class) ||
+                isAssignable(fieldType, List.class) ||
+                isSubType(fieldType, "android.os.Bundle") ||
+                isSubType(fieldType, "android.os.PersistableBundle") ||
+                isSubType(fieldType, "android.os.Parcelable") ||
+                isSubType(fieldType, "android.util.SparseArray") ||
+                isSubType(fieldType, "android.os.IBinder") ||
+                isSubType(fieldType, "android.util.Size") ||
+                isSubType(fieldType, "android.util.SizeF") ||
+                isSubType(fieldType, Serializable.class)
+        ) {
+            return true;
+        }
+        return false;
+    }
+
 }

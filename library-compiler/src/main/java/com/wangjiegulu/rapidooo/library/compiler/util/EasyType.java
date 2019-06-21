@@ -4,6 +4,7 @@ import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.WildcardTypeName;
+import com.wangjiegulu.rapidooo.library.compiler.util.func.Func1R;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -55,7 +56,7 @@ public class EasyType {
      * @param type
      * @return
      */
-    public static TypeName bestGuessDeep(String type) {
+    public static TypeName bestGuessDeepWildcard(String type) {
         switch (type) {
             case "void":
                 return TypeName.VOID;
@@ -94,6 +95,9 @@ public class EasyType {
     }
 
     public static TypeName bestGuessDeep2(String type) {
+        return bestGuessDeep2(type, null);
+    }
+    public static TypeName bestGuessDeep2(String type, Func1R<String, TypeName> func) {
         switch (type) {
             case "void":
                 return TypeName.VOID;
@@ -120,7 +124,12 @@ public class EasyType {
                     ClassName typeClassName = ClassName.bestGuess(type.substring(0, left));
                     List<TypeName> typeArguments = new ArrayList<>();
                     do {
-                        typeArguments.add(bestGuess(type.substring(left + 1, right)));
+                        String _type = type.substring(left + 1, right).trim();
+                        if(isRefId(_type) && null != func){
+                            typeArguments.add(func.call(_type));
+                        }else{
+                            typeArguments.add(bestGuess(_type));
+                        }
                         left = type.indexOf('<', left + 1);
                         right = type.indexOf('>', right - 1);
                     } while (left != -1);
@@ -129,6 +138,20 @@ public class EasyType {
                 }
                 return ClassName.bestGuess(type);
         }
+    }
+
+    public static boolean isListType(String str){
+        return str.matches("java\\.util\\.List<.+>");
+    }
+    public static boolean isMapType(String str){
+        return str.matches("java\\.util\\.Map<.+,.+>");
+    }
+    public static boolean isArrayType(String str){
+        return str.matches(".+\\[]");
+    }
+
+    public static boolean isRefId(String str){
+        return null != str && str.startsWith("#");
     }
 
 }

@@ -13,9 +13,9 @@ import com.wangjiegulu.rapidooo.depmodule.dal.xdo.ext.Person;
  */
 @OOOs(suffix = "BO",
         ooos = {
-                @OOO(id = "id_bo_person", from = Person.class),
-                @OOO(from = Abbey.class, targetSupperTypeId = "id_bo_person"),
-                @OOO(from = Mabel.class, targetSupperTypeId = "id_bo_person")
+                @OOO(id = "#id_bo_person", from = Person.class),
+                @OOO(from = Abbey.class, targetSupperTypeId = "#id_bo_person"),
+                @OOO(from = Mabel.class, targetSupperTypeId = "#id_bo_person")
         }
 )
 public class ExtBOGenerator {

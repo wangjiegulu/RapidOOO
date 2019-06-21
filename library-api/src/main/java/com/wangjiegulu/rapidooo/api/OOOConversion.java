@@ -31,4 +31,6 @@ public @interface OOOConversion {
     String conversionMethodName() default OOOConstants.NOT_SET;
     String inverseConversionMethodName() default OOOConstants.NOT_SET;
 
+    // properties
+    boolean parcelable() default true;
 }

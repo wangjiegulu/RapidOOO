@@ -19,8 +19,8 @@ import com.wangjiegulu.rapidooo.depmodule.bll.xbo.parcelable.User_BO;
 @OOOs(suffix = ParcelableVOGenerator.VO_SUFFIX, fromSuffix = ParcelableBOGenerator.BO_SUFFIX, ooosPackages = {
         ParcelableVOGenerator.PACKAGE_BO
 }, ooos = {
-        @OOO(id = "pet_parent_vo_id", from = PetParentBO.class),
-        @OOO(id = "user_vo_id", from = User_BO.class/*, suffix = ParcelableVOGenerator.VO_SUFFIX_USER*/,
+        @OOO(id = "#pet_parent_vo_id", from = PetParentBO.class),
+        @OOO(id = "#user_vo_id", from = User_BO.class/*, suffix = ParcelableVOGenerator.VO_SUFFIX_USER*/,
                 fromSuffix = ParcelableBOGenerator.BO_SUFFIX_USER,
                 excludes = {"gender"},
                 conversions = {
@@ -41,12 +41,12 @@ import com.wangjiegulu.rapidooo.depmodule.bll.xbo.parcelable.User_BO;
                         )
                 }
         ),
-        @OOO(targetSupperTypeId = "pet_parent_vo_id", from = PetBO.class,
+        @OOO(targetSupperTypeId = "#pet_parent_vo_id", from = PetBO.class,
                 excludes = {"ownerUser", "fullName"},
                 conversions = {
                         @OOOConversion(
                                 targetFieldName = "ownerUser",
-                                targetFieldTypeId = "user_vo_id"
+                                targetFieldTypeId = "#user_vo_id"
                         )
                 }
         )

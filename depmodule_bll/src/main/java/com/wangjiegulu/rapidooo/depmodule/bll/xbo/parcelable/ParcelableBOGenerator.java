@@ -14,14 +14,14 @@ import com.wangjiegulu.rapidooo.depmodule.dal.xdo.parcelable.User;
  * Generate BOs from DOs Author: wangjie Email: tiantian.china.2@gmail.com Date: 10/04/2018.
  */
 @OOOs(suffix = ParcelableBOGenerator.BO_SUFFIX, ooos = {
-        @OOO(id = "pet_parent_bo_id", from = PetParent.class),
-        @OOO(id = "user_bo_id", from = User.class, suffix = ParcelableBOGenerator.BO_SUFFIX_USER),
-        @OOO(from = Pet.class, targetSupperTypeId = "pet_parent_bo_id", suffix = "2BO", excludes = {"owner"}),
-        @OOO(from = Pet.class, targetSupperTypeId = "pet_parent_bo_id", excludes = {"owner"},
+        @OOO(id = "#pet_parent_bo_id", from = PetParent.class),
+        @OOO(id = "#user_bo_id", from = User.class, suffix = ParcelableBOGenerator.BO_SUFFIX_USER),
+        @OOO(from = Pet.class, targetSupperTypeId = "#pet_parent_bo_id", suffix = "2BO", excludes = {"owner"}),
+        @OOO(from = Pet.class, targetSupperTypeId = "#pet_parent_bo_id", excludes = {"owner"},
                 conversions = {
                         @OOOConversion(
                                 targetFieldName = "ownerUser",
-                                targetFieldTypeId = "user_bo_id",
+                                targetFieldTypeId = "#user_bo_id",
 
                                 attachFieldName = "owner"
                         ),

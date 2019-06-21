@@ -2,18 +2,19 @@ package com.wangjiegulu.rapidooo.library.compiler.part.impl;
 
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeSpec;
-import com.wangjiegulu.rapidooo.api.OOOControlMode;
 import com.wangjiegulu.rapidooo.library.compiler.entry.GetterSetterMethodNames;
-import com.wangjiegulu.rapidooo.library.compiler.util.LogUtil;
-import com.wangjiegulu.rapidooo.library.compiler.util.PoetUtil;
-import com.wangjiegulu.rapidooo.library.compiler.util.TextUtil;
-import com.wangjiegulu.rapidooo.library.compiler.util.func.Func1R;
-import com.wangjiegulu.rapidooo.library.compiler.variables.IOOOVariable;
 import com.wangjiegulu.rapidooo.library.compiler.oooentry.OOOConversionEntry;
 import com.wangjiegulu.rapidooo.library.compiler.oooentry.OOOEntry;
 import com.wangjiegulu.rapidooo.library.compiler.oooentry.OOOFieldEntry;
 import com.wangjiegulu.rapidooo.library.compiler.part.PartBrew;
+import com.wangjiegulu.rapidooo.library.compiler.part.statement.contact.IFromMethodStatementBrew;
+import com.wangjiegulu.rapidooo.library.compiler.part.statement.mfrom.FromMethodListStatementBrew;
+import com.wangjiegulu.rapidooo.library.compiler.part.statement.mfrom.FromMethodObjectStatementBrew;
+import com.wangjiegulu.rapidooo.library.compiler.util.PoetUtil;
+import com.wangjiegulu.rapidooo.library.compiler.util.TextUtil;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import javax.lang.model.element.Modifier;
@@ -22,6 +23,12 @@ import javax.lang.model.element.Modifier;
  * Author: wangjie Email: tiantian.china.2@gmail.com Date: 2019-06-13.
  */
 public class FromMethodPartBrew implements PartBrew {
+    private List<IFromMethodStatementBrew> statementBrews = new ArrayList<>();
+    public FromMethodPartBrew() {
+        statementBrews.add(new FromMethodObjectStatementBrew());
+        statementBrews.add(new FromMethodListStatementBrew());
+    }
+
     @Override
     public void brew(OOOEntry oooEntry, TypeSpec.Builder result) {
         String fromParamName = TextUtil.firstCharLower(oooEntry.getFromSimpleName());
@@ -31,7 +38,7 @@ public class FromMethodPartBrew implements PartBrew {
                 .addParameter(oooEntry.getFromTypeName(), fromParamName);
 
         if (oooEntry.isTargetSupperTypeId()) {
-            fromMethodSpec.addStatement("from" + oooEntry.getOoosEntry().getOooGenerator().getOoosEntry().queryTypeIds(oooEntry.getTargetSupperTypeId()).getFromSimpleName()
+            fromMethodSpec.addStatement("from" + oooEntry.getOoosEntry().getOooGenerator().getOoosEntry().queryTypeById(oooEntry.getTargetSupperTypeId()).getFromSimpleName()
                     + "(" + fromParamName + ")");
         }
 
@@ -44,70 +51,15 @@ public class FromMethodPartBrew implements PartBrew {
         // Conversion fields
         for (Map.Entry<String, OOOConversionEntry> conversionFieldE : oooEntry.getConversions().entrySet()) {
             OOOConversionEntry conversionEntry = conversionFieldE.getValue();
-            OOOControlMode controlMode = conversionEntry.getControlMode();
-            fromMethodSpec.addComment(conversionEntry.getTargetFieldName() + ", " + controlMode.getDesc());
-            switch (controlMode) {
-                case ATTACH:
-                    buildAttachStatement(oooEntry, conversionEntry, fromMethodSpec);
+
+            for(IFromMethodStatementBrew brew : statementBrews){
+                if(brew.match(conversionEntry)){
+                    brew.buildStatement(oooEntry, conversionEntry, fromMethodSpec);
                     break;
-                case BIND:
-                    buildBindStatement(oooEntry, conversionEntry, fromMethodSpec);
-                    break;
-                case CONVERSION:
-                    buildConversionStatement(oooEntry, conversionEntry, fromMethodSpec);
-                    break;
-                default:
-                    LogUtil.logger("[INFO] UNKNOWN Control Mode.");
-                    break;
+                }
             }
         }
         result.addMethod(fromMethodSpec.build());
     }
-
-    private void buildBindStatement(OOOEntry oooEntry, OOOConversionEntry conversionEntry, MethodSpec.Builder fromMethodSpec) {
-        if (conversionEntry.isBindMethodSet()) {
-            String paramsStr = TextUtil.joinHashMap(conversionEntry.getBindTargetParamFields(), ", ", new Func1R<IOOOVariable, String>() {
-                @Override
-                public String call(IOOOVariable ioooTargetVariable) {
-                    return ioooTargetVariable.inputCode();
-                }
-            });
-            fromMethodSpec.addStatement(
-                    "this." + conversionEntry.getTargetFieldName() + " = $T." + conversionEntry.getBindMethodName() + "(" + paramsStr + ")",
-                    conversionEntry.getBindMethodClassType()
-            );
-        }
-    }
-
-    private void buildConversionStatement(OOOEntry oooEntry, OOOConversionEntry conversionEntry, MethodSpec.Builder fromMethodSpec) {
-        if(conversionEntry.isConversionMethodSet()){
-            String paramsStr = TextUtil.joinHashMap(conversionEntry.getConversionTargetParamFields(), ", ", new Func1R<IOOOVariable, String>() {
-                @Override
-                public String call(IOOOVariable ioooTargetVariable) {
-                    return ioooTargetVariable.inputCode();
-                }
-            });
-
-            fromMethodSpec.addStatement(
-                    "this." + conversionEntry.getTargetFieldName() + " = $T." + conversionEntry.getConversionMethodName() + "(" + paramsStr + ")",
-                    conversionEntry.getBindMethodClassType()
-            );
-        }
-    }
-
-    private void buildAttachStatement(OOOEntry oooEntry, OOOConversionEntry conversionEntry, MethodSpec.Builder fromMethodSpec) {
-        if (conversionEntry.isTargetFieldTypeId()) {
-            String fromParamName = TextUtil.firstCharLower(oooEntry.getFromSimpleName());
-
-            OOOEntry temp = oooEntry.getOoosEntry().queryTypeIds(conversionEntry.getTargetFieldTypeId());
-            String tempParam = TextUtil.firstCharLower(temp.getFromSimpleName()) + "_";
-
-            GetterSetterMethodNames getterSetterMethodNames = PoetUtil.generateGetterSetterMethodName(conversionEntry.getAttachFieldName(), conversionEntry.getAttachFieldType());
-
-            fromMethodSpec.addStatement("$T " + tempParam + " = " + fromParamName + "." + getterSetterMethodNames.getGetterMethodName() + "()", temp.getFromTypeName());
-            fromMethodSpec.addStatement("this." + conversionEntry.getTargetFieldName() + " = null == " + tempParam + " ? null : " + temp.getTargetClassSimpleName() + ".create(" + tempParam + ")");
-        }
-    }
-
 
 }

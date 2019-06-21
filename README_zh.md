@@ -64,11 +64,11 @@ public class Pet {
 
 ```java
 @OOOs(suffix = BOGenerator.BO_SUFFIX, ooos = {
-        @OOO(id = "user_bo_id", from = User.class, suffix = BOGenerator.BO_SUFFIX_USER),
+        @OOO(id = "#user_bo_id", from = User.class, suffix = BOGenerator.BO_SUFFIX_USER),
         @OOO(from = Pet.class, conversion = {
                 @OOOConversion(
                         fieldName = "owner",
-                        targetTypeId = "user_bo_id",
+                        targetTypeId = "#user_bo_id",
                         targetFieldName = "ownerUser",
                         replace = true
                 )
@@ -83,7 +83,7 @@ public class BOGenerator {
 这里使用 `@OOOs` 注解来进行转换的配置，通过 `@OOO` 注解来显示地指定需要转换成哪些类。
 
 ```java
-@OOO(id = "user_bo_id", from = User.class, suffix = BOGenerator.BO_SUFFIX_USER)
+@OOO(id = "#user_bo_id", from = User.class, suffix = BOGenerator.BO_SUFFIX_USER)
 ```
 
 以上表示一个类的转换:
@@ -96,7 +96,7 @@ public class BOGenerator {
 @OOO(from = Pet.class, conversion = {
       @OOOConversion(
               fieldName = "owner",
-              targetTypeId = "user_bo_id",
+              targetTypeId = "#user_bo_id",
               targetFieldName = "ownerUser",
               replace = true
       )

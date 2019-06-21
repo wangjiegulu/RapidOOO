@@ -6,15 +6,17 @@ import com.google.auto.common.MoreTypes;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.TypeName;
 import com.wangjiegulu.rapidooo.api.OOO;
-import com.wangjiegulu.rapidooo.api.OOOConstants;
 import com.wangjiegulu.rapidooo.api.OOOConversion;
+import com.wangjiegulu.rapidooo.library.compiler.RapidOOOConstants;
 import com.wangjiegulu.rapidooo.library.compiler.exception.RapidOOOCompileException;
 import com.wangjiegulu.rapidooo.library.compiler.util.AnnoUtil;
 import com.wangjiegulu.rapidooo.library.compiler.util.EasyType;
 import com.wangjiegulu.rapidooo.library.compiler.util.ElementUtil;
+import com.wangjiegulu.rapidooo.library.compiler.util.LogUtil;
 import com.wangjiegulu.rapidooo.library.compiler.util.TextUtil;
 import com.wangjiegulu.rapidooo.library.compiler.util.func.Func0R;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -49,7 +51,7 @@ public class OOOEntry {
     private List<String> excludes = new ArrayList<>();
 
     private TypeName targetSupperType;
-    private String targetSupperTypeId = OOOConstants.NOT_SET;
+    private String targetSupperTypeId = com.wangjiegulu.rapidooo.api.OOOConstants.NOT_SET;
 
     private OOOPoolEntry pool;
 
@@ -62,6 +64,7 @@ public class OOOEntry {
 
     private HashMap<String, OOOFieldEntry> allContinuingFields = new LinkedHashMap<>();
 
+    private HashMap<String, TypeMirror> supportedInterfaces = new LinkedHashMap<>();
     /**
      * 显式配置
      */
@@ -158,12 +161,28 @@ public class OOOEntry {
         // All conversion fields need to add to target new Class -> `conversions`
         // it's `conversions`
 
+
+        // supported interfaces
+        List<? extends TypeMirror> interfaces = MoreTypes.asTypeElement(from).getInterfaces();
+        if (null != interfaces && interfaces.size() > 0) {
+            for (TypeMirror interf : interfaces) {
+                if (ElementUtil.isSameType(interf, Serializable.class)) {
+                    supportedInterfaces.put(Serializable.class.getCanonicalName(), interf);
+                } else if (ElementUtil.isSameType(interf, ClassName.bestGuess(RapidOOOConstants.PARCELABLE_CLASS_NAME))) {
+                    supportedInterfaces.put(RapidOOOConstants.PARCELABLE_CLASS_NAME, interf);
+                } else {
+                    LogUtil.logger("[WARN]Not supported super interface [" + interf.toString() + "] \nin " + from.toString() + "\nin" + ooosEntry.getOooGenerator().getGeneratorClassType());
+                }
+            }
+        }
+
+
     }
 
     public OOOEntry prepare() {
         // 设置了父类的 type id，则从缓存中查询
         if (!AnnoUtil.oooParamIsNotSet(targetSupperTypeId)) {
-            targetSupperType = ooosEntry.queryTypeIds(targetSupperTypeId).targetClassType;
+            targetSupperType = ooosEntry.queryTypeById(targetSupperTypeId).targetClassType;
         }
 
         for (Map.Entry<String, OOOConversionEntry> ee : conversions.entrySet()) {
@@ -282,6 +301,10 @@ public class OOOEntry {
 
     public boolean isTargetSupperTypeId() {
         return null != targetSupperTypeId && !AnnoUtil.oooParamIsNotSet(targetSupperTypeId);
+    }
+
+    public HashMap<String, TypeMirror> getSupportedInterfaces() {
+        return supportedInterfaces;
     }
 
     public boolean isPoolUsed() {

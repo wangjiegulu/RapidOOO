@@ -72,11 +72,11 @@ Create `BOGenerator` class, Configure the following annotation:
 
 ```java
 @OOOs(suffix = BOGenerator.BO_SUFFIX, ooos = {
-        @OOO(id = "user_bo_id", from = User.class, suffix = BOGenerator.BO_SUFFIX_USER),
+        @OOO(id = "#user_bo_id", from = User.class, suffix = BOGenerator.BO_SUFFIX_USER),
         @OOO(from = Pet.class, conversion = {
                 @OOOConversion(
                         fieldName = "owner",
-                        targetTypeId = "user_bo_id",
+                        targetTypeId = "#user_bo_id",
                         targetFieldName = "ownerUser",
                         replace = true
                 )
@@ -91,7 +91,7 @@ public class BOGenerator {
 Using the `@OOOs` annotation to configure conversions. The `@OOO` annotations explicitly specify which classes need to be converted.
 
 ```java
-@OOO(id = "user_bo_id", from = User.class, suffix = BOGenerator.BO_SUFFIX_USER)
+@OOO(id = "#user_bo_id", from = User.class, suffix = BOGenerator.BO_SUFFIX_USER)
 ```
 
 The above represents a class conversion:
@@ -104,7 +104,7 @@ The above represents a class conversion:
 @OOO(from = Pet.class, conversion = {
       @OOOConversion(
               fieldName = "owner",
-              targetTypeId = "user_bo_id",
+              targetTypeId = "#user_bo_id",
               targetFieldName = "ownerUser",
               replace = true
       )

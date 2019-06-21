@@ -7,6 +7,7 @@ import com.squareup.javapoet.TypeName;
 import com.wangjiegulu.rapidooo.api.OOOControlMode;
 import com.wangjiegulu.rapidooo.api.OOOConversion;
 import com.wangjiegulu.rapidooo.library.compiler.exception.RapidOOOCompileException;
+import com.wangjiegulu.rapidooo.library.compiler.part.statement.contact.ParcelableEntry;
 import com.wangjiegulu.rapidooo.library.compiler.util.AnnoUtil;
 import com.wangjiegulu.rapidooo.library.compiler.util.ElementUtil;
 import com.wangjiegulu.rapidooo.library.compiler.util.LogicUtil;
@@ -31,13 +32,14 @@ import javax.lang.model.type.TypeMirror;
 /**
  * Author: wangjie Email: tiantian.china.2@gmail.com Date: 2019-06-12.
  */
-public class OOOConversionEntry implements IOOOVariable {
+public class OOOConversionEntry implements IOOOVariable, ParcelableEntry {
     private OOOEntry oooEntry;
     private OOOConversion oooConversion;
 
     private String targetFieldName;
-    private TypeName targetFieldType;
+    //    private TypeName targetFieldType;
     private String targetFieldTypeId;
+    private OOOTypeEntry oooTargetFieldTypeEntry;
 
     // attach
     private String attachFieldName;
@@ -61,18 +63,23 @@ public class OOOConversionEntry implements IOOOVariable {
 
     private OOOControlMode controlMode;
 
+    private boolean parcelable;
+
     public OOOConversionEntry(OOOEntry oooEntry, final OOOConversion oooConversion) {
         this.oooEntry = oooEntry;
         this.oooConversion = oooConversion;
 
         targetFieldName = oooConversion.targetFieldName();
-        targetFieldType = ElementUtil.getTypeName(AnnoUtil.getType(new Func0R<Object>() {
+        oooTargetFieldTypeEntry = new OOOTypeEntry();
+        oooTargetFieldTypeEntry.parse(ElementUtil.getTypeName(AnnoUtil.getType(new Func0R<Object>() {
             @Override
             public Object call() {
                 return oooConversion.targetFieldType();
             }
-        }));
+        })));
         targetFieldTypeId = oooConversion.targetFieldTypeId();
+
+        parcelable = oooConversion.parcelable();
 
         // attach mode
         attachFieldName = oooConversion.attachFieldName();
@@ -115,7 +122,7 @@ public class OOOConversionEntry implements IOOOVariable {
 
     public OOOConversionEntry prepare() {
         if (!AnnoUtil.oooParamIsNotSet(targetFieldTypeId)) { // 设置了 type id，则从缓存中查询
-            targetFieldType = oooEntry.getOoosEntry().queryTypeIds(targetFieldTypeId).getTargetClassType();
+            oooTargetFieldTypeEntry.parse(this, targetFieldTypeId);
         }
         return this;
     }
@@ -161,6 +168,7 @@ public class OOOConversionEntry implements IOOOVariable {
 
     private void parseBindMode() {
         if (isBindMethodSet()) {
+            TypeName targetFieldType = oooTargetFieldTypeEntry.getTypeName();
             // 检查 bind method 是否存在
             ExecutableElement method = findPublicStaticMethodInClass(bindMethodClass, bindMethodName, targetFieldType);
             if (null == method) {
@@ -182,6 +190,7 @@ public class OOOConversionEntry implements IOOOVariable {
 
     private void parseConversionMode() {
         if (isConversionMethodSet()) {
+            TypeName targetFieldType = oooTargetFieldTypeEntry.getTypeName();
             // 检查 conversion method 是否存在
             ExecutableElement method = findPublicStaticMethodInClass(conversionMethodClass, conversionMethodName, targetFieldType);
             if (null == method) {
@@ -317,7 +326,7 @@ public class OOOConversionEntry implements IOOOVariable {
                 }
                 if (
                         TextUtil.equals(methodName, method.getSimpleName().toString())
-                        &&
+                                &&
                                 ElementUtil.isSameType(method.getReturnType(), returnType)
                 ) {
                     return method;
@@ -337,7 +346,7 @@ public class OOOConversionEntry implements IOOOVariable {
     }
 
     public TypeName getTargetFieldType() {
-        return targetFieldType;
+        return oooTargetFieldTypeEntry.getTypeName();
     }
 
     public String getTargetFieldTypeId() {
@@ -371,6 +380,10 @@ public class OOOConversionEntry implements IOOOVariable {
 
     public OOOControlMode getControlMode() {
         return controlMode;
+    }
+
+    public OOOTypeEntry getTargetFieldTypeEntry() {
+        return oooTargetFieldTypeEntry;
     }
 
     public boolean isBindMethodSet() {
@@ -411,7 +424,12 @@ public class OOOConversionEntry implements IOOOVariable {
 
     public TypeName getAttachFieldType() {
         // attach 属性类型与 target 一样
-        return targetFieldType;
+        return oooTargetFieldTypeEntry.getTypeName();
+    }
+
+    @Override
+    public boolean isParcelable() {
+        return parcelable;
     }
 
     public String getAttachFieldName() {
@@ -421,6 +439,11 @@ public class OOOConversionEntry implements IOOOVariable {
     @Override
     public String fieldName() {
         return targetFieldName;
+    }
+
+    @Override
+    public TypeName fieldType() {
+        return oooTargetFieldTypeEntry.getTypeName();
     }
 
     @Override

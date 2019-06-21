@@ -117,8 +117,17 @@ public class OOOSEntry {
         return ooos;
     }
 
-    public OOOEntry queryTypeIds(String id) {
+    public OOOEntry queryTypeById(String id) {
         return allTypeIds.get(id);
+    }
+
+    public OOOEntry queryTypeByName(String name) {
+        for(Map.Entry<String, OOOEntry> ee : allTypeIds.entrySet()){
+            if(TextUtil.equals(ee.getValue().getTargetClassType().toString(), name)){
+                return ee.getValue();
+            }
+        }
+        return null;
     }
 
     public void addTypeIds(String id, OOOEntry oooEntry) {
