@@ -22,7 +22,7 @@ import java.util.List;
                 @OOO(from = UserBO.class, id = "#id__UserVO"),
                 @OOO(from = ChatBO.class, id = "#id__ChatVO"),
                 @OOO(from = MessageBO.class,
-                        excludes = {"fromBO", "chatBO", "chatBOs", "otherChatBOs", "foos"},
+                        excludes = {"fromBO", "chatBO", "chatBOs", "otherChatBOs", "foos", "fooArray"},
                         conversions = {
                                 @OOOConversion(
                                         targetFieldName = "fromVO",

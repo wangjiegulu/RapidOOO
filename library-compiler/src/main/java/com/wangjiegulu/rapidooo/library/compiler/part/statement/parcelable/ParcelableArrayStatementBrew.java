@@ -3,11 +3,10 @@ package com.wangjiegulu.rapidooo.library.compiler.part.statement.parcelable;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeName;
 import com.wangjiegulu.rapidooo.library.compiler.RapidOOOConstants;
-import com.wangjiegulu.rapidooo.library.compiler.oooentry.OOOEntry;
-import com.wangjiegulu.rapidooo.library.compiler.oooentry.OOOSEntry;
 import com.wangjiegulu.rapidooo.library.compiler.oooentry.OOOTypeEntry;
 import com.wangjiegulu.rapidooo.library.compiler.part.statement.contact.IParcelableStatementBrew;
 import com.wangjiegulu.rapidooo.library.compiler.part.statement.contact.ParcelableEntry;
+import com.wangjiegulu.rapidooo.library.compiler.util.ElementUtil;
 import com.wangjiegulu.rapidooo.library.compiler.util.LogUtil;
 import com.wangjiegulu.rapidooo.library.compiler.util.TextUtil;
 
@@ -23,10 +22,9 @@ public class ParcelableArrayStatementBrew implements IParcelableStatementBrew {
     @Override
     public void read(MethodSpec.Builder methodBuilder, String fieldName, OOOTypeEntry oooTypeEntry) {
         TypeName arrayItemType = oooTypeEntry.getArrayItemTypeName();
-        OOOEntry temp = OOOSEntry.queryTypeByName(arrayItemType.toString());
         // TODO: 2019-06-21 wangjie
         // #id__ChatBO[]
-        if (null != temp) {
+        if (ElementUtil.isParcelableType(arrayItemType)) {
             methodBuilder.addStatement("this." + fieldName + " = parcel.createTypedArray($T.CREATOR)", arrayItemType);
         } else { // java.lang.String[]
             if (TextUtil.equals(arrayItemType.toString(), String.class.getCanonicalName())) {
@@ -42,9 +40,8 @@ public class ParcelableArrayStatementBrew implements IParcelableStatementBrew {
     @Override
     public void write(MethodSpec.Builder methodBuilder, String fieldName, OOOTypeEntry oooTypeEntry) {
         TypeName arrayItemType = oooTypeEntry.getArrayItemTypeName();
-        OOOEntry temp = OOOSEntry.queryTypeByName(arrayItemType.toString());
         // java.util.List<#id__ChatBO>
-        if (null != temp) {
+        if (ElementUtil.isParcelableType(arrayItemType)) {
             methodBuilder.addStatement("dest.writeTypedArray(this." + fieldName + ", flags)", arrayItemType);
         } else { // java.util.List<java.lang.String>
             if (TextUtil.equals(arrayItemType.toString(), String.class.getCanonicalName())) {

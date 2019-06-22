@@ -8,6 +8,7 @@ import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeName;
 import com.wangjiegulu.rapidooo.library.compiler.RapidOOOConstants;
+import com.wangjiegulu.rapidooo.library.compiler.oooentry.OOOSEntry;
 
 import java.io.Serializable;
 import java.lang.reflect.Type;
@@ -24,7 +25,6 @@ import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.type.WildcardType;
-import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
 
 /**
@@ -178,8 +178,11 @@ public class ElementUtil {
             return false;
         }
         Types types = GlobalEnvironment.getProcessingEnv().getTypeUtils();
-        Elements elements = GlobalEnvironment.getProcessingEnv().getElementUtils();
-        return types.isAssignable(typeMirror, elements.getTypeElement(canonicalName).asType());
+        boolean result = types.isAssignable(typeMirror, GlobalEnvironment.getTypeElement(canonicalName).asType());
+        if(result){
+            LogUtil.logger("[isSubType]typeMirror: " + typeMirror + ", " + canonicalName + ": true");
+        }
+        return result;
     }
 
 
@@ -223,25 +226,7 @@ public class ElementUtil {
         if (typeName.isPrimitive() || typeName.isBoxedPrimitive()) {
             return true;
         }
-//        TypeMirror fieldType = field.asType();
-        if (isSubType(fieldType, String.class) ||
-//                isAssignable(fieldType, Map.class) ||
-//                isAssignable(fieldType, List.class) ||
-                isSubType(fieldType, RapidOOOConstants.CLASS_NAME_BUNDLE) ||
-                isSubType(fieldType, RapidOOOConstants.CLASS_NAME_PERSISTABLE_BUNDLE) ||
-                isSubType(fieldType, RapidOOOConstants.CLASS_NAME_PARCELABLE) ||
-                isSubType(fieldType, RapidOOOConstants.CLASS_NAME_SPARSE_ARRAY) ||
-                isSubType(fieldType, RapidOOOConstants.CLASS_NAME_IBINDER) ||
-                isSubType(fieldType, RapidOOOConstants.CLASS_NAME_SIZE) ||
-                isSubType(fieldType, RapidOOOConstants.CLASS_NAME_SIZEF) ||
-                isSubType(fieldType, Serializable.class)
-        ) {
-            return true;
-        }
-
-        TypeName tn;
-
-
+        LogUtil.logger("[isParcelable]" + fieldType + ", " + fieldType.getKind());
         if(isAssignable(fieldType, List.class)){
             List<TypeName> typeParameters = ((ParameterizedTypeName)typeName).typeArguments;
             if(typeParameters.size() == 1){
@@ -256,12 +241,31 @@ public class ElementUtil {
         } else if(fieldType.getKind() == TypeKind.ARRAY){
             LogUtil.logger("[isParcelable] array component type: " + MoreTypes.asArray(fieldType).getComponentType());
             return isParcelable(MoreTypes.asArray(fieldType).getComponentType());
+        } else if (isSubType(fieldType, String.class) ||
+//                isAssignable(fieldType, Map.class) ||
+//                isAssignable(fieldType, List.class) ||
+                isSubType(fieldType, RapidOOOConstants.CLASS_NAME_BUNDLE) ||
+                isSubType(fieldType, RapidOOOConstants.CLASS_NAME_PERSISTABLE_BUNDLE) ||
+                isSubType(fieldType, RapidOOOConstants.CLASS_NAME_PARCELABLE) ||
+                isSubType(fieldType, RapidOOOConstants.CLASS_NAME_SPARSE_ARRAY) ||
+                isSubType(fieldType, RapidOOOConstants.CLASS_NAME_IBINDER) ||
+                isSubType(fieldType, RapidOOOConstants.CLASS_NAME_SIZE) ||
+                isSubType(fieldType, RapidOOOConstants.CLASS_NAME_SIZEF) ||
+                isSubType(fieldType, Serializable.class)
+        ) {
+            return true;
         }
         return false;
     }
 
-    public static boolean isSubParcelableType(CharSequence className) {
-        return ElementUtil.isSubType(GlobalEnvironment.getTypeElement(className).asType(), RapidOOOConstants.CLASS_NAME_PARCELABLE);
+    public static boolean isParcelableType(TypeName typeName){
+        return isParcelableType(typeName.toString());
+    }
+
+    public static boolean isParcelableType(String className) {
+        return null != OOOSEntry.queryTypeByName(className) // refId
+                ||
+                ElementUtil.isSubType(GlobalEnvironment.getTypeElement(className).asType(), RapidOOOConstants.CLASS_NAME_PARCELABLE);
     }
 
 }

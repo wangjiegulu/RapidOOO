@@ -35,6 +35,7 @@ public class Message implements Parcelable {
 //    private SizeF sizeF;
 
     private List<Foo> foos;
+    private Foo[] fooArray;
 
     public List<Foo> getFoos() {
         return foos;
@@ -42,6 +43,14 @@ public class Message implements Parcelable {
 
     public void setFoos(List<Foo> foos) {
         this.foos = foos;
+    }
+
+    public Foo[] getFooArray() {
+        return fooArray;
+    }
+
+    public void setFooArray(Foo[] fooArray) {
+        this.fooArray = fooArray;
     }
 
     public Map<String, Chat> getChatMapper() {

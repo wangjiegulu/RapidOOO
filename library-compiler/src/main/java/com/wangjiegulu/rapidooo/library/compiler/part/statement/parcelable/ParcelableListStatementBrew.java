@@ -3,8 +3,6 @@ package com.wangjiegulu.rapidooo.library.compiler.part.statement.parcelable;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeName;
 import com.wangjiegulu.rapidooo.library.compiler.RapidOOOConstants;
-import com.wangjiegulu.rapidooo.library.compiler.oooentry.OOOEntry;
-import com.wangjiegulu.rapidooo.library.compiler.oooentry.OOOSEntry;
 import com.wangjiegulu.rapidooo.library.compiler.oooentry.OOOTypeEntry;
 import com.wangjiegulu.rapidooo.library.compiler.part.statement.contact.IParcelableStatementBrew;
 import com.wangjiegulu.rapidooo.library.compiler.part.statement.contact.ParcelableEntry;
@@ -24,9 +22,8 @@ public class ParcelableListStatementBrew implements IParcelableStatementBrew {
     @Override
     public void read(MethodSpec.Builder methodBuilder, String fieldName, OOOTypeEntry oooTypeEntry) {
         TypeName argumentType = oooTypeEntry.get(0);
-        OOOEntry temp = OOOSEntry.queryTypeByName(argumentType.toString());
         // java.util.List<#id__ChatBO>
-        if (null != temp || ElementUtil.isSubParcelableType(argumentType.toString())) {
+        if (ElementUtil.isParcelableType(argumentType)) {
             methodBuilder.addStatement("this." + fieldName + " = parcel.createTypedArrayList($T.CREATOR)", argumentType);
         } else { // java.util.List<java.lang.String>
             if (TextUtil.equals(argumentType.toString(), String.class.getCanonicalName())) {
@@ -43,9 +40,8 @@ public class ParcelableListStatementBrew implements IParcelableStatementBrew {
     @Override
     public void write(MethodSpec.Builder methodBuilder, String fieldName, OOOTypeEntry oooTypeEntry) {
         TypeName argumentType = oooTypeEntry.get(0);
-        OOOEntry temp = OOOSEntry.queryTypeByName(argumentType.toString());
         // java.util.List<#id__ChatBO>
-        if (null != temp || ElementUtil.isSubParcelableType(argumentType.toString())) {
+        if (ElementUtil.isParcelableType(argumentType)) {
             methodBuilder.addStatement("dest.writeTypedList(this." + fieldName + ")", argumentType);
         } else { // java.util.List<java.lang.String>
             if (TextUtil.equals(argumentType.toString(), String.class.getCanonicalName())) {
