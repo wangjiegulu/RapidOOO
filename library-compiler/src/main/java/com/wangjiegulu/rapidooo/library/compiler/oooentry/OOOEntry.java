@@ -168,8 +168,8 @@ public class OOOEntry {
             for (TypeMirror interf : interfaces) {
                 if (ElementUtil.isSameType(interf, Serializable.class)) {
                     supportedInterfaces.put(Serializable.class.getCanonicalName(), interf);
-                } else if (ElementUtil.isSameType(interf, ClassName.bestGuess(RapidOOOConstants.PARCELABLE_CLASS_NAME))) {
-                    supportedInterfaces.put(RapidOOOConstants.PARCELABLE_CLASS_NAME, interf);
+                } else if (ElementUtil.isSameType(interf, ClassName.bestGuess(RapidOOOConstants.CLASS_NAME_PARCELABLE))) {
+                    supportedInterfaces.put(RapidOOOConstants.CLASS_NAME_PARCELABLE, interf);
                 } else {
                     LogUtil.logger("[WARN]Not supported super interface [" + interf.toString() + "] \nin " + from.toString() + "\nin" + ooosEntry.getOooGenerator().getGeneratorClassType());
                 }

@@ -13,6 +13,7 @@ import com.wangjiegulu.rapidooo.library.compiler.oooentry.OOOEntry;
 import com.wangjiegulu.rapidooo.library.compiler.oooentry.OOOFieldEntry;
 import com.wangjiegulu.rapidooo.library.compiler.part.PartBrew;
 import com.wangjiegulu.rapidooo.library.compiler.part.statement.contact.IParcelableStatementBrew;
+import com.wangjiegulu.rapidooo.library.compiler.part.statement.parcelable.ParcelableArrayStatementBrew;
 import com.wangjiegulu.rapidooo.library.compiler.part.statement.parcelable.ParcelableBoxPrimitiveStatementBrew;
 import com.wangjiegulu.rapidooo.library.compiler.part.statement.parcelable.ParcelableListStatementBrew;
 import com.wangjiegulu.rapidooo.library.compiler.part.statement.parcelable.ParcelableObjectStatementBrew;
@@ -41,6 +42,7 @@ public class InterfacePartBrew implements PartBrew {
         parcelableStatementBrews.add(new ParcelableBoxPrimitiveStatementBrew());
         parcelableStatementBrews.add(new ParcelableObjectStatementBrew());
         parcelableStatementBrews.add(new ParcelableListStatementBrew());
+        parcelableStatementBrews.add(new ParcelableArrayStatementBrew());
     }
 
     @Override
@@ -50,7 +52,7 @@ public class InterfacePartBrew implements PartBrew {
             TypeMirror interf = ee.getValue();
             if(Serializable.class.getCanonicalName().equals(interfaceName)){
                 result.addSuperinterface(ClassName.get(interf));
-            } else if(RapidOOOConstants.PARCELABLE_CLASS_NAME.equals(interfaceName)){
+            } else if(RapidOOOConstants.CLASS_NAME_PARCELABLE.equals(interfaceName)){
                 result.addSuperinterface(ClassName.get(interf));
                 boolean supperParcelableInterface = ElementUtil.isSupperParcelableInterfaceDeep(MoreTypes.asElement(oooEntry.getFrom()));
                 generateParcelableElements(result, oooEntry, supperParcelableInterface);
@@ -69,7 +71,7 @@ public class InterfacePartBrew implements PartBrew {
         }
 
         String targetClassSimpleName = oooEntry.getTargetClassSimpleName();
-        FieldSpec.Builder fieldSpec = FieldSpec.builder(EasyType.bestGuessDeep2("android.os.Parcelable.Creator<" + targetClassSimpleName + ">"), "CREATOR", Modifier.STATIC, Modifier.PUBLIC)
+        FieldSpec.Builder fieldSpec = FieldSpec.builder(EasyType.bestGuessDeep2(RapidOOOConstants.CLASS_NAME_PARCELABLE + ".Creator<" + targetClassSimpleName + ">"), "CREATOR", Modifier.STATIC, Modifier.PUBLIC)
                 .initializer("new Parcelable.Creator<" + targetClassSimpleName + ">() {\n" +
                         "        @Override\n" +
                         "        public " + targetClassSimpleName + " createFromParcel($T source) {\n" +
@@ -125,13 +127,14 @@ public class InterfacePartBrew implements PartBrew {
         // Conversion fields
         for (Map.Entry<String, OOOConversionEntry> conversionFieldE : oooEntry.getConversions().entrySet()) {
             OOOConversionEntry conversionEntry = conversionFieldE.getValue();
-
-            String fieldName = conversionEntry.getTargetFieldName();
-            for(IParcelableStatementBrew parcelableStatementBrew : parcelableStatementBrews){
-                if(parcelableStatementBrew.match(conversionEntry)){
-                    parcelableStatementBrew.read(parcelConstructorMethodBuilder, fieldName, conversionEntry.getTargetFieldTypeEntry());
-                    parcelableStatementBrew.write(writeToParcelMethod, fieldName, conversionEntry.getTargetFieldTypeEntry());
-                    break;
+            if(conversionEntry.isParcelable()){
+                String fieldName = conversionEntry.getTargetFieldName();
+                for(IParcelableStatementBrew parcelableStatementBrew : parcelableStatementBrews){
+                    if(parcelableStatementBrew.match(conversionEntry)){
+                        parcelableStatementBrew.read(parcelConstructorMethodBuilder, fieldName, conversionEntry.getTargetFieldTypeEntry());
+                        parcelableStatementBrew.write(writeToParcelMethod, fieldName, conversionEntry.getTargetFieldTypeEntry());
+                        break;
+                    }
                 }
             }
         }

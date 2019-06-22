@@ -1,7 +1,7 @@
 package com.wangjiegulu.rapidooo.library.compiler.part.statement.mto;
 
+import com.squareup.javapoet.ArrayTypeName;
 import com.squareup.javapoet.MethodSpec;
-import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeName;
 import com.wangjiegulu.rapidooo.api.OOOControlMode;
 import com.wangjiegulu.rapidooo.library.compiler.entry.GetterSetterMethodNames;
@@ -13,15 +13,13 @@ import com.wangjiegulu.rapidooo.library.compiler.util.LogUtil;
 import com.wangjiegulu.rapidooo.library.compiler.util.PoetUtil;
 import com.wangjiegulu.rapidooo.library.compiler.util.TextUtil;
 
-import java.util.ArrayList;
-
 /**
  * Author: wangjie Email: tiantian.china.2@gmail.com Date: 2019-06-18.
  */
-public class ToMethodListStatementBrew implements IToMethodStatementBrew {
+public class ToMethodArrayStatementBrew implements IToMethodStatementBrew {
     @Override
     public boolean match(OOOConversionEntry conversionEntry) {
-        return conversionEntry.getTargetFieldTypeEntry().isList();
+        return conversionEntry.getTargetFieldTypeEntry().isArray();
     }
 
     @Override
@@ -48,42 +46,47 @@ public class ToMethodListStatementBrew implements IToMethodStatementBrew {
     private void buildAttachStatement(OOOEntry oooEntry, String fromParamName, MethodSpec.Builder toFromMethod, OOOConversionEntry conversionEntry) {
         toFromMethod.addComment(conversionEntry.getTargetFieldName() + ", " + conversionEntry.getControlMode().getDesc() + ", " + this.getClass().getSimpleName());
 
-        ParameterizedTypeName targetFieldType = (ParameterizedTypeName) conversionEntry.getTargetFieldType();
-        TypeName targetFieldParamTypeName = targetFieldType.typeArguments.get(0);
+        ArrayTypeName targetFieldType = (ArrayTypeName) conversionEntry.getTargetFieldType();
+        TypeName targetFieldParamTypeName = targetFieldType.componentType;
         GetterSetterMethodNames getterSetterMethodNames = PoetUtil.generateGetterSetterMethodName(conversionEntry.getAttachFieldName(), conversionEntry.getAttachFieldType());
 
         OOOEntry temp = OOOSEntry.queryTypeByName(targetFieldParamTypeName.toString());
-
-        // java.util.List<#id__ChatBO>
+        // #id__ChatBO[]
         if (null != temp) {
             String attachFieldName = conversionEntry.getAttachFieldName() + "_";
-            toFromMethod.addStatement("List<$T> " + attachFieldName, temp.getFromTypeName());
+
             toFromMethod.addCode(
-                    "if(null == " + conversionEntry.getTargetFieldName() + "){\n" +
+                    "$T[] " + attachFieldName + ";\n" +
+                            "if(null == this." + conversionEntry.getTargetFieldName() + "){\n" +
                             "  " + attachFieldName + " = null;\n" +
                             "} else {\n" +
-                            "  " + attachFieldName + " = new $T<>();\n" +
-                            "  for($T item : " + conversionEntry.getTargetFieldName() + "){\n" +
-                            "    " + attachFieldName + ".add(item.to$T());\n" +
+                            "  " + attachFieldName + " = new $T[" + conversionEntry.getTargetFieldName() + ".length];\n" +
+                            "  for(int i = 0, len = this." + conversionEntry.getTargetFieldName() + ".length; i < len; i++){\n" +
+                            "    " + attachFieldName + "[i] = this." + conversionEntry.getTargetFieldName() + "[i].to" + temp.getFromSimpleName() + "();\n" +
                             "  }\n" +
-                            "}\n" +
-                            fromParamName + "." + getterSetterMethodNames.getSetterMethodName() + "(" + attachFieldName + ");\n",
-                    ArrayList.class, targetFieldParamTypeName, temp.getFromTypeName());
-        } else { // java.util.List<java.lang.String>
+                            "}\n",
+                    temp.getFromTypeName(), temp.getFromTypeName()
+            );
+            toFromMethod.addStatement(fromParamName + "." + getterSetterMethodNames.getSetterMethodName() + "(" + attachFieldName + ")");
+
+        } else { // java.lang.String[]
             String attachFieldName = conversionEntry.getAttachFieldName() + "_";
-            toFromMethod.addStatement("List<$T> " + attachFieldName, targetFieldParamTypeName);
+
             toFromMethod.addCode(
-                    "if(null == " + conversionEntry.getTargetFieldName() + "){\n" +
+                    "$T " + attachFieldName + ";\n" +
+                            "if(null == this." + conversionEntry.getTargetFieldName() + "){\n" +
                             "  " + attachFieldName + " = null;\n" +
                             "} else {\n" +
-                            "  " + attachFieldName + " = new $T<>();\n" +
-                            "  for($T item : " + conversionEntry.getTargetFieldName() + "){\n" +
-                            "    " + attachFieldName + ".add(item);\n" +
+                            "  " + attachFieldName + " = new $T[" + conversionEntry.getTargetFieldName() + ".length];\n" +
+                            "  for(int i = 0, len = this." + conversionEntry.getTargetFieldName() + ".length; i < len; i++){\n" +
+                            "    " + attachFieldName + "[i] = this." + conversionEntry.getTargetFieldName() + "[i];\n" +
                             "  }\n" +
-                            "}\n" +
-                            fromParamName + "." + getterSetterMethodNames.getSetterMethodName() + "(" + attachFieldName + ");\n",
-                    ArrayList.class, targetFieldParamTypeName);
+                            "}\n",
+                    conversionEntry.getTargetFieldType(), conversionEntry.getTargetFieldTypeEntry().getArrayItemTypeName()
+            );
+            toFromMethod.addStatement(fromParamName + "." + getterSetterMethodNames.getSetterMethodName() + "(" + attachFieldName + ")");
         }
     }
+
 
 }

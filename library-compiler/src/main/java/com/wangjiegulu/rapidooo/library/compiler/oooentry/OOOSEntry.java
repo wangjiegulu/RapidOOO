@@ -33,7 +33,7 @@ public class OOOSEntry {
 
     private List<OOOEntry> ooos = new ArrayList<>();
 
-    private Map<String, OOOEntry> allTypeIds = new HashMap<>();
+    private static Map<String, OOOEntry> allTypeIds = new HashMap<>();
 
     public OOOSEntry(OOOGenerator oooGenerator, OOOs ooosAnno) {
         this.oooGenerator = oooGenerator;
@@ -117,11 +117,11 @@ public class OOOSEntry {
         return ooos;
     }
 
-    public OOOEntry queryTypeById(String id) {
+    public static OOOEntry queryTypeById(String id) {
         return allTypeIds.get(id);
     }
 
-    public OOOEntry queryTypeByName(String name) {
+    public static OOOEntry queryTypeByName(String name) {
         for(Map.Entry<String, OOOEntry> ee : allTypeIds.entrySet()){
             if(TextUtil.equals(ee.getValue().getTargetClassType().toString(), name)){
                 return ee.getValue();

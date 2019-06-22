@@ -1,11 +1,13 @@
 package com.wangjiegulu.rapidooo.library.compiler.oooentry;
 
+import com.squareup.javapoet.ArrayTypeName;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeName;
 import com.wangjiegulu.rapidooo.library.compiler.exception.RapidOOOCompileException;
 import com.wangjiegulu.rapidooo.library.compiler.util.AnnoUtil;
 import com.wangjiegulu.rapidooo.library.compiler.util.EasyType;
+import com.wangjiegulu.rapidooo.library.compiler.util.LogUtil;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -17,10 +19,11 @@ import java.util.List;
  */
 public class OOOTypeEntry {
     public enum OOOTypeEnum {
-        LIST, MAP, OBJECT
+        LIST, ARRAY, MAP, OBJECT
     }
 
     private TypeName typeName;
+    private TypeName arrayItemTypeName;
     private HashMap<String, TypeName> argumentTypeMapper = new LinkedHashMap<>();
     private List<String> argumentNames = new ArrayList<>();
     private OOOTypeEnum oooTypeEnum;
@@ -36,8 +39,13 @@ public class OOOTypeEntry {
             typeName = parseBestGuess(oooConversionEntry, idExp);
             oooTypeEnum = OOOTypeEnum.LIST;
         } else if (EasyType.isMapType(idExp)) {
+            // TODO: 2019-06-21 wangjie
             typeName = parseBestGuess(oooConversionEntry, idExp);
             oooTypeEnum = OOOTypeEnum.MAP;
+        } else if (EasyType.isArrayType(idExp)) {
+            typeName = parseBestGuess(oooConversionEntry, idExp);
+            oooTypeEnum = OOOTypeEnum.ARRAY;
+            isRefId = EasyType.isRefId(idExp);
         } else {
             if (EasyType.isRefId(idExp)) {
                 typeName = oooConversionEntry.getOooEntry().getOoosEntry().queryTypeById(idExp).getTargetClassType();
@@ -49,11 +57,24 @@ public class OOOTypeEntry {
         }
     }
 
-    public void parse(TypeName typeName){
+    public void parse(TypeName typeName) {
         this.typeName = typeName;
-        this.oooTypeEnum = OOOTypeEnum.OBJECT;
+        if(EasyType.isListType(typeName)){
+            oooTypeEnum = OOOTypeEnum.LIST;
+        } else if(EasyType.isMapType(typeName)){
+            oooTypeEnum = OOOTypeEnum.MAP;
+        } else if(EasyType.isArrayType(typeName)){
+            oooTypeEnum = OOOTypeEnum.ARRAY;
+            arrayItemTypeName = ((ArrayTypeName)typeName).componentType;
+        } else {
+            oooTypeEnum = OOOTypeEnum.OBJECT;
+        }
+        initTypeName(typeName);
+    }
+
+    private void initTypeName(TypeName typeName){
         if(typeName instanceof ParameterizedTypeName){
-            for(TypeName tn : ((ParameterizedTypeName) typeName).typeArguments){
+            for (TypeName tn : ((ParameterizedTypeName) typeName).typeArguments) {
                 argumentTypeMapper.put(tn.toString(), tn);
                 argumentNames.add(tn.toString());
             }
@@ -62,6 +83,9 @@ public class OOOTypeEntry {
 
     public boolean isList() {
         return OOOTypeEnum.LIST == oooTypeEnum;
+    }
+    public boolean isArray() {
+        return OOOTypeEnum.ARRAY == oooTypeEnum;
     }
 
     public boolean isMap() {
@@ -83,19 +107,42 @@ public class OOOTypeEntry {
     public HashMap<String, TypeName> getArgumentTypes() {
         return argumentTypeMapper;
     }
-    public boolean hasArgumentRefId(){
+
+    public boolean hasArgumentRefId() {
         return hasArgumentRefId;
+    }
+
+    public TypeName getArrayItemTypeName() {
+        return arrayItemTypeName;
     }
 
     public boolean isRefId() {
         return isRefId;
     }
 
-    public TypeName get(int index){
+    public TypeName get(int index) {
         return argumentTypeMapper.get(argumentNames.get(index));
     }
 
     private TypeName parseBestGuess(OOOConversionEntry oooConversionEntry, String idExp) {
+        int arrayHeight = 0;
+        String tempIdExp = idExp;
+        while (tempIdExp.endsWith("[]")) {
+            tempIdExp = tempIdExp.substring(0, tempIdExp.length() - 2);
+            arrayHeight++;
+        }
+        TypeName resultTypeName = parseBestGuessInternal(oooConversionEntry, tempIdExp);
+        arrayItemTypeName = resultTypeName;
+        for(int i = 0; i < arrayHeight; i++){
+            resultTypeName = ArrayTypeName.of(resultTypeName);
+        }
+        if(arrayHeight > 0){
+            LogUtil.logger("OOOTypeEntry, array ------>" + resultTypeName);
+        }
+        return resultTypeName;
+    }
+
+    private TypeName parseBestGuessInternal(OOOConversionEntry oooConversionEntry, String idExp) {
         switch (idExp) {
             case "void":
                 return TypeName.VOID;
@@ -124,12 +171,8 @@ public class OOOTypeEntry {
                     do {
                         String _type = idExp.substring(left + 1, right).trim();
                         TypeName argumentType;
-                        if (_type.startsWith("#")) {
-                            OOOEntry queryTypeResult = oooConversionEntry.getOooEntry().getOoosEntry().queryTypeById(_type);
-                            if (null == queryTypeResult) {
-                                throw new RapidOOOCompileException("Id[" + idExp + ": " + _type + "] not found.\n" + oooConversionEntry.getOooEntry().getOoosEntry().getOooGenerator().getGeneratorClassType());
-                            }
-                            argumentType = queryTypeResult.getTargetClassType();
+                        if (EasyType.isRefId(_type)) {
+                            argumentType = queryRefTypeName(oooConversionEntry, _type);
                             hasArgumentRefId = true;
                         } else {
                             argumentType = EasyType.bestGuess(_type);
@@ -144,8 +187,20 @@ public class OOOTypeEntry {
                     return ParameterizedTypeName.get(typeClassName,
                             typeArgs.toArray(new TypeName[typeArgs.size()]));
                 }
+
+                if (EasyType.isRefId(idExp)) {
+                    return queryRefTypeName(oooConversionEntry, idExp);
+                }
                 return ClassName.bestGuess(idExp);
         }
+    }
+
+    private TypeName queryRefTypeName(OOOConversionEntry oooConversionEntry, String id) {
+        OOOEntry queryTypeResult = oooConversionEntry.getOooEntry().getOoosEntry().queryTypeById(id);
+        if (null == queryTypeResult) {
+            throw new RapidOOOCompileException("Id[" + id + "] not found.\n" + oooConversionEntry.getOooEntry().getOoosEntry().getOooGenerator().getGeneratorClassType());
+        }
+        return queryTypeResult.getTargetClassType();
     }
 
 

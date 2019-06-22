@@ -1,5 +1,6 @@
 package com.wangjiegulu.rapidooo.library.compiler.util;
 
+import com.squareup.javapoet.ArrayTypeName;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeName;
@@ -148,6 +149,16 @@ public class EasyType {
     }
     public static boolean isArrayType(String str){
         return str.matches(".+\\[]");
+    }
+
+    public static boolean isListType(TypeName typeName){
+        return isListType(typeName.toString()) && typeName instanceof ParameterizedTypeName;
+    }
+    public static boolean isMapType(TypeName typeName){
+        return isMapType(typeName.toString()) && typeName instanceof ParameterizedTypeName;
+    }
+    public static boolean isArrayType(TypeName typeName){
+        return isArrayType(typeName.toString()) && typeName instanceof ArrayTypeName;
     }
 
     public static boolean isRefId(String str){

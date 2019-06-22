@@ -27,7 +27,7 @@ public class ParcelableBoxPrimitiveStatementBrew implements IParcelableStatement
 
     @Override
     public boolean match(ParcelableEntry parcelableEntry) {
-        TypeName fieldTypeName = parcelableEntry.fieldType();
+        TypeName fieldTypeName = parcelableEntry.fieldTypeEntry().getTypeName();
         if(fieldTypeName.isBoxedPrimitive()){
             TypeName _fieldTypeName = fieldTypeName.unbox();
             return primitiveMap.containsKey(_fieldTypeName);

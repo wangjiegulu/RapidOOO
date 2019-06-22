@@ -22,7 +22,7 @@ import java.util.List;
                 @OOO(from = UserBO.class, id = "#id__UserVO"),
                 @OOO(from = ChatBO.class, id = "#id__ChatVO"),
                 @OOO(from = MessageBO.class,
-                        excludes = {"fromBO", "chatBO"},
+                        excludes = {"fromBO", "chatBO", "chatBOs", "otherChatBOs", "foos"},
                         conversions = {
                                 @OOOConversion(
                                         targetFieldName = "fromVO",
@@ -44,6 +44,18 @@ import java.util.List;
                                         targetFieldName = "commentLengthList",
                                         targetFieldTypeId = "java.util.List<java.lang.Integer>",
                                         bindMethodName = "bindCommentLengthList"
+                                ),
+                                @OOOConversion(
+                                        targetFieldName = "chatVOs",
+                                        targetFieldTypeId = "java.util.List<#id__ChatVO>",
+                                        attachFieldName = "chatBOs"
+                                ),
+                                @OOOConversion(
+                                        targetFieldName = "otherChatVOs",
+                                        targetFieldTypeId = "#id__ChatVO[]",
+                                        attachFieldName = "otherChatBOs",
+
+                                        parcelable = false
                                 )
                         }
                 )

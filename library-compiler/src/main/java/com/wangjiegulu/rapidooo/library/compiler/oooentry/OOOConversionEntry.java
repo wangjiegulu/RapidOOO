@@ -442,8 +442,8 @@ public class OOOConversionEntry implements IOOOVariable, ParcelableEntry {
     }
 
     @Override
-    public TypeName fieldType() {
-        return oooTargetFieldTypeEntry.getTypeName();
+    public OOOTypeEntry fieldTypeEntry() {
+        return oooTargetFieldTypeEntry;
     }
 
     @Override

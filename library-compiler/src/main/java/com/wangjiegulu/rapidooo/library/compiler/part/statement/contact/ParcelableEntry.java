@@ -1,6 +1,6 @@
 package com.wangjiegulu.rapidooo.library.compiler.part.statement.contact;
 
-import com.squareup.javapoet.TypeName;
+import com.wangjiegulu.rapidooo.library.compiler.oooentry.OOOTypeEntry;
 
 /**
  * Author: wangjie Email: tiantian.china.2@gmail.com Date: 2019-06-18.
@@ -8,5 +8,6 @@ import com.squareup.javapoet.TypeName;
 public interface ParcelableEntry {
     boolean isParcelable();
     String fieldName();
-    TypeName fieldType();
+    OOOTypeEntry fieldTypeEntry();
+//    TypeName fieldType();
 }

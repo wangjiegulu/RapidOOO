@@ -10,8 +10,6 @@ import com.wangjiegulu.rapidooo.library.compiler.part.statement.contact.IToMetho
 import com.wangjiegulu.rapidooo.library.compiler.util.LogUtil;
 import com.wangjiegulu.rapidooo.library.compiler.util.PoetUtil;
 import com.wangjiegulu.rapidooo.library.compiler.util.TextUtil;
-import com.wangjiegulu.rapidooo.library.compiler.util.func.Func1R;
-import com.wangjiegulu.rapidooo.library.compiler.variables.IOOOVariable;
 
 /**
  * Author: wangjie Email: tiantian.china.2@gmail.com Date: 2019-06-18.
@@ -34,7 +32,7 @@ public class ToMethodObjectStatementBrew implements IToMethodStatementBrew {
                 // ignore
                 break;
             case CONVERSION:
-                buildConversionStatement(toFromMethod, conversionEntry);
+                ToMethodStatementUtil.buildConversionStatement(toFromMethod, conversionEntry, this.getClass().getSimpleName());
                 break;
             default:
                 LogUtil.logger("[INFO] UNKNOWN Control Mode.");
@@ -61,20 +59,20 @@ public class ToMethodObjectStatementBrew implements IToMethodStatementBrew {
         }
     }
 
-    private void buildConversionStatement(MethodSpec.Builder toFromMethod, OOOConversionEntry conversionEntry) {
-        if (conversionEntry.isInverseConversionMethodSet()) {
-            toFromMethod.addComment(conversionEntry.getTargetFieldName() + ", " + conversionEntry.getControlMode().getDesc() + ", " + this.getClass().getSimpleName());
-
-            String paramsStr = TextUtil.joinHashMap(conversionEntry.getInverseConversionTargetParamFields(), ", ", new Func1R<IOOOVariable, String>() {
-                @Override
-                public String call(IOOOVariable ioooTargetVariable) {
-                    return ioooTargetVariable.inputCode();
-                }
-            });
-            toFromMethod.addStatement(
-                    "$T." + conversionEntry.getInverseConversionMethodName() + "(" + paramsStr + ")",
-                    conversionEntry.getConversionMethodClassType()
-            );
-        }
-    }
+//    private void buildConversionStatement(MethodSpec.Builder toFromMethod, OOOConversionEntry conversionEntry) {
+//        if (conversionEntry.isInverseConversionMethodSet()) {
+//            toFromMethod.addComment(conversionEntry.getTargetFieldName() + ", " + conversionEntry.getControlMode().getDesc() + ", " + this.getClass().getSimpleName());
+//
+//            String paramsStr = TextUtil.joinHashMap(conversionEntry.getInverseConversionTargetParamFields(), ", ", new Func1R<IOOOVariable, String>() {
+//                @Override
+//                public String call(IOOOVariable ioooTargetVariable) {
+//                    return ioooTargetVariable.inputCode();
+//                }
+//            });
+//            toFromMethod.addStatement(
+//                    "$T." + conversionEntry.getInverseConversionMethodName() + "(" + paramsStr + ")",
+//                    conversionEntry.getConversionMethodClassType()
+//            );
+//        }
+//    }
 }

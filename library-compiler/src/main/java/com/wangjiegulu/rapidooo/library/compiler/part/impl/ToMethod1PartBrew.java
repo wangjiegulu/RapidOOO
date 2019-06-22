@@ -8,6 +8,7 @@ import com.wangjiegulu.rapidooo.library.compiler.oooentry.OOOEntry;
 import com.wangjiegulu.rapidooo.library.compiler.oooentry.OOOFieldEntry;
 import com.wangjiegulu.rapidooo.library.compiler.part.PartBrew;
 import com.wangjiegulu.rapidooo.library.compiler.part.statement.contact.IToMethodStatementBrew;
+import com.wangjiegulu.rapidooo.library.compiler.part.statement.mto.ToMethodArrayStatementBrew;
 import com.wangjiegulu.rapidooo.library.compiler.part.statement.mto.ToMethodListStatementBrew;
 import com.wangjiegulu.rapidooo.library.compiler.part.statement.mto.ToMethodObjectStatementBrew;
 import com.wangjiegulu.rapidooo.library.compiler.util.PoetUtil;
@@ -27,6 +28,7 @@ public class ToMethod1PartBrew implements PartBrew {
     public ToMethod1PartBrew() {
         statementBrews.add(new ToMethodObjectStatementBrew());
         statementBrews.add(new ToMethodListStatementBrew());
+        statementBrews.add(new ToMethodArrayStatementBrew());
     }
 
     @Override

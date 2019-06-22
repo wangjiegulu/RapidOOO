@@ -21,6 +21,7 @@ public class Message implements Parcelable {
     private String text;
 
     private List<String> comments;
+    private String[] commentArray;
     private List<String> replyIds;
     private List<Chat> chats;
     private Chat[] otherChats;
@@ -33,6 +34,15 @@ public class Message implements Parcelable {
 //    private Size size;
 //    private SizeF sizeF;
 
+    private List<Foo> foos;
+
+    public List<Foo> getFoos() {
+        return foos;
+    }
+
+    public void setFoos(List<Foo> foos) {
+        this.foos = foos;
+    }
 
     public Map<String, Chat> getChatMapper() {
         return chatMapper;
@@ -123,6 +133,14 @@ public class Message implements Parcelable {
         this.replyIds = replyIds;
     }
 
+    public String[] getCommentArray() {
+        return commentArray;
+    }
+
+    public void setCommentArray(String[] commentArray) {
+        this.commentArray = commentArray;
+    }
+
     public Message() {
     }
 
@@ -140,6 +158,7 @@ public class Message implements Parcelable {
         dest.writeValue(this.editDate);
         dest.writeString(this.text);
         dest.writeStringList(this.comments);
+        dest.writeStringArray(this.commentArray);
         dest.writeStringList(this.replyIds);
         dest.writeTypedList(this.chats);
         dest.writeTypedArray(this.otherChats, flags);
@@ -158,6 +177,7 @@ public class Message implements Parcelable {
         this.editDate = (Integer) in.readValue(Integer.class.getClassLoader());
         this.text = in.readString();
         this.comments = in.createStringArrayList();
+        this.commentArray = in.createStringArray();
         this.replyIds = in.createStringArrayList();
         this.chats = in.createTypedArrayList(Chat.CREATOR);
         this.otherChats = in.createTypedArray(Chat.CREATOR);

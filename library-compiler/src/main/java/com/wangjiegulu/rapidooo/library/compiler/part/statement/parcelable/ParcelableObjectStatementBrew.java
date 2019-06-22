@@ -13,7 +13,7 @@ import com.wangjiegulu.rapidooo.library.compiler.part.statement.contact.Parcelab
 public class ParcelableObjectStatementBrew implements IParcelableStatementBrew {
     @Override
     public boolean match(ParcelableEntry parcelableEntry) {
-        TypeName fieldTypeName = parcelableEntry.fieldType();
+        TypeName fieldTypeName = parcelableEntry.fieldTypeEntry().getTypeName();
         if(ClassName.class == fieldTypeName.getClass()){
             // TODO: 2019-06-21 wangjie 判断不够严谨
             return parcelableEntry.isParcelable();

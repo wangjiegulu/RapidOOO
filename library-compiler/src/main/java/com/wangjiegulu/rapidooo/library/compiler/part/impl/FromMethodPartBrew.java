@@ -8,6 +8,7 @@ import com.wangjiegulu.rapidooo.library.compiler.oooentry.OOOEntry;
 import com.wangjiegulu.rapidooo.library.compiler.oooentry.OOOFieldEntry;
 import com.wangjiegulu.rapidooo.library.compiler.part.PartBrew;
 import com.wangjiegulu.rapidooo.library.compiler.part.statement.contact.IFromMethodStatementBrew;
+import com.wangjiegulu.rapidooo.library.compiler.part.statement.mfrom.FromMethodArrayStatementBrew;
 import com.wangjiegulu.rapidooo.library.compiler.part.statement.mfrom.FromMethodListStatementBrew;
 import com.wangjiegulu.rapidooo.library.compiler.part.statement.mfrom.FromMethodObjectStatementBrew;
 import com.wangjiegulu.rapidooo.library.compiler.util.PoetUtil;
@@ -27,6 +28,7 @@ public class FromMethodPartBrew implements PartBrew {
     public FromMethodPartBrew() {
         statementBrews.add(new FromMethodObjectStatementBrew());
         statementBrews.add(new FromMethodListStatementBrew());
+        statementBrews.add(new FromMethodArrayStatementBrew());
     }
 
     @Override

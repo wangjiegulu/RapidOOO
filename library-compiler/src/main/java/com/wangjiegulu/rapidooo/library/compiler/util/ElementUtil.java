@@ -6,6 +6,7 @@ import com.google.common.base.Optional;
 
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.TypeName;
+import com.wangjiegulu.rapidooo.library.compiler.RapidOOOConstants;
 
 import java.io.Serializable;
 import java.lang.reflect.Type;
@@ -17,6 +18,7 @@ import javax.lang.model.element.Element;
 import javax.lang.model.element.Name;
 import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.TypeElement;
+import javax.lang.model.element.TypeParameterElement;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeMirror;
@@ -154,7 +156,7 @@ public class ElementUtil {
             if (superClass.isPresent()) {
                 currentClass = superClass.get().asElement();
                 for (TypeMirror interf : MoreTypes.asTypeElement(currentClass.asType()).getInterfaces()) {
-                    if (ElementUtil.isSameType(interf, ClassName.bestGuess("android.os.Parcelable"))) {
+                    if (ElementUtil.isSameType(interf, ClassName.bestGuess(RapidOOOConstants.CLASS_NAME_PARCELABLE))) {
                         return true;
                     }
                 }
@@ -208,25 +210,42 @@ public class ElementUtil {
     }
 
     public static boolean isParcelable(Element field) {
-        TypeName typeName = getTypeName(field);
+        return isParcelable(field.asType());
+    }
+
+    public static boolean isParcelable(TypeMirror fieldType) {
+        TypeName typeName = getTypeName(fieldType);
         if (typeName.isPrimitive() || typeName.isBoxedPrimitive()) {
             return true;
         }
-        TypeMirror fieldType = field.asType();
+//        TypeMirror fieldType = field.asType();
         if (isSubType(fieldType, String.class) ||
-                isAssignable(fieldType, Map.class) ||
-                isAssignable(fieldType, List.class) ||
-                isSubType(fieldType, "android.os.Bundle") ||
-                isSubType(fieldType, "android.os.PersistableBundle") ||
-                isSubType(fieldType, "android.os.Parcelable") ||
-                isSubType(fieldType, "android.util.SparseArray") ||
-                isSubType(fieldType, "android.os.IBinder") ||
-                isSubType(fieldType, "android.util.Size") ||
-                isSubType(fieldType, "android.util.SizeF") ||
+//                isAssignable(fieldType, Map.class) ||
+//                isAssignable(fieldType, List.class) ||
+                isSubType(fieldType, RapidOOOConstants.CLASS_NAME_BUNDLE) ||
+                isSubType(fieldType, RapidOOOConstants.CLASS_NAME_PERSISTABLE_BUNDLE) ||
+                isSubType(fieldType, RapidOOOConstants.CLASS_NAME_PARCELABLE) ||
+                isSubType(fieldType, RapidOOOConstants.CLASS_NAME_SPARSE_ARRAY) ||
+                isSubType(fieldType, RapidOOOConstants.CLASS_NAME_IBINDER) ||
+                isSubType(fieldType, RapidOOOConstants.CLASS_NAME_SIZE) ||
+                isSubType(fieldType, RapidOOOConstants.CLASS_NAME_SIZEF) ||
                 isSubType(fieldType, Serializable.class)
         ) {
             return true;
         }
+
+        if(isAssignable(fieldType, List.class)){
+            List<? extends TypeParameterElement> typeParameters = MoreTypes.asTypeElement(fieldType).getTypeParameters();
+            if(typeParameters.size() == 1){
+                return isParcelable(typeParameters.get(0).asType());
+            }
+        } else if(isAssignable(fieldType, Map.class)){
+            List<? extends TypeParameterElement> typeParameters = MoreTypes.asTypeElement(fieldType).getTypeParameters();
+            if(typeParameters.size() == 2){
+                return isParcelable(typeParameters.get(0).asType()) && isParcelable(typeParameters.get(1).asType());
+            }
+        }
+
         return false;
     }
 

@@ -63,8 +63,8 @@ public class OOOFieldEntry implements IOOOVariable, ParcelableEntry {
     }
 
     @Override
-    public TypeName fieldType() {
-        return typeName;
+    public OOOTypeEntry fieldTypeEntry() {
+        return oooTypeEntry;
     }
 
     @Override

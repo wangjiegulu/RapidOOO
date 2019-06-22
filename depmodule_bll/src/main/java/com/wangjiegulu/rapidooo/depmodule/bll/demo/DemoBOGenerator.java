@@ -17,7 +17,7 @@ import com.wangjiegulu.rapidooo.depmodule.dal.xdo.demo.User;
                 @OOO(from = User.class, id = "#id__UserBO"),
                 @OOO(from = Chat.class, id = "#id__ChatBO"),
                 @OOO(from = Message.class,
-                        excludes = {"from", "chat", "chats", "otherChats", "chatMapper", "replyIds", "text"},
+                        excludes = {"from", "chat", "chats", "otherChats", "chatMapper", "replyIds", "text", "commentArray"},
                         conversions = {
                                 @OOOConversion(
                                         targetFieldName = "textRaw",
@@ -35,6 +35,11 @@ import com.wangjiegulu.rapidooo.depmodule.dal.xdo.demo.User;
                                         attachFieldName = "chat"
                                 ),
                                 @OOOConversion(
+                                        targetFieldName = "commentArrays",
+                                        targetFieldTypeId = "java.lang.String[]",
+                                        attachFieldName = "commentArray"
+                                ),
+                                @OOOConversion(
                                         targetFieldName = "replyIds",
                                         targetFieldTypeId = "java.util.List<java.lang.String>",
                                         attachFieldName = "replyIds"
@@ -43,6 +48,11 @@ import com.wangjiegulu.rapidooo.depmodule.dal.xdo.demo.User;
                                         targetFieldName = "chatBOs",
                                         targetFieldTypeId = "java.util.List<#id__ChatBO>",
                                         attachFieldName = "chats"
+                                ),
+                                @OOOConversion(
+                                        targetFieldName = "otherChatBOs",
+                                        targetFieldTypeId = "#id__ChatBO[]",
+                                        attachFieldName = "otherChats"
                                 )/*,
                                 @OOOConversion(
                                         targetFieldName = "chatBOMapper",

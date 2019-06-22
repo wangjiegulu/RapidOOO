@@ -10,8 +10,6 @@ import com.wangjiegulu.rapidooo.library.compiler.part.statement.contact.IFromMet
 import com.wangjiegulu.rapidooo.library.compiler.util.LogUtil;
 import com.wangjiegulu.rapidooo.library.compiler.util.PoetUtil;
 import com.wangjiegulu.rapidooo.library.compiler.util.TextUtil;
-import com.wangjiegulu.rapidooo.library.compiler.util.func.Func1R;
-import com.wangjiegulu.rapidooo.library.compiler.variables.IOOOVariable;
 
 /**
  * Author: wangjie Email: tiantian.china.2@gmail.com Date: 2019-06-18.
@@ -20,9 +18,9 @@ public class FromMethodObjectStatementBrew implements IFromMethodStatementBrew {
 
     @Override
     public boolean match(OOOConversionEntry conversionEntry) {
-//        LogUtil.logger(")))))))))conversionEntry.getTargetFieldType().getClass(): " + conversionEntry.getTargetFieldType().getClass());
-//        LogUtil.logger(")))))))))ClassName.class: " + ClassName.class);
-//        LogUtil.logger(")))))))))conversionEntry.getTargetFieldType(): " + conversionEntry.getTargetFieldType());
+        LogUtil.logger(")))))))))conversionEntry.getTargetFieldType().getClass(): " + conversionEntry.getTargetFieldType().getClass());
+        LogUtil.logger(")))))))))ClassName.class: " + ClassName.class);
+        LogUtil.logger(")))))))))conversionEntry.getTargetFieldType(): " + conversionEntry.getTargetFieldType());
         return conversionEntry.getTargetFieldType().getClass() == ClassName.class;
     }
 
@@ -34,47 +32,14 @@ public class FromMethodObjectStatementBrew implements IFromMethodStatementBrew {
                 buildAttachStatement(oooEntry, conversionEntry, fromMethodSpec);
                 break;
             case BIND:
-                buildBindStatement(oooEntry, conversionEntry, fromMethodSpec);
+                FromMethodStatementUtil.buildBindStatement(oooEntry, conversionEntry, fromMethodSpec, this.getClass().getSimpleName());
                 break;
             case CONVERSION:
-                buildConversionStatement(oooEntry, conversionEntry, fromMethodSpec);
+                FromMethodStatementUtil.buildConversionStatement(oooEntry, conversionEntry, fromMethodSpec, this.getClass().getSimpleName());
                 break;
             default:
                 LogUtil.logger("[INFO] UNKNOWN Control Mode.");
                 break;
-        }
-    }
-
-    private void buildBindStatement(OOOEntry oooEntry, OOOConversionEntry conversionEntry, MethodSpec.Builder fromMethodSpec) {
-        if (conversionEntry.isBindMethodSet()) {
-            fromMethodSpec.addComment(conversionEntry.getTargetFieldName() + ", " + conversionEntry.getControlMode().getDesc() + ", " + this.getClass().getSimpleName());
-            String paramsStr = TextUtil.joinHashMap(conversionEntry.getBindTargetParamFields(), ", ", new Func1R<IOOOVariable, String>() {
-                @Override
-                public String call(IOOOVariable ioooTargetVariable) {
-                    return ioooTargetVariable.inputCode();
-                }
-            });
-            fromMethodSpec.addStatement(
-                    "this." + conversionEntry.getTargetFieldName() + " = $T." + conversionEntry.getBindMethodName() + "(" + paramsStr + ")",
-                    conversionEntry.getBindMethodClassType()
-            );
-        }
-    }
-
-    private void buildConversionStatement(OOOEntry oooEntry, OOOConversionEntry conversionEntry, MethodSpec.Builder fromMethodSpec) {
-        if(conversionEntry.isConversionMethodSet()){
-            fromMethodSpec.addComment(conversionEntry.getTargetFieldName() + ", " + conversionEntry.getControlMode().getDesc() + ", " + this.getClass().getSimpleName());
-            String paramsStr = TextUtil.joinHashMap(conversionEntry.getConversionTargetParamFields(), ", ", new Func1R<IOOOVariable, String>() {
-                @Override
-                public String call(IOOOVariable ioooTargetVariable) {
-                    return ioooTargetVariable.inputCode();
-                }
-            });
-
-            fromMethodSpec.addStatement(
-                    "this." + conversionEntry.getTargetFieldName() + " = $T." + conversionEntry.getConversionMethodName() + "(" + paramsStr + ")",
-                    conversionEntry.getBindMethodClassType()
-            );
         }
     }
 
