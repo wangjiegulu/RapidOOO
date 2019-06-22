@@ -263,9 +263,16 @@ public class ElementUtil {
     }
 
     public static boolean isParcelableType(String className) {
-        return null != OOOSEntry.queryTypeByName(className) // refId
-                ||
-                ElementUtil.isSubType(GlobalEnvironment.getTypeElement(className).asType(), RapidOOOConstants.CLASS_NAME_PARCELABLE);
+        LogUtil.logger("[isParcelableType]className: " + className);
+        // refId from annotations
+        if(null != OOOSEntry.queryTypeByName(className)){
+            return true;
+        }
+        TypeElement typeElement = GlobalEnvironment.getTypeElement(className);
+        if(null == typeElement){
+            return false;
+        }
+        return ElementUtil.isSubType(typeElement.asType(), RapidOOOConstants.CLASS_NAME_PARCELABLE);
     }
 
 }

@@ -3,6 +3,7 @@ package com.wangjiegulu.rapidooo.depmodule.dal.xdo.demo;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -36,9 +37,37 @@ public class Message implements Parcelable {
 
     private List<Foo> foos;
     private Foo[] fooArray;
+    private Float[] floats;
+    private float[] floatAr;
+
+    private Integer[] scores;
+
+    public Float[] getFloats() {
+        return floats;
+    }
+
+    public void setFloats(Float[] floats) {
+        this.floats = floats;
+    }
+
+    public float[] getFloatAr() {
+        return floatAr;
+    }
+
+    public void setFloatAr(float[] floatAr) {
+        this.floatAr = floatAr;
+    }
 
     public List<Foo> getFoos() {
         return foos;
+    }
+
+    public Integer[] getScores() {
+        return scores;
+    }
+
+    public void setScores(Integer[] scores) {
+        this.scores = scores;
     }
 
     public void setFoos(List<Foo> foos) {
@@ -176,6 +205,11 @@ public class Message implements Parcelable {
             dest.writeString(entry.getKey());
             dest.writeParcelable(entry.getValue(), flags);
         }
+        dest.writeList(this.foos);
+//        dest.writeParcelable(this.fooArray, flags);
+        dest.writeArray(this.floats);
+        dest.writeFloatArray(this.floatAr);
+        dest.writeArray(this.scores);
     }
 
     protected Message(Parcel in) {
@@ -197,6 +231,12 @@ public class Message implements Parcelable {
             Chat value = in.readParcelable(Chat.class.getClassLoader());
             this.chatMapper.put(key, value);
         }
+        this.foos = new ArrayList<Foo>();
+        in.readList(this.foos, Foo.class.getClassLoader());
+//        this.fooArray = in.readParcelable(Foo[].class.getClassLoader());
+        this.floats = (Float[]) in.readArray(Float[].class.getClassLoader());
+        this.floatAr = in.createFloatArray();
+        this.scores = (Integer[]) in.readArray(Integer[].class.getClassLoader());
     }
 
     public static final Creator<Message> CREATOR = new Creator<Message>() {

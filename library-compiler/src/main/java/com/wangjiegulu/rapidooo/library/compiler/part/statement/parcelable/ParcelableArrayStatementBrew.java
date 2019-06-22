@@ -2,12 +2,10 @@ package com.wangjiegulu.rapidooo.library.compiler.part.statement.parcelable;
 
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeName;
-import com.wangjiegulu.rapidooo.library.compiler.RapidOOOConstants;
 import com.wangjiegulu.rapidooo.library.compiler.oooentry.OOOTypeEntry;
 import com.wangjiegulu.rapidooo.library.compiler.part.statement.contact.IParcelableStatementBrew;
 import com.wangjiegulu.rapidooo.library.compiler.part.statement.contact.ParcelableEntry;
 import com.wangjiegulu.rapidooo.library.compiler.util.ElementUtil;
-import com.wangjiegulu.rapidooo.library.compiler.util.LogUtil;
 import com.wangjiegulu.rapidooo.library.compiler.util.TextUtil;
 
 /**
@@ -27,13 +25,12 @@ public class ParcelableArrayStatementBrew implements IParcelableStatementBrew {
         if (ElementUtil.isParcelableType(arrayItemType)) {
             methodBuilder.addStatement("this." + fieldName + " = parcel.createTypedArray($T.CREATOR)", arrayItemType);
         } else { // java.lang.String[]
-            if (TextUtil.equals(arrayItemType.toString(), String.class.getCanonicalName())) {
-                methodBuilder.addStatement("this." + fieldName + " = parcel.createStringArray()");
-            } else if (TextUtil.equals(arrayItemType.toString(), RapidOOOConstants.CLASS_NAME_IBINDER)) {
-                methodBuilder.addStatement("this." + fieldName + " = parcel.createBinderArray()");
+            if (arrayItemType.isPrimitive()) {
+                methodBuilder.addStatement("this." + fieldName + " = parcel.create" + TextUtil.firstCharUpper(arrayItemType.toString()) + "Array()");
             } else {
-                LogUtil.logger("[WARN]Unable parcelable type of array argument: " + arrayItemType);
+                methodBuilder.addStatement("this." + fieldName + " = ($T) parcel.readArray($T.class.getClassLoader())", oooTypeEntry.getTypeName(), oooTypeEntry.getTypeName());
             }
+
         }
     }
 
@@ -44,12 +41,10 @@ public class ParcelableArrayStatementBrew implements IParcelableStatementBrew {
         if (ElementUtil.isParcelableType(arrayItemType)) {
             methodBuilder.addStatement("dest.writeTypedArray(this." + fieldName + ", flags)", arrayItemType);
         } else { // java.util.List<java.lang.String>
-            if (TextUtil.equals(arrayItemType.toString(), String.class.getCanonicalName())) {
-                methodBuilder.addStatement("dest.writeStringArray(this." + fieldName + ")", arrayItemType);
-            } else if (TextUtil.equals(arrayItemType.toString(), RapidOOOConstants.CLASS_NAME_IBINDER)) {
-                methodBuilder.addStatement("dest.writeBinderArray(this." + fieldName + ")", arrayItemType);
+            if (arrayItemType.isPrimitive()) {
+                methodBuilder.addStatement("dest.write" + TextUtil.firstCharUpper(arrayItemType.toString()) + "Array(this." + fieldName + ")");
             } else {
-                LogUtil.logger("[WARN]Unable parcelable type of array argument: " + arrayItemType);
+                methodBuilder.addStatement("dest.writeArray(this." + fieldName + ")");
             }
         }
     }
