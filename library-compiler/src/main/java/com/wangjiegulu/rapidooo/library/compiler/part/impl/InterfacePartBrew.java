@@ -5,7 +5,6 @@ import com.google.auto.common.MoreTypes;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.FieldSpec;
 import com.squareup.javapoet.MethodSpec;
-import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
 import com.wangjiegulu.rapidooo.library.compiler.RapidOOOConstants;
 import com.wangjiegulu.rapidooo.library.compiler.oooentry.OOOConversionEntry;
@@ -20,7 +19,6 @@ import com.wangjiegulu.rapidooo.library.compiler.part.statement.parcelable.Parce
 import com.wangjiegulu.rapidooo.library.compiler.part.statement.parcelable.ParcelablePrimitiveStatementBrew;
 import com.wangjiegulu.rapidooo.library.compiler.util.EasyType;
 import com.wangjiegulu.rapidooo.library.compiler.util.ElementUtil;
-import com.wangjiegulu.rapidooo.library.compiler.util.LogUtil;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -114,8 +112,8 @@ public class InterfacePartBrew implements PartBrew {
             if(fieldEntry.isParcelable()){
                 String fieldName = fieldEntry.getSimpleName();
                 for(IParcelableStatementBrew parcelableStatementBrew : parcelableStatementBrews){
-                    TypeName fieldTypeName = fieldEntry.getTypeName();
-                    LogUtil.logger("[fieldTypeName]" + fieldTypeName.getClass() + ", " + fieldTypeName);
+//                    TypeName fieldTypeName = fieldEntry.getTypeName();
+//                    LogUtil.logger("[fieldTypeName]" + fieldTypeName.getClass() + ", " + fieldTypeName);
                     if(parcelableStatementBrew.match(fieldEntry)){
                         parcelableStatementBrew.read(parcelConstructorMethodBuilder, fieldName, fieldEntry.getOooTypeEntry());
                         parcelableStatementBrew.write(writeToParcelMethod, fieldName, fieldEntry.getOooTypeEntry());

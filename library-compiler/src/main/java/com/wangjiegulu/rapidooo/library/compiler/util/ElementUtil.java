@@ -5,6 +5,7 @@ import com.google.auto.common.MoreTypes;
 import com.google.common.base.Optional;
 
 import com.squareup.javapoet.ClassName;
+import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeName;
 import com.wangjiegulu.rapidooo.library.compiler.RapidOOOConstants;
 
@@ -18,9 +19,9 @@ import javax.lang.model.element.Element;
 import javax.lang.model.element.Name;
 import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.TypeElement;
-import javax.lang.model.element.TypeParameterElement;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.DeclaredType;
+import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.type.WildcardType;
 import javax.lang.model.util.Elements;
@@ -99,7 +100,7 @@ public class ElementUtil {
     }
 
     public static boolean isSameType(TypeMirror type1, TypeName type2) {
-        LogUtil.logger("isSameTypeisSameTypeisSameType: " + type1 + ", " + type2);
+//        LogUtil.logger("isSameTypeisSameTypeisSameType: " + type1 + ", " + type2);
         return equals(ClassName.get(type1).toString(), type2.toString());
     }
 
@@ -173,6 +174,9 @@ public class ElementUtil {
 
     public static boolean isSubType(TypeMirror typeMirror, String canonicalName) {
         LogUtil.logger("[isSubType]===>typeMirror: " + typeMirror + ", isSubType: " + canonicalName);
+        if(null == typeMirror){
+            return false;
+        }
         Types types = GlobalEnvironment.getProcessingEnv().getTypeUtils();
         Elements elements = GlobalEnvironment.getProcessingEnv().getElementUtils();
         return types.isAssignable(typeMirror, elements.getTypeElement(canonicalName).asType());
@@ -210,10 +214,11 @@ public class ElementUtil {
     }
 
     public static boolean isParcelable(Element field) {
+        LogUtil.logger("[isParcelable]: " + field + ", " + field.asType());
         return isParcelable(field.asType());
     }
 
-    public static boolean isParcelable(TypeMirror fieldType) {
+    private static boolean isParcelable(TypeMirror fieldType) {
         TypeName typeName = getTypeName(fieldType);
         if (typeName.isPrimitive() || typeName.isBoxedPrimitive()) {
             return true;
@@ -234,19 +239,29 @@ public class ElementUtil {
             return true;
         }
 
+        TypeName tn;
+
+
         if(isAssignable(fieldType, List.class)){
-            List<? extends TypeParameterElement> typeParameters = MoreTypes.asTypeElement(fieldType).getTypeParameters();
+            List<TypeName> typeParameters = ((ParameterizedTypeName)typeName).typeArguments;
             if(typeParameters.size() == 1){
-                return isParcelable(typeParameters.get(0).asType());
+                return isParcelable(GlobalEnvironment.getTypeElement(typeParameters.get(0).toString()));
             }
         } else if(isAssignable(fieldType, Map.class)){
-            List<? extends TypeParameterElement> typeParameters = MoreTypes.asTypeElement(fieldType).getTypeParameters();
+            List<TypeName> typeParameters = ((ParameterizedTypeName)typeName).typeArguments;
             if(typeParameters.size() == 2){
-                return isParcelable(typeParameters.get(0).asType()) && isParcelable(typeParameters.get(1).asType());
+                return isParcelable(GlobalEnvironment.getTypeElement(typeParameters.get(0).toString()))
+                        && isParcelable(GlobalEnvironment.getTypeElement(typeParameters.get(1).toString()));
             }
+        } else if(fieldType.getKind() == TypeKind.ARRAY){
+            LogUtil.logger("[isParcelable] array component type: " + MoreTypes.asArray(fieldType).getComponentType());
+            return isParcelable(MoreTypes.asArray(fieldType).getComponentType());
         }
-
         return false;
+    }
+
+    public static boolean isSubParcelableType(CharSequence className) {
+        return ElementUtil.isSubType(GlobalEnvironment.getTypeElement(className).asType(), RapidOOOConstants.CLASS_NAME_PARCELABLE);
     }
 
 }

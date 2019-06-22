@@ -18,9 +18,9 @@ public class FromMethodObjectStatementBrew implements IFromMethodStatementBrew {
 
     @Override
     public boolean match(OOOConversionEntry conversionEntry) {
-        LogUtil.logger(")))))))))conversionEntry.getTargetFieldType().getClass(): " + conversionEntry.getTargetFieldType().getClass());
-        LogUtil.logger(")))))))))ClassName.class: " + ClassName.class);
-        LogUtil.logger(")))))))))conversionEntry.getTargetFieldType(): " + conversionEntry.getTargetFieldType());
+//        LogUtil.logger(")))))))))conversionEntry.getTargetFieldType().getClass(): " + conversionEntry.getTargetFieldType().getClass());
+//        LogUtil.logger(")))))))))ClassName.class: " + ClassName.class);
+//        LogUtil.logger(")))))))))conversionEntry.getTargetFieldType(): " + conversionEntry.getTargetFieldType());
         return conversionEntry.getTargetFieldType().getClass() == ClassName.class;
     }
 

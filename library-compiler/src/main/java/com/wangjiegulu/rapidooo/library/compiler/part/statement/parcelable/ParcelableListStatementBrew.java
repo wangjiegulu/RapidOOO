@@ -8,6 +8,7 @@ import com.wangjiegulu.rapidooo.library.compiler.oooentry.OOOSEntry;
 import com.wangjiegulu.rapidooo.library.compiler.oooentry.OOOTypeEntry;
 import com.wangjiegulu.rapidooo.library.compiler.part.statement.contact.IParcelableStatementBrew;
 import com.wangjiegulu.rapidooo.library.compiler.part.statement.contact.ParcelableEntry;
+import com.wangjiegulu.rapidooo.library.compiler.util.ElementUtil;
 import com.wangjiegulu.rapidooo.library.compiler.util.LogUtil;
 import com.wangjiegulu.rapidooo.library.compiler.util.TextUtil;
 
@@ -25,7 +26,7 @@ public class ParcelableListStatementBrew implements IParcelableStatementBrew {
         TypeName argumentType = oooTypeEntry.get(0);
         OOOEntry temp = OOOSEntry.queryTypeByName(argumentType.toString());
         // java.util.List<#id__ChatBO>
-        if (null != temp) {
+        if (null != temp || ElementUtil.isSubParcelableType(argumentType.toString())) {
             methodBuilder.addStatement("this." + fieldName + " = parcel.createTypedArrayList($T.CREATOR)", argumentType);
         } else { // java.util.List<java.lang.String>
             if (TextUtil.equals(argumentType.toString(), String.class.getCanonicalName())) {
@@ -44,7 +45,7 @@ public class ParcelableListStatementBrew implements IParcelableStatementBrew {
         TypeName argumentType = oooTypeEntry.get(0);
         OOOEntry temp = OOOSEntry.queryTypeByName(argumentType.toString());
         // java.util.List<#id__ChatBO>
-        if (null != temp) {
+        if (null != temp || ElementUtil.isSubParcelableType(argumentType.toString())) {
             methodBuilder.addStatement("dest.writeTypedList(this." + fieldName + ")", argumentType);
         } else { // java.util.List<java.lang.String>
             if (TextUtil.equals(argumentType.toString(), String.class.getCanonicalName())) {
