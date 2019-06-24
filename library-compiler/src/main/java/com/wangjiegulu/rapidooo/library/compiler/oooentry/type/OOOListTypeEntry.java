@@ -10,6 +10,7 @@ import java.util.List;
  */
 public class OOOListTypeEntry extends OOOTypeEntry {
     private TypeName argumentType;
+//    private TypeName instanceType;
 
     @Override
     public void initialize(String idExp) {
@@ -28,14 +29,25 @@ public class OOOListTypeEntry extends OOOTypeEntry {
         return OOOTypeEnum.LIST;
     }
 
-    private void init(){
+    private void init() {
         if (typeName instanceof ParameterizedTypeName) {
             List<TypeName> tps = ((ParameterizedTypeName) typeName).typeArguments;
-            if(null != tps && tps.size() == 1){
+            if (null != tps && tps.size() == 1) {
                 argumentType = tps.get(0);
             }
+
+//            if (typeName.toString().matches("java\\.util\\.List<.+>")) {
+//                instanceType = TypeName.get(ArrayList.class);
+//            } else {
+//                instanceType = ((ParameterizedTypeName) typeName).rawType;
+//            }
         }
+
     }
+
+//    public TypeName getInstanceType() {
+//        return instanceType;
+//    }
 
     @Override
     public boolean isRefId() {

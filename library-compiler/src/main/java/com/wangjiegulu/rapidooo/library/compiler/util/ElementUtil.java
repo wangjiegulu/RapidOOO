@@ -108,6 +108,12 @@ public class ElementUtil {
         return equals(type1.toString(), type2.toString());
     }
 
+    public static boolean isSameSimpleType(TypeName type1, TypeName type2) {
+        return equals(getSimpleName(type1), getSimpleName(type2));
+    }
+
+
+
     public static boolean isSameSimpleName(TypeMirror type1, TypeName type2) {
         return equals(getSimpleName(type1), getSimpleName(type2));
     }
@@ -141,6 +147,12 @@ public class ElementUtil {
 
     public static String getSimpleName(TypeName typeName) {
         return typeName.isPrimitive() || typeName == TypeName.VOID ? typeName.toString() : ClassName.bestGuess(typeName.toString()).simpleName();
+    }
+    public static String getSimpleName(String className){
+        if(className.contains(".")){
+            return className.substring(className.lastIndexOf("."));
+        }
+        return className;
     }
 
     public static String getSimpleName(TypeMirror typeMirror) {

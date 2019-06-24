@@ -45,6 +45,7 @@ public class OOOConversionEntry implements IOOOVariable, ParcelableEntry {
 
     // attach
     private String attachFieldName;
+    private OOOFieldEntry oooAttachFieldEntry;
 //    private String attachFieldType; // as some as targetFieldType
 
     // bind
@@ -174,7 +175,9 @@ public class OOOConversionEntry implements IOOOVariable, ParcelableEntry {
     }
 
     private void parseAttachMode() {
-        // TODO: 2019-06-14 wangjie check if attachFieldName in fromClassType?
+        oooAttachFieldEntry = LogicUtil.checkNullCondition(oooEntry.searchFromField(attachFieldName), "Field[" + attachFieldName + "] is not exist in " + oooEntry.getFromTypeName() + " class.");
+//        TypeName attachTypeName = oooAttachFieldEntry.fieldTypeEntry().getTypeName();
+//        TypeName targetTypeName = oooTargetFieldTypeEntry.getTypeName();
 
     }
 
@@ -398,6 +401,10 @@ public class OOOConversionEntry implements IOOOVariable, ParcelableEntry {
         return oooTargetFieldTypeEntry;
     }
 
+    public OOOFieldEntry getAttachFieldEntry() {
+        return oooAttachFieldEntry;
+    }
+
     public boolean isBindMethodSet() {
         return !AnnoUtil.oooParamIsNotSet(bindMethodName);
     }
@@ -436,7 +443,8 @@ public class OOOConversionEntry implements IOOOVariable, ParcelableEntry {
 
     public TypeName getAttachFieldType() {
         // attach 属性类型与 target 一样
-        return oooTargetFieldTypeEntry.getTypeName();
+        return oooAttachFieldEntry.getTypeName();
+//        return oooTargetFieldTypeEntry.getTypeName();
     }
 
     @Override

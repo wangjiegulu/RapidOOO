@@ -64,6 +64,8 @@ public class OOOEntry {
 
     private boolean parcelable = true;
 
+    private HashMap<String, OOOFieldEntry> allFromFields = new LinkedHashMap<>();
+
     private HashMap<String, OOOFieldEntry> allContinuingFields = new LinkedHashMap<>();
 
     private HashMap<String, TypeMirror> supportedInterfaces = new LinkedHashMap<>();
@@ -156,8 +158,12 @@ public class OOOEntry {
                     continue;
                 }
                 String fieldName = field.getSimpleName().toString();
+                OOOFieldEntry fieldEntry = new OOOFieldEntry(field);
+
+                allFromFields.put(fieldName, fieldEntry);
+
                 if (includeField(fieldName)) {
-                    allContinuingFields.put(fieldName, new OOOFieldEntry(field));
+                    allContinuingFields.put(fieldName, fieldEntry);
                 }
             }
         }
@@ -317,5 +323,12 @@ public class OOOEntry {
 
     public boolean isParcelable() {
         return parcelable;
+    }
+
+    public HashMap<String, OOOFieldEntry> getAllFromFields() {
+        return allFromFields;
+    }
+    public OOOFieldEntry searchFromField(String fieldName){
+        return allFromFields.get(fieldName);
     }
 }

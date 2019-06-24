@@ -169,7 +169,7 @@ public class EasyType {
     }
 
 
-    // TypeName parse
+    //////////////////////////// TypeName parser START ////////////////////////////
     public static TypeName parseTypeName(String idExp) {
         int arrayHeight = 0;
         String tempIdExp = idExp;
@@ -252,6 +252,7 @@ public class EasyType {
         }
         return queryTypeResult.getTargetClassType();
     }
+    //////////////////////////// TypeName parser END ////////////////////////////
 
 }
 

@@ -53,12 +53,12 @@ import com.wangjiegulu.rapidooo.depmodule.dal.xdo.demo.User;
                                         targetFieldName = "otherChatBOs",
                                         targetFieldTypeId = "#id__ChatBO[]",
                                         attachFieldName = "otherChats"
-                                )/*,
+                                ),
                                 @OOOConversion(
                                         targetFieldName = "chatBOMapper",
-                                        targetFieldTypeId = "java.util.Map<String, #id__ChatBO>",
+                                        targetFieldTypeId = "java.util.Map<java.lang.String, #id__ChatBO>",
                                         attachFieldName = "chatMapper"
-                                )*/
+                                )
                         }
                 )
         }
