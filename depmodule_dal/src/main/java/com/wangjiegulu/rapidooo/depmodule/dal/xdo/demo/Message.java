@@ -20,6 +20,7 @@ public class Message implements Parcelable {
     private Chat chat;
     private Integer editDate;
     private String text;
+    private String videoUrl;
 
     private List<String> comments;
     private String[] commentArray;
@@ -179,6 +180,14 @@ public class Message implements Parcelable {
         this.commentArray = commentArray;
     }
 
+    public String getVideoUrl() {
+        return videoUrl;
+    }
+
+    public void setVideoUrl(String videoUrl) {
+        this.videoUrl = videoUrl;
+    }
+
     public Message() {
     }
 
@@ -195,6 +204,7 @@ public class Message implements Parcelable {
         dest.writeParcelable(this.chat, flags);
         dest.writeValue(this.editDate);
         dest.writeString(this.text);
+        dest.writeString(this.videoUrl);
         dest.writeStringList(this.comments);
         dest.writeStringArray(this.commentArray);
         dest.writeStringList(this.replyIds);
@@ -219,6 +229,7 @@ public class Message implements Parcelable {
         this.chat = in.readParcelable(Chat.class.getClassLoader());
         this.editDate = (Integer) in.readValue(Integer.class.getClassLoader());
         this.text = in.readString();
+        this.videoUrl = in.readString();
         this.comments = in.createStringArrayList();
         this.commentArray = in.createStringArray();
         this.replyIds = in.createStringArrayList();

@@ -151,12 +151,14 @@ public class OOOConversionEntry implements IOOOVariable, ParcelableEntry {
         } else if (conversionSet) {
             controlMode = OOOControlMode.CONVERSION;
             parseConversionMode();
-        } else {
+        } else if (attachSet) {
             controlMode = OOOControlMode.ATTACH;
             if (AnnoUtil.oooParamIsNotSet(attachFieldName)) {
                 attachFieldName = targetFieldName;
             }
             parseAttachMode();
+        } else {
+            controlMode = OOOControlMode.NONE;
         }
 
     }

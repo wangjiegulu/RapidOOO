@@ -19,6 +19,7 @@ import com.wangjiegulu.rapidooo.library.compiler.part.statement.parcelable.Parce
 import com.wangjiegulu.rapidooo.library.compiler.part.statement.parcelable.ParcelablePrimitiveStatementBrew;
 import com.wangjiegulu.rapidooo.library.compiler.util.EasyType;
 import com.wangjiegulu.rapidooo.library.compiler.util.ElementUtil;
+import com.wangjiegulu.rapidooo.library.compiler.util.LogUtil;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -51,9 +52,13 @@ public class InterfacePartBrew implements PartBrew {
             if(Serializable.class.getCanonicalName().equals(interfaceName)){
                 result.addSuperinterface(ClassName.get(interf));
             } else if(RapidOOOConstants.CLASS_NAME_PARCELABLE.equals(interfaceName)){
-                result.addSuperinterface(ClassName.get(interf));
-                boolean supperParcelableInterface = ElementUtil.isSupperParcelableInterfaceDeep(MoreTypes.asElement(oooEntry.getFrom()));
-                generateParcelableElements(result, oooEntry, supperParcelableInterface);
+                if(oooEntry.isParcelable()){
+                    result.addSuperinterface(ClassName.get(interf));
+                    boolean supperParcelableInterface = ElementUtil.isSupperParcelableInterfaceDeep(MoreTypes.asElement(oooEntry.getFrom()));
+                    generateParcelableElements(result, oooEntry, supperParcelableInterface);
+                }
+            } else {
+                LogUtil.logger("[WARN]Interface[" + interf.toString() + "] is not supported yet, ignored.");
             }
         }
     }

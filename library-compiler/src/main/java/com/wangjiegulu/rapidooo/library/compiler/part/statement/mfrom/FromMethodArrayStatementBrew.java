@@ -10,7 +10,6 @@ import com.wangjiegulu.rapidooo.library.compiler.oooentry.OOOEntry;
 import com.wangjiegulu.rapidooo.library.compiler.oooentry.OOOSEntry;
 import com.wangjiegulu.rapidooo.library.compiler.part.statement.contact.IFromMethodStatementBrew;
 import com.wangjiegulu.rapidooo.library.compiler.util.ElementUtil;
-import com.wangjiegulu.rapidooo.library.compiler.util.LogUtil;
 import com.wangjiegulu.rapidooo.library.compiler.util.PoetUtil;
 import com.wangjiegulu.rapidooo.library.compiler.util.TextUtil;
 
@@ -37,7 +36,6 @@ public class FromMethodArrayStatementBrew implements IFromMethodStatementBrew {
                 FromMethodStatementUtil.buildConversionStatement(oooEntry, conversionEntry, fromMethodSpec, this.getClass().getSimpleName());
                 break;
             default:
-                LogUtil.logger("[INFO] UNKNOWN Control Mode.");
                 break;
         }
     }

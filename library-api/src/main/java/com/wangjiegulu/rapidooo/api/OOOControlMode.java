@@ -6,7 +6,9 @@ package com.wangjiegulu.rapidooo.api;
 public enum OOOControlMode {
     ATTACH(1000, "ControlMode-ATTACH"),
     BIND(2000, "ControlMode-BIND"),
-    CONVERSION(3000, "ControlMode-CONVERSION");
+    CONVERSION(3000, "ControlMode-CONVERSION"),
+    NONE(4000, "");
+
 
     private int code;
     private String desc;

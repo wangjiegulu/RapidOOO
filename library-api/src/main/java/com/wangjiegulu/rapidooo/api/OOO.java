@@ -33,4 +33,6 @@ public @interface OOO {
     String targetSupperTypeId() default OOOConstants.NOT_SET;
 
     OOOPool pool() default @OOOPool();
+
+    boolean parcelable() default true;
 }

@@ -1,5 +1,6 @@
 package com.wangjiegulu.rapidooo.demo;
 
+import android.media.MediaPlayer;
 import android.text.SpannableString;
 
 import com.wangjiegulu.rapidooo.api.OOO;
@@ -9,6 +10,7 @@ import com.wangjiegulu.rapidooo.depmodule.bll.demo.ChatBO;
 import com.wangjiegulu.rapidooo.depmodule.bll.demo.MessageBO;
 import com.wangjiegulu.rapidooo.depmodule.bll.demo.UserBO;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,6 +25,7 @@ import java.util.List;
                 @OOO(from = ChatBO.class, id = "#id__ChatVO"),
                 @OOO(from = MessageBO.class,
                         excludes = {"fromBO", "chatBO", "chatBOs", "otherChatBOs", "foos", "fooArray"},
+//                        parcelable = false,
                         conversions = {
                                 @OOOConversion(
                                         targetFieldName = "fromVO",
@@ -54,8 +57,17 @@ import java.util.List;
                                         targetFieldName = "otherChatVOs",
                                         targetFieldTypeId = "#id__ChatVO[]",
                                         attachFieldName = "otherChatBOs",
-
                                         parcelable = false
+                                ),
+                                @OOOConversion(
+                                        targetFieldName = "videoPlayer",
+                                        targetFieldType = MediaPlayer.class,
+                                        bindMethodName = "bindVideo",
+                                        parcelable = false
+                                ),
+                                @OOOConversion(
+                                        targetFieldName = "emptyChatVOs",
+                                        targetFieldTypeId = "#id__ChatVO[]"
                                 )
                         }
                 )
@@ -64,7 +76,7 @@ import java.util.List;
 public class DemoVOGenerator {
 
     public static SpannableString conversionTextSp(String textRaw){
-        return new SpannableString("text");
+        return new SpannableString(textRaw);
     }
 
     public static void inverseConversionTextSp(SpannableString textSp, MessageBO other){
@@ -81,6 +93,23 @@ public class DemoVOGenerator {
             }
             return commentLengthList;
         }
+    }
+    public static MediaPlayer bindVideo(MessageVO self, String videoUrl){
+        MediaPlayer mediaPlayer = self.getVideoPlayer();
+        if(null != mediaPlayer){
+            mediaPlayer.stop();
+            mediaPlayer.release();
+        }
+        if(null == videoUrl){
+            return mediaPlayer;
+        }
+        mediaPlayer = new MediaPlayer();
+        try {
+            mediaPlayer.setDataSource(videoUrl);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return mediaPlayer;
     }
 
 }

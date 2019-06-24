@@ -62,6 +62,8 @@ public class OOOEntry {
     private String targetClassSimpleName;
     private TypeName targetClassType;
 
+    private boolean parcelable = true;
+
     private HashMap<String, OOOFieldEntry> allContinuingFields = new LinkedHashMap<>();
 
     private HashMap<String, TypeMirror> supportedInterfaces = new LinkedHashMap<>();
@@ -103,6 +105,8 @@ public class OOOEntry {
             }
         }));
         targetSupperTypeId = ooo.targetSupperTypeId();
+
+        parcelable = ooo.parcelable();
 
         pool = new OOOPoolEntry(this, ooo.pool());
 
@@ -311,4 +315,7 @@ public class OOOEntry {
         return null != pool && pool.isPoolUsed();
     }
 
+    public boolean isParcelable() {
+        return parcelable;
+    }
 }
