@@ -2,7 +2,8 @@ package com.wangjiegulu.rapidooo.library.compiler.part.statement.parcelable;
 
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeName;
-import com.wangjiegulu.rapidooo.library.compiler.oooentry.OOOTypeEntry;
+import com.wangjiegulu.rapidooo.library.compiler.oooentry.type.OOOArrayTypeEntry;
+import com.wangjiegulu.rapidooo.library.compiler.oooentry.type.OOOTypeEntry;
 import com.wangjiegulu.rapidooo.library.compiler.part.statement.contact.IParcelableStatementBrew;
 import com.wangjiegulu.rapidooo.library.compiler.part.statement.contact.ParcelableEntry;
 import com.wangjiegulu.rapidooo.library.compiler.util.ElementUtil;
@@ -19,7 +20,7 @@ public class ParcelableArrayStatementBrew implements IParcelableStatementBrew {
 
     @Override
     public void read(MethodSpec.Builder methodBuilder, String fieldName, OOOTypeEntry oooTypeEntry) {
-        TypeName arrayItemType = oooTypeEntry.getArrayItemTypeName();
+        TypeName arrayItemType = ((OOOArrayTypeEntry) oooTypeEntry).getArrayItemTypeName();
         // TODO: 2019-06-21 wangjie
         // #id__ChatBO[]
         if (ElementUtil.isParcelableType(arrayItemType)) {
@@ -30,13 +31,12 @@ public class ParcelableArrayStatementBrew implements IParcelableStatementBrew {
             } else {
                 methodBuilder.addStatement("this." + fieldName + " = ($T) parcel.readArray($T.class.getClassLoader())", oooTypeEntry.getTypeName(), oooTypeEntry.getTypeName());
             }
-
         }
     }
 
     @Override
     public void write(MethodSpec.Builder methodBuilder, String fieldName, OOOTypeEntry oooTypeEntry) {
-        TypeName arrayItemType = oooTypeEntry.getArrayItemTypeName();
+        TypeName arrayItemType = ((OOOArrayTypeEntry) oooTypeEntry).getArrayItemTypeName();
         // java.util.List<#id__ChatBO>
         if (ElementUtil.isParcelableType(arrayItemType)) {
             methodBuilder.addStatement("dest.writeTypedArray(this." + fieldName + ", flags)", arrayItemType);

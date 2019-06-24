@@ -1,6 +1,6 @@
 package com.wangjiegulu.rapidooo.library.compiler.part.statement.contact;
 
-import com.wangjiegulu.rapidooo.library.compiler.oooentry.OOOTypeEntry;
+import com.wangjiegulu.rapidooo.library.compiler.oooentry.type.OOOTypeEntry;
 
 /**
  * Author: wangjie Email: tiantian.china.2@gmail.com Date: 2019-06-18.

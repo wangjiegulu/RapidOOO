@@ -46,7 +46,9 @@ import com.wangjiegulu.rapidooo.depmodule.bll.xbo.parcelable.User_BO;
                 conversions = {
                         @OOOConversion(
                                 targetFieldName = "ownerUser",
-                                targetFieldTypeId = "#user_vo_id"
+                                targetFieldTypeId = "#user_vo_id",
+
+                                attachFieldName = "ownerUser"
                         )
                 }
         )

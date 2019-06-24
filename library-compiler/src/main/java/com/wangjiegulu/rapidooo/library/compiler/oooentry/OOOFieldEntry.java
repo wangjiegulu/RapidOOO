@@ -1,6 +1,8 @@
 package com.wangjiegulu.rapidooo.library.compiler.oooentry;
 
 import com.squareup.javapoet.TypeName;
+import com.wangjiegulu.rapidooo.library.compiler.oooentry.type.OOOTypeEntry;
+import com.wangjiegulu.rapidooo.library.compiler.oooentry.type.OOOTypeEntryFactory;
 import com.wangjiegulu.rapidooo.library.compiler.part.statement.contact.ParcelableEntry;
 import com.wangjiegulu.rapidooo.library.compiler.util.ElementUtil;
 import com.wangjiegulu.rapidooo.library.compiler.util.LogUtil;
@@ -30,8 +32,9 @@ public class OOOFieldEntry implements IOOOVariable, ParcelableEntry {
         modifierSet.toArray(modifiers);
         parcelable = ElementUtil.isParcelable(field);
 
-        oooTypeEntry = new OOOTypeEntry();
-        oooTypeEntry.parse(typeName);
+//        oooTypeEntry = new OOOTypeEntry();
+//        oooTypeEntry.parse(typeName);
+        oooTypeEntry = OOOTypeEntryFactory.create(typeName);
 
         LogUtil.logger("---------> " + field + ",       typeName: " + typeName + ",         parcelable: " + parcelable);
     }

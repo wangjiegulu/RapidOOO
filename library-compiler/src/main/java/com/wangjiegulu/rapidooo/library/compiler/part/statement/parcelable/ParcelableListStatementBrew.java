@@ -3,7 +3,8 @@ package com.wangjiegulu.rapidooo.library.compiler.part.statement.parcelable;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeName;
 import com.wangjiegulu.rapidooo.library.compiler.RapidOOOConstants;
-import com.wangjiegulu.rapidooo.library.compiler.oooentry.OOOTypeEntry;
+import com.wangjiegulu.rapidooo.library.compiler.oooentry.type.OOOListTypeEntry;
+import com.wangjiegulu.rapidooo.library.compiler.oooentry.type.OOOTypeEntry;
 import com.wangjiegulu.rapidooo.library.compiler.part.statement.contact.IParcelableStatementBrew;
 import com.wangjiegulu.rapidooo.library.compiler.part.statement.contact.ParcelableEntry;
 import com.wangjiegulu.rapidooo.library.compiler.util.ElementUtil;
@@ -21,7 +22,7 @@ public class ParcelableListStatementBrew implements IParcelableStatementBrew {
 
     @Override
     public void read(MethodSpec.Builder methodBuilder, String fieldName, OOOTypeEntry oooTypeEntry) {
-        TypeName argumentType = oooTypeEntry.get(0);
+        TypeName argumentType = ((OOOListTypeEntry) oooTypeEntry).getArgumentType();
         // java.util.List<#id__ChatBO>
         if (ElementUtil.isParcelableType(argumentType)) {
             methodBuilder.addStatement("this." + fieldName + " = parcel.createTypedArrayList($T.CREATOR)", argumentType);
@@ -39,7 +40,7 @@ public class ParcelableListStatementBrew implements IParcelableStatementBrew {
 
     @Override
     public void write(MethodSpec.Builder methodBuilder, String fieldName, OOOTypeEntry oooTypeEntry) {
-        TypeName argumentType = oooTypeEntry.get(0);
+        TypeName argumentType = ((OOOListTypeEntry) oooTypeEntry).getArgumentType();
         // java.util.List<#id__ChatBO>
         if (ElementUtil.isParcelableType(argumentType)) {
             methodBuilder.addStatement("dest.writeTypedList(this." + fieldName + ")", argumentType);

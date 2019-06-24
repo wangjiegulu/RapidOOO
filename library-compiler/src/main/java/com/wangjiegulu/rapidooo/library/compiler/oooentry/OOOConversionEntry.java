@@ -7,6 +7,8 @@ import com.squareup.javapoet.TypeName;
 import com.wangjiegulu.rapidooo.api.OOOControlMode;
 import com.wangjiegulu.rapidooo.api.OOOConversion;
 import com.wangjiegulu.rapidooo.library.compiler.exception.RapidOOOCompileException;
+import com.wangjiegulu.rapidooo.library.compiler.oooentry.type.OOOTypeEntry;
+import com.wangjiegulu.rapidooo.library.compiler.oooentry.type.OOOTypeEntryFactory;
 import com.wangjiegulu.rapidooo.library.compiler.part.statement.contact.ParcelableEntry;
 import com.wangjiegulu.rapidooo.library.compiler.util.AnnoUtil;
 import com.wangjiegulu.rapidooo.library.compiler.util.ElementUtil;
@@ -70,13 +72,13 @@ public class OOOConversionEntry implements IOOOVariable, ParcelableEntry {
         this.oooConversion = oooConversion;
 
         targetFieldName = oooConversion.targetFieldName();
-        oooTargetFieldTypeEntry = new OOOTypeEntry();
-        oooTargetFieldTypeEntry.parse(ElementUtil.getTypeName(AnnoUtil.getType(new Func0R<Object>() {
-            @Override
-            public Object call() {
-                return oooConversion.targetFieldType();
-            }
-        })));
+//        oooTargetFieldTypeEntry = new OOOTypeEntry();
+//        oooTargetFieldTypeEntry.parse(ElementUtil.getTypeName(AnnoUtil.getType(new Func0R<Object>() {
+//            @Override
+//            public Object call() {
+//                return oooConversion.targetFieldType();
+//            }
+//        })));
         targetFieldTypeId = oooConversion.targetFieldTypeId();
 
         parcelable = oooConversion.parcelable();
@@ -122,7 +124,15 @@ public class OOOConversionEntry implements IOOOVariable, ParcelableEntry {
 
     public OOOConversionEntry prepare() {
         if (!AnnoUtil.oooParamIsNotSet(targetFieldTypeId)) { // 设置了 type id，则从缓存中查询
-            oooTargetFieldTypeEntry.parse(this, targetFieldTypeId);
+//            oooTargetFieldTypeEntry.parse(this, targetFieldTypeId);
+            oooTargetFieldTypeEntry = OOOTypeEntryFactory.create(targetFieldTypeId);
+        } else {
+            oooTargetFieldTypeEntry = OOOTypeEntryFactory.create(ElementUtil.getTypeName(AnnoUtil.getType(new Func0R<Object>() {
+                @Override
+                public Object call() {
+                    return oooConversion.targetFieldType();
+                }
+            })));
         }
         return this;
     }

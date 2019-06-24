@@ -9,6 +9,7 @@ import com.wangjiegulu.rapidooo.library.compiler.entry.GetterSetterMethodNames;
 import com.wangjiegulu.rapidooo.library.compiler.oooentry.OOOConversionEntry;
 import com.wangjiegulu.rapidooo.library.compiler.oooentry.OOOEntry;
 import com.wangjiegulu.rapidooo.library.compiler.oooentry.OOOSEntry;
+import com.wangjiegulu.rapidooo.library.compiler.oooentry.type.OOOListTypeEntry;
 import com.wangjiegulu.rapidooo.library.compiler.part.statement.contact.IFromMethodStatementBrew;
 import com.wangjiegulu.rapidooo.library.compiler.util.ElementUtil;
 import com.wangjiegulu.rapidooo.library.compiler.util.PoetUtil;
@@ -49,8 +50,7 @@ public class FromMethodListStatementBrew implements IFromMethodStatementBrew {
         fromMethodSpec.addComment(conversionEntry.getTargetFieldName() + ", " + conversionEntry.getControlMode().getDesc() + ", " + this.getClass().getSimpleName());
         String fromParamName = TextUtil.firstCharLower(oooEntry.getFromSimpleName());
 
-        ParameterizedTypeName targetFieldType = (ParameterizedTypeName) conversionEntry.getTargetFieldType();
-        TypeName targetFieldParamTypeName = targetFieldType.typeArguments.get(0);
+        TypeName targetFieldParamTypeName = ((OOOListTypeEntry) conversionEntry.getTargetFieldTypeEntry()).getArgumentType();
 
         GetterSetterMethodNames getterSetterMethodNames = PoetUtil.generateGetterSetterMethodName(conversionEntry.getAttachFieldName(), conversionEntry.getAttachFieldType());
 

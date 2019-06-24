@@ -1,13 +1,13 @@
 package com.wangjiegulu.rapidooo.library.compiler.part.statement.mto;
 
 import com.squareup.javapoet.MethodSpec;
-import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeName;
 import com.wangjiegulu.rapidooo.api.OOOControlMode;
 import com.wangjiegulu.rapidooo.library.compiler.entry.GetterSetterMethodNames;
 import com.wangjiegulu.rapidooo.library.compiler.oooentry.OOOConversionEntry;
 import com.wangjiegulu.rapidooo.library.compiler.oooentry.OOOEntry;
 import com.wangjiegulu.rapidooo.library.compiler.oooentry.OOOSEntry;
+import com.wangjiegulu.rapidooo.library.compiler.oooentry.type.OOOListTypeEntry;
 import com.wangjiegulu.rapidooo.library.compiler.part.statement.contact.IToMethodStatementBrew;
 import com.wangjiegulu.rapidooo.library.compiler.util.ElementUtil;
 import com.wangjiegulu.rapidooo.library.compiler.util.PoetUtil;
@@ -47,8 +47,7 @@ public class ToMethodListStatementBrew implements IToMethodStatementBrew {
     private void buildAttachStatement(OOOEntry oooEntry, String fromParamName, MethodSpec.Builder toFromMethod, OOOConversionEntry conversionEntry) {
         toFromMethod.addComment(conversionEntry.getTargetFieldName() + ", " + conversionEntry.getControlMode().getDesc() + ", " + this.getClass().getSimpleName());
 
-        ParameterizedTypeName targetFieldType = (ParameterizedTypeName) conversionEntry.getTargetFieldType();
-        TypeName targetFieldParamTypeName = targetFieldType.typeArguments.get(0);
+        TypeName targetFieldParamTypeName = ((OOOListTypeEntry)conversionEntry.getTargetFieldTypeEntry()).getArgumentType();
         GetterSetterMethodNames getterSetterMethodNames = PoetUtil.generateGetterSetterMethodName(conversionEntry.getAttachFieldName(), conversionEntry.getAttachFieldType());
 
         OOOEntry temp = OOOSEntry.queryTypeByName(targetFieldParamTypeName.toString());
