@@ -6,6 +6,7 @@ import com.wangjiegulu.rapidooo.library.compiler.entry.GetterSetterMethodNames;
 import com.wangjiegulu.rapidooo.library.compiler.oooentry.OOOConversionEntry;
 import com.wangjiegulu.rapidooo.library.compiler.oooentry.OOOEntry;
 import com.wangjiegulu.rapidooo.library.compiler.oooentry.OOOFieldEntry;
+import com.wangjiegulu.rapidooo.library.compiler.oooentry.OOOSEntry;
 import com.wangjiegulu.rapidooo.library.compiler.part.PartBrew;
 import com.wangjiegulu.rapidooo.library.compiler.part.statement.contact.IFromMethodStatementBrew;
 import com.wangjiegulu.rapidooo.library.compiler.part.statement.mfrom.FromMethodArrayStatementBrew;
@@ -40,7 +41,7 @@ public class FromMethodPartBrew implements PartBrew {
                 .addParameter(oooEntry.getFromTypeName(), fromParamName);
 
         if (oooEntry.isTargetSupperTypeId()) {
-            fromMethodSpec.addStatement("from" + oooEntry.getOoosEntry().getOooGenerator().getOoosEntry().queryTypeById(oooEntry.getTargetSupperTypeId()).getFromSimpleName()
+            fromMethodSpec.addStatement("from" + OOOSEntry.queryTypeById(oooEntry.getTargetSupperTypeId()).getFromSimpleName()
                     + "(" + fromParamName + ")");
         }
 

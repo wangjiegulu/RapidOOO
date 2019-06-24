@@ -9,6 +9,7 @@ import com.wangjiegulu.rapidooo.library.compiler.oooentry.OOOConversionEntry;
 import com.wangjiegulu.rapidooo.library.compiler.oooentry.OOOEntry;
 import com.wangjiegulu.rapidooo.library.compiler.oooentry.OOOSEntry;
 import com.wangjiegulu.rapidooo.library.compiler.part.statement.contact.IToMethodStatementBrew;
+import com.wangjiegulu.rapidooo.library.compiler.util.ElementUtil;
 import com.wangjiegulu.rapidooo.library.compiler.util.LogUtil;
 import com.wangjiegulu.rapidooo.library.compiler.util.PoetUtil;
 import com.wangjiegulu.rapidooo.library.compiler.util.TextUtil;
@@ -52,7 +53,7 @@ public class ToMethodArrayStatementBrew implements IToMethodStatementBrew {
 
         OOOEntry temp = OOOSEntry.queryTypeByName(targetFieldParamTypeName.toString());
         // #id__ChatBO[]
-        if (null != temp) {
+        if (null != temp && !ElementUtil.isSameType(temp.getFromTypeName(), targetFieldParamTypeName)) {
             String attachFieldName = conversionEntry.getAttachFieldName() + "_";
 
             toFromMethod.addCode(
@@ -68,23 +69,8 @@ public class ToMethodArrayStatementBrew implements IToMethodStatementBrew {
                     temp.getFromTypeName(), temp.getFromTypeName()
             );
             toFromMethod.addStatement(fromParamName + "." + getterSetterMethodNames.getSetterMethodName() + "(" + attachFieldName + ")");
-
         } else { // java.lang.String[]
-            String attachFieldName = conversionEntry.getAttachFieldName() + "_";
-
-            toFromMethod.addCode(
-                    "$T " + attachFieldName + ";\n" +
-                            "if(null == this." + conversionEntry.getTargetFieldName() + "){\n" +
-                            "  " + attachFieldName + " = null;\n" +
-                            "} else {\n" +
-                            "  " + attachFieldName + " = new $T[" + conversionEntry.getTargetFieldName() + ".length];\n" +
-                            "  for(int i = 0, len = this." + conversionEntry.getTargetFieldName() + ".length; i < len; i++){\n" +
-                            "    " + attachFieldName + "[i] = this." + conversionEntry.getTargetFieldName() + "[i];\n" +
-                            "  }\n" +
-                            "}\n",
-                    conversionEntry.getTargetFieldType(), conversionEntry.getTargetFieldTypeEntry().getArrayItemTypeName()
-            );
-            toFromMethod.addStatement(fromParamName + "." + getterSetterMethodNames.getSetterMethodName() + "(" + attachFieldName + ")");
+            toFromMethod.addStatement(fromParamName + "." + getterSetterMethodNames.getSetterMethodName() + "(this." + conversionEntry.getTargetFieldName() + ")");
         }
     }
 

@@ -9,6 +9,7 @@ import com.wangjiegulu.rapidooo.library.compiler.oooentry.OOOConversionEntry;
 import com.wangjiegulu.rapidooo.library.compiler.oooentry.OOOEntry;
 import com.wangjiegulu.rapidooo.library.compiler.oooentry.OOOSEntry;
 import com.wangjiegulu.rapidooo.library.compiler.part.statement.contact.IToMethodStatementBrew;
+import com.wangjiegulu.rapidooo.library.compiler.util.ElementUtil;
 import com.wangjiegulu.rapidooo.library.compiler.util.LogUtil;
 import com.wangjiegulu.rapidooo.library.compiler.util.PoetUtil;
 import com.wangjiegulu.rapidooo.library.compiler.util.TextUtil;
@@ -55,7 +56,7 @@ public class ToMethodListStatementBrew implements IToMethodStatementBrew {
         OOOEntry temp = OOOSEntry.queryTypeByName(targetFieldParamTypeName.toString());
 
         // java.util.List<#id__ChatBO>
-        if (null != temp) {
+        if (null != temp && !ElementUtil.isSameType(temp.getFromTypeName(), targetFieldParamTypeName)) {
             String attachFieldName = conversionEntry.getAttachFieldName() + "_";
             toFromMethod.addStatement("List<$T> " + attachFieldName, temp.getFromTypeName());
             toFromMethod.addCode(
@@ -70,19 +71,7 @@ public class ToMethodListStatementBrew implements IToMethodStatementBrew {
                             fromParamName + "." + getterSetterMethodNames.getSetterMethodName() + "(" + attachFieldName + ");\n",
                     ArrayList.class, targetFieldParamTypeName, temp.getFromTypeName());
         } else { // java.util.List<java.lang.String>
-            String attachFieldName = conversionEntry.getAttachFieldName() + "_";
-            toFromMethod.addStatement("List<$T> " + attachFieldName, targetFieldParamTypeName);
-            toFromMethod.addCode(
-                    "if(null == " + conversionEntry.getTargetFieldName() + "){\n" +
-                            "  " + attachFieldName + " = null;\n" +
-                            "} else {\n" +
-                            "  " + attachFieldName + " = new $T<>();\n" +
-                            "  for($T item : " + conversionEntry.getTargetFieldName() + "){\n" +
-                            "    " + attachFieldName + ".add(item);\n" +
-                            "  }\n" +
-                            "}\n" +
-                            fromParamName + "." + getterSetterMethodNames.getSetterMethodName() + "(" + attachFieldName + ");\n",
-                    ArrayList.class, targetFieldParamTypeName);
+            toFromMethod.addStatement(fromParamName + "." + getterSetterMethodNames.getSetterMethodName() + "(this." + conversionEntry.getTargetFieldName() + ")");
         }
     }
 

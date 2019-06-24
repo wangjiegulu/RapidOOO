@@ -48,7 +48,7 @@ public class OOOTypeEntry {
             isRefId = EasyType.isRefId(idExp);
         } else {
             if (EasyType.isRefId(idExp)) {
-                typeName = oooConversionEntry.getOooEntry().getOoosEntry().queryTypeById(idExp).getTargetClassType();
+                typeName = OOOSEntry.queryTypeById(idExp).getTargetClassType();
                 isRefId = true;
             } else {
                 typeName = ClassName.bestGuess(idExp);
@@ -196,7 +196,7 @@ public class OOOTypeEntry {
     }
 
     private TypeName queryRefTypeName(OOOConversionEntry oooConversionEntry, String id) {
-        OOOEntry queryTypeResult = oooConversionEntry.getOooEntry().getOoosEntry().queryTypeById(id);
+        OOOEntry queryTypeResult = OOOSEntry.queryTypeById(id);
         if (null == queryTypeResult) {
             throw new RapidOOOCompileException("Id[" + id + "] not found.\n" + oooConversionEntry.getOooEntry().getOoosEntry().getOooGenerator().getGeneratorClassType());
         }

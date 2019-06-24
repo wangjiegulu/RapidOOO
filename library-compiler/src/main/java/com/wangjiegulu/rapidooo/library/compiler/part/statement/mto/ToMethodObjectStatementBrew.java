@@ -6,6 +6,7 @@ import com.wangjiegulu.rapidooo.api.OOOControlMode;
 import com.wangjiegulu.rapidooo.library.compiler.entry.GetterSetterMethodNames;
 import com.wangjiegulu.rapidooo.library.compiler.oooentry.OOOConversionEntry;
 import com.wangjiegulu.rapidooo.library.compiler.oooentry.OOOEntry;
+import com.wangjiegulu.rapidooo.library.compiler.oooentry.OOOSEntry;
 import com.wangjiegulu.rapidooo.library.compiler.part.statement.contact.IToMethodStatementBrew;
 import com.wangjiegulu.rapidooo.library.compiler.util.LogUtil;
 import com.wangjiegulu.rapidooo.library.compiler.util.PoetUtil;
@@ -48,7 +49,7 @@ public class ToMethodObjectStatementBrew implements IToMethodStatementBrew {
         // #id_ChatBO
         if (conversionEntry.getTargetFieldTypeEntry().isRefId()) {
 
-            OOOEntry temp = oooEntry.getOoosEntry().queryTypeById(conversionEntry.getTargetFieldTypeId());
+            OOOEntry temp = OOOSEntry.queryTypeById(conversionEntry.getTargetFieldTypeId());
 
             toFromMethod.addStatement(
                     fromParamName + "." + getterSetterMethodNames.getSetterMethodName() + "(" + conversionEntry.fieldName() + ".to" + temp.getFromSimpleName() + "())",

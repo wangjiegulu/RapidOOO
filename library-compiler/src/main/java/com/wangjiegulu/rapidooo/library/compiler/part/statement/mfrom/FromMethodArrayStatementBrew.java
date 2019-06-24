@@ -9,6 +9,7 @@ import com.wangjiegulu.rapidooo.library.compiler.oooentry.OOOConversionEntry;
 import com.wangjiegulu.rapidooo.library.compiler.oooentry.OOOEntry;
 import com.wangjiegulu.rapidooo.library.compiler.oooentry.OOOSEntry;
 import com.wangjiegulu.rapidooo.library.compiler.part.statement.contact.IFromMethodStatementBrew;
+import com.wangjiegulu.rapidooo.library.compiler.util.ElementUtil;
 import com.wangjiegulu.rapidooo.library.compiler.util.LogUtil;
 import com.wangjiegulu.rapidooo.library.compiler.util.PoetUtil;
 import com.wangjiegulu.rapidooo.library.compiler.util.TextUtil;
@@ -53,8 +54,7 @@ public class FromMethodArrayStatementBrew implements IFromMethodStatementBrew {
 
         OOOEntry temp = OOOSEntry.queryTypeByName(targetFieldParamTypeName.toString());
         // #id__ChatBO[]
-        if (null != temp) {
-
+        if (null != temp && !ElementUtil.isSameType(temp.getFromTypeName(), targetFieldParamTypeName)) {
             String attachFieldName = conversionEntry.getAttachFieldName() + "_";
             fromMethodSpec.addStatement("$T[] " + attachFieldName + " = " + fromParamName + "." + getterSetterMethodNames.getGetterMethodName() + "()", temp.getFromTypeName());
 
@@ -68,24 +68,8 @@ public class FromMethodArrayStatementBrew implements IFromMethodStatementBrew {
                             "  }\n" +
                             "}\n",
                     targetFieldParamTypeName, targetFieldParamTypeName);
-
         } else { // java.lang.String[]
-            String attachFieldName = conversionEntry.getAttachFieldName() + "_";
-
-            fromMethodSpec.addStatement("$T " + attachFieldName + " = " + fromParamName + "." + getterSetterMethodNames.getGetterMethodName() + "()", targetFieldType);
-
-            fromMethodSpec.addCode(
-                    "if(null == " + attachFieldName + "){\n" +
-                            "  this." + conversionEntry.getTargetFieldName() + " = null;\n" +
-                            "} else {\n" +
-                            "  this." + conversionEntry.getTargetFieldName() + " = new $T[" + attachFieldName + ".length];\n" +
-                            "  for(int i = 0, len = " + attachFieldName + ".length; i < len; i++){\n" +
-                            "    this." + conversionEntry.getTargetFieldName() + "[i] = " + attachFieldName + "[i];\n" +
-                            "  }\n" +
-                            "}\n",
-                    targetFieldParamTypeName);
-
-
+            fromMethodSpec.addStatement("this." + conversionEntry.getTargetFieldName() + " = " + fromParamName + "." + getterSetterMethodNames.getGetterMethodName() + "()");
         }
     }
 }

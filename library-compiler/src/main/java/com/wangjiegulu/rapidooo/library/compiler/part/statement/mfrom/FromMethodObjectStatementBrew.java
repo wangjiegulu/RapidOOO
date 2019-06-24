@@ -6,6 +6,7 @@ import com.wangjiegulu.rapidooo.api.OOOControlMode;
 import com.wangjiegulu.rapidooo.library.compiler.entry.GetterSetterMethodNames;
 import com.wangjiegulu.rapidooo.library.compiler.oooentry.OOOConversionEntry;
 import com.wangjiegulu.rapidooo.library.compiler.oooentry.OOOEntry;
+import com.wangjiegulu.rapidooo.library.compiler.oooentry.OOOSEntry;
 import com.wangjiegulu.rapidooo.library.compiler.part.statement.contact.IFromMethodStatementBrew;
 import com.wangjiegulu.rapidooo.library.compiler.util.LogUtil;
 import com.wangjiegulu.rapidooo.library.compiler.util.PoetUtil;
@@ -49,7 +50,7 @@ public class FromMethodObjectStatementBrew implements IFromMethodStatementBrew {
         if(conversionEntry.getTargetFieldTypeEntry().isRefId()){
             String fromParamName = TextUtil.firstCharLower(oooEntry.getFromSimpleName());
 
-            OOOEntry temp = oooEntry.getOoosEntry().queryTypeById(conversionEntry.getTargetFieldTypeId());
+            OOOEntry temp = OOOSEntry.queryTypeById(conversionEntry.getTargetFieldTypeId());
             String tempParam = TextUtil.firstCharLower(temp.getFromSimpleName()) + "_";
 
             GetterSetterMethodNames getterSetterMethodNames = PoetUtil.generateGetterSetterMethodName(conversionEntry.getAttachFieldName(), conversionEntry.getAttachFieldType());

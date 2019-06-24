@@ -6,6 +6,7 @@ import com.wangjiegulu.rapidooo.library.compiler.entry.GetterSetterMethodNames;
 import com.wangjiegulu.rapidooo.library.compiler.oooentry.OOOConversionEntry;
 import com.wangjiegulu.rapidooo.library.compiler.oooentry.OOOEntry;
 import com.wangjiegulu.rapidooo.library.compiler.oooentry.OOOFieldEntry;
+import com.wangjiegulu.rapidooo.library.compiler.oooentry.OOOSEntry;
 import com.wangjiegulu.rapidooo.library.compiler.part.PartBrew;
 import com.wangjiegulu.rapidooo.library.compiler.part.statement.contact.IToMethodStatementBrew;
 import com.wangjiegulu.rapidooo.library.compiler.part.statement.mto.ToMethodArrayStatementBrew;
@@ -41,7 +42,7 @@ public class ToMethod1PartBrew implements PartBrew {
                 .addParameter(oooEntry.getFromTypeName(), fromParamName);
 
         if (oooEntry.isTargetSupperTypeId()) {
-            toFromMethod.addStatement("to" + oooEntry.getOoosEntry().getOooGenerator().getOoosEntry().queryTypeById(oooEntry.getTargetSupperTypeId()).getFromSimpleName()
+            toFromMethod.addStatement("to" + OOOSEntry.queryTypeById(oooEntry.getTargetSupperTypeId()).getFromSimpleName()
                     + "(" + fromParamName + ")");
         }
 
