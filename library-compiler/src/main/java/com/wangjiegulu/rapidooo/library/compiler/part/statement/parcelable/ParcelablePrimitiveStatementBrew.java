@@ -32,33 +32,33 @@ public class ParcelablePrimitiveStatementBrew implements IParcelableStatementBre
     }
 
     @Override
-    public void read(MethodSpec.Builder methodBuilder, String statementPrefix, String fieldName, String fieldCode, OOOTypeEntry oooTypeEntry) {
+    public void read(MethodSpec.Builder methodBuilder, String statementPrefix, Object[] statementPrefixTypes, String fieldCode, OOOTypeEntry oooTypeEntry, String fieldName) {
         TypeName fieldTypeName = oooTypeEntry.getTypeName();
         String name = primitiveMap.get(fieldTypeName);
         if (TypeName.BOOLEAN == fieldTypeName) {
-            methodBuilder.addStatement(statementPrefix + fieldCode + " = parcel.readByte() != 0");
+            methodBuilder.addStatement(statementPrefix + fieldCode + " = parcel.readByte() != 0", statementPrefixTypes);
         } else if(TypeName.SHORT == fieldTypeName){
-            methodBuilder.addStatement(statementPrefix + fieldCode + " = (short) parcel.readInt()");
+            methodBuilder.addStatement(statementPrefix + fieldCode + " = (short) parcel.readInt()", statementPrefixTypes);
         } else if(TypeName.CHAR == fieldTypeName){
-            methodBuilder.addStatement(statementPrefix + fieldCode + " = (char) parcel.readInt()");
+            methodBuilder.addStatement(statementPrefix + fieldCode + " = (char) parcel.readInt()", statementPrefixTypes);
         } else {
-            methodBuilder.addStatement(statementPrefix + fieldCode + " = parcel.read" + TextUtil.firstCharUpper(name) + "()");
+            methodBuilder.addStatement(statementPrefix + fieldCode + " = parcel.read" + TextUtil.firstCharUpper(name) + "()", statementPrefixTypes);
         }
     }
 
     @Override
-    public void write(MethodSpec.Builder methodBuilder, String statementPrefix, String fieldName, String fieldCode, OOOTypeEntry oooTypeEntry) {
+    public void write(MethodSpec.Builder methodBuilder, String statementPrefix, Object[] statementPrefixTypes, String fieldCode, OOOTypeEntry oooTypeEntry, String fieldName) {
         TypeName fieldTypeName = oooTypeEntry.getTypeName();
         String name = primitiveMap.get(fieldTypeName);
 
         if (TypeName.SHORT == fieldTypeName ||
                 TypeName.CHAR == fieldTypeName
         ) {
-            methodBuilder.addStatement(statementPrefix + "dest.writeInt(" + fieldCode + ")");
+            methodBuilder.addStatement(statementPrefix + "dest.writeInt(" + fieldCode + ")", statementPrefixTypes);
         } else if (TypeName.BOOLEAN == fieldTypeName) {
-            methodBuilder.addStatement(statementPrefix + "dest.writeByte(" + fieldCode + " ? (byte) 1 : (byte) 0)");
+            methodBuilder.addStatement(statementPrefix + "dest.writeByte(" + fieldCode + " ? (byte) 1 : (byte) 0)", statementPrefixTypes);
         } else {
-            methodBuilder.addStatement(statementPrefix + "dest.write" + TextUtil.firstCharUpper(name) + "(" + fieldCode + ")");
+            methodBuilder.addStatement(statementPrefix + "dest.write" + TextUtil.firstCharUpper(name) + "(" + fieldCode + ")", statementPrefixTypes);
         }
     }
 }

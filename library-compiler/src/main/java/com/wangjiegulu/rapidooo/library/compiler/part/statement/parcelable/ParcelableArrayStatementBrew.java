@@ -18,32 +18,33 @@ public class ParcelableArrayStatementBrew implements IParcelableStatementBrew {
     }
 
     @Override
-    public void read(MethodSpec.Builder methodBuilder, String statementPrefix, String fieldName, String fieldCode, OOOTypeEntry oooTypeEntry) {
+    public void read(MethodSpec.Builder methodBuilder, String statementPrefix, Object[] statementPrefixTypes, String fieldCode, OOOTypeEntry oooTypeEntry, String fieldName) {
         TypeName arrayItemType = ((OOOArrayTypeEntry) oooTypeEntry).getArrayItemTypeName();
         // TODO: 2019-06-21 wangjie
         // #id__ChatBO[]
-        if (ElementUtil.isParcelableType(arrayItemType)) {
-            methodBuilder.addStatement(statementPrefix + fieldCode + " = parcel.createTypedArray($T.CREATOR)", arrayItemType);
+        if (ElementUtil.isParcelableClassType(arrayItemType)) {
+            methodBuilder.addStatement(statementPrefix + fieldCode + " = parcel.createTypedArray($T.CREATOR)", TextUtil.addAll(statementPrefixTypes, arrayItemType));
         } else { // java.lang.String[]
             if (arrayItemType.isPrimitive()) {
-                methodBuilder.addStatement(statementPrefix + fieldCode + " = parcel.create" + TextUtil.firstCharUpper(arrayItemType.toString()) + "Array()");
+                methodBuilder.addStatement(statementPrefix + fieldCode + " = parcel.create" + TextUtil.firstCharUpper(arrayItemType.toString()) + "Array()", statementPrefixTypes);
             } else {
-                methodBuilder.addStatement(statementPrefix + fieldCode + " = ($T) parcel.readArray($T.class.getClassLoader())", oooTypeEntry.getTypeName(), oooTypeEntry.getTypeName());
+                methodBuilder.addStatement(statementPrefix + fieldCode + " = ($T) parcel.readArray($T.class.getClassLoader())",
+                        TextUtil.addAll(statementPrefixTypes, oooTypeEntry.getTypeName(), oooTypeEntry.getTypeName()));
             }
         }
     }
 
     @Override
-    public void write(MethodSpec.Builder methodBuilder, String statementPrefix, String fieldName, String fieldCode, OOOTypeEntry oooTypeEntry) {
+    public void write(MethodSpec.Builder methodBuilder, String statementPrefix, Object[] statementPrefixTypes, String fieldCode, OOOTypeEntry oooTypeEntry, String fieldName) {
         TypeName arrayItemType = ((OOOArrayTypeEntry) oooTypeEntry).getArrayItemTypeName();
         // java.util.List<#id__ChatBO>
-        if (ElementUtil.isParcelableType(arrayItemType)) {
-            methodBuilder.addStatement(statementPrefix + "dest.writeTypedArray(" +  fieldCode + ", flags)", arrayItemType);
+        if (ElementUtil.isParcelableClassType(arrayItemType)) {
+            methodBuilder.addStatement(statementPrefix + "dest.writeTypedArray(" + fieldCode + ", flags)", TextUtil.addAll(statementPrefixTypes, arrayItemType));
         } else { // java.util.List<java.lang.String>
             if (arrayItemType.isPrimitive()) {
-                methodBuilder.addStatement(statementPrefix + "dest.write" + TextUtil.firstCharUpper(arrayItemType.toString()) + "Array(" + fieldCode + ")");
+                methodBuilder.addStatement(statementPrefix + "dest.write" + TextUtil.firstCharUpper(arrayItemType.toString()) + "Array(" + fieldCode + ")", statementPrefixTypes);
             } else {
-                methodBuilder.addStatement(statementPrefix + "dest.writeArray(" + fieldCode + ")");
+                methodBuilder.addStatement(statementPrefix + "dest.writeArray(" + fieldCode + ")", statementPrefixTypes);
             }
         }
     }

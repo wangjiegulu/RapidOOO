@@ -2,11 +2,11 @@ package com.wangjiegulu.rapidooo.library.compiler.part.statement.parcelable;
 
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeName;
+import com.wangjiegulu.rapidooo.library.compiler.RapidOOOConstants;
 import com.wangjiegulu.rapidooo.library.compiler.oooentry.type.OOOMapTypeEntry;
 import com.wangjiegulu.rapidooo.library.compiler.oooentry.type.OOOTypeEntry;
 import com.wangjiegulu.rapidooo.library.compiler.oooentry.type.OOOTypeEntryFactory;
 import com.wangjiegulu.rapidooo.library.compiler.part.statement.contact.IParcelableStatementBrew;
-import com.wangjiegulu.rapidooo.library.compiler.util.ElementUtil;
 
 /**
  * Author: wangjie Email: tiantian.china.2@gmail.com Date: 2019-06-18.
@@ -18,7 +18,7 @@ public class ParcelableMapStatementBrew implements IParcelableStatementBrew {
     }
 
     @Override
-    public void read(MethodSpec.Builder methodBuilder, String statementPrefix, String fieldName, String fieldCode, OOOTypeEntry oooTypeEntry) {
+    public void read(MethodSpec.Builder methodBuilder, String statementPrefix, Object[] statementPrefixTypes, String fieldCode, OOOTypeEntry oooTypeEntry, String fieldName) {
         OOOMapTypeEntry mapTypeEntry = (OOOMapTypeEntry) oooTypeEntry;
 
         TypeName keyTypeName = mapTypeEntry.getKeyTypeName();
@@ -35,11 +35,11 @@ public class ParcelableMapStatementBrew implements IParcelableStatementBrew {
         boolean valueMatched = false;
         for (IParcelableStatementBrew parcelableStatementBrew : ParcelableStatementUtil.parcelableStatementBrews) {
             if (!keyMatched && parcelableStatementBrew.match(keyTypeEntry)) {
-                parcelableStatementBrew.read(methodBuilder, "    " + ElementUtil.getSimpleName(keyTypeEntry.getTypeName()) + " ", "", "key", keyTypeEntry);
+                parcelableStatementBrew.read(methodBuilder, "    $T ", new Object[]{keyTypeEntry.getTypeName()}, "key", keyTypeEntry, "");
                 keyMatched = true;
             }
             if (!valueMatched && parcelableStatementBrew.match(valueTypeEntry)) {
-                parcelableStatementBrew.read(methodBuilder, "    " + ElementUtil.getSimpleName(valueTypeEntry.getTypeName()) + " ", "", "value", valueTypeEntry);
+                parcelableStatementBrew.read(methodBuilder, "    $T ", new Object[]{valueTypeEntry.getTypeName()}, "value", valueTypeEntry, "");
                 valueMatched = true;
             }
             if (keyMatched && valueMatched) {
@@ -51,7 +51,7 @@ public class ParcelableMapStatementBrew implements IParcelableStatementBrew {
 
 
     @Override
-    public void write(MethodSpec.Builder methodBuilder, String statementPrefix, String fieldName, String fieldCode, OOOTypeEntry oooTypeEntry) {
+    public void write(MethodSpec.Builder methodBuilder, String statementPrefix, Object[] statementPrefixTypes, String fieldCode, OOOTypeEntry oooTypeEntry, String fieldName) {
         OOOMapTypeEntry mapTypeEntry = (OOOMapTypeEntry) oooTypeEntry;
 
         TypeName keyTypeName = mapTypeEntry.getKeyTypeName();
@@ -67,11 +67,11 @@ public class ParcelableMapStatementBrew implements IParcelableStatementBrew {
         boolean valueMatched = false;
         for (IParcelableStatementBrew parcelableStatementBrew : ParcelableStatementUtil.parcelableStatementBrews) {
             if (!keyMatched && parcelableStatementBrew.match(keyTypeEntry)) {
-                parcelableStatementBrew.write(methodBuilder, "    ", "", "entry.getKey()", keyTypeEntry);
+                parcelableStatementBrew.write(methodBuilder, "    ", RapidOOOConstants.EMPTY_ARRAY, "entry.getKey()", keyTypeEntry, "");
                 keyMatched = true;
             }
             if (!valueMatched && parcelableStatementBrew.match(valueTypeEntry)) {
-                parcelableStatementBrew.write(methodBuilder, "    ", "", "entry.getValue()", valueTypeEntry);
+                parcelableStatementBrew.write(methodBuilder, "    ", RapidOOOConstants.EMPTY_ARRAY, "entry.getValue()", valueTypeEntry, "");
                 valueMatched = true;
             }
             if (keyMatched && valueMatched) {

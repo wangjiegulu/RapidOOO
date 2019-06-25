@@ -29,7 +29,7 @@ public class Message implements Parcelable {
     private Chat[] otherChats;
     private Map<String, Chat> chatMapper;
     private Map<String, Integer> scoreMap;
-//    private Map<String, List<Foo>> mapps;
+    private Map<String, List<Foo>> mapps;
 //    private SpannableString haha;
 //    private Bundle bundle;
 //    private PersistableBundle persistableBundle;
@@ -42,6 +42,14 @@ public class Message implements Parcelable {
     private Foo[] fooArray;
     private Float[] floats;
     private float[] floatAr;
+
+    public Map<String, List<Foo>> getMapps() {
+        return mapps;
+    }
+
+    public void setMapps(Map<String, List<Foo>> mapps) {
+        this.mapps = mapps;
+    }
 
     private Integer[] scores;
 
@@ -231,11 +239,11 @@ public class Message implements Parcelable {
             dest.writeString(entry.getKey());
             dest.writeValue(entry.getValue());
         }
-//        dest.writeInt(this.mapps.size());
-//        for (Map.Entry<String, List<Foo>> entry : this.mapps.entrySet()) {
-//            dest.writeString(entry.getKey());
-//            dest.writeList(entry.getValue());
-//        }
+        dest.writeInt(this.mapps.size());
+        for (Map.Entry<String, List<Foo>> entry : this.mapps.entrySet()) {
+            dest.writeString(entry.getKey());
+            dest.writeList(entry.getValue());
+        }
         dest.writeList(this.foos);
         dest.writeArray(this.floats);
         dest.writeFloatArray(this.floatAr);
@@ -270,13 +278,13 @@ public class Message implements Parcelable {
             this.scoreMap.put(key, value);
         }
         int mappsSize = in.readInt();
-//        this.mapps = new HashMap<String, List<Foo>>(mappsSize);
-//        for (int i = 0; i < mappsSize; i++) {
-//            String key = in.readString();
-//            List<Foo> value = new ArrayList<Foo>();
-//            in.readList(value, Foo.class.getClassLoader());
-//            this.mapps.put(key, value);
-//        }
+        this.mapps = new HashMap<String, List<Foo>>(mappsSize);
+        for (int i = 0; i < mappsSize; i++) {
+            String key = in.readString();
+            List<Foo> value = new ArrayList<Foo>();
+            in.readList(value, Foo.class.getClassLoader());
+            this.mapps.put(key, value);
+        }
         this.foos = new ArrayList<Foo>();
         in.readList(this.foos, Foo.class.getClassLoader());
         this.floats = (Float[]) in.readArray(Float[].class.getClassLoader());

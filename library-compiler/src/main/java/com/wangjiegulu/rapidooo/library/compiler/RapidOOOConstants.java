@@ -11,4 +11,6 @@ public interface RapidOOOConstants {
     String CLASS_NAME_IBINDER = "android.os.IBinder";
     String CLASS_NAME_SIZE = "android.util.Size";
     String CLASS_NAME_SIZEF = "android.util.SizeF";
+
+    Object[] EMPTY_ARRAY = new Object[0];
 }

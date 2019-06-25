@@ -18,20 +18,20 @@ public class ParcelableObjectStatementBrew implements IParcelableStatementBrew {
     }
 
     @Override
-    public void read(MethodSpec.Builder methodBuilder, String statementPrefix, String fieldName, String fieldCode, OOOTypeEntry oooTypeEntry) {
+    public void read(MethodSpec.Builder methodBuilder, String statementPrefix, Object[] statementPrefixTypes, String fieldCode, OOOTypeEntry oooTypeEntry, String fieldName) {
         if (ElementUtil.isSameType(oooTypeEntry.getTypeName(), String.class)) {
-            methodBuilder.addStatement(statementPrefix + fieldCode + " = parcel.readString()");
+            methodBuilder.addStatement(statementPrefix + fieldCode + " = parcel.readString()", statementPrefixTypes);
         } else {
-            methodBuilder.addStatement(statementPrefix + fieldCode + " = parcel.readParcelable(" + ClassName.bestGuess(oooTypeEntry.getTypeName().toString()).simpleName() + ".class.getClassLoader())");
+            methodBuilder.addStatement(statementPrefix + fieldCode + " = parcel.readParcelable(" + ClassName.bestGuess(oooTypeEntry.getTypeName().toString()).simpleName() + ".class.getClassLoader())", statementPrefixTypes);
         }
     }
 
     @Override
-    public void write(MethodSpec.Builder methodBuilder, String statementPrefix, String fieldName, String fieldCode, OOOTypeEntry oooTypeEntry) {
+    public void write(MethodSpec.Builder methodBuilder, String statementPrefix, Object[] statementPrefixTypes, String fieldCode, OOOTypeEntry oooTypeEntry, String fieldName) {
         if (ElementUtil.isSameType(oooTypeEntry.getTypeName(), String.class)) {
-            methodBuilder.addStatement(statementPrefix + "dest.writeString(" + fieldCode + ")");
+            methodBuilder.addStatement(statementPrefix + "dest.writeString(" + fieldCode + ")", statementPrefixTypes);
         } else {
-            methodBuilder.addStatement(statementPrefix + "dest.writeValue(" + fieldCode + ")");
+            methodBuilder.addStatement(statementPrefix + "dest.writeValue(" + fieldCode + ")", statementPrefixTypes);
         }
 
     }

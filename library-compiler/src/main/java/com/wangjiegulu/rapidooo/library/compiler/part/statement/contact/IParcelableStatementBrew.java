@@ -8,6 +8,6 @@ import com.wangjiegulu.rapidooo.library.compiler.oooentry.type.OOOTypeEntry;
  */
 public interface IParcelableStatementBrew {
     boolean match(OOOTypeEntry typeEntry);
-    void read(MethodSpec.Builder methodBuilder, String statementPrefix, String fieldName, String fieldCode, OOOTypeEntry oooTypeEntry);
-    void write(MethodSpec.Builder methodBuilder, String statementPrefix, String fieldName, String fieldCode, OOOTypeEntry oooTypeEntry);
+    void read(MethodSpec.Builder methodBuilder, String statementPrefix, Object[] statementPrefixTypes, String fieldCode, OOOTypeEntry oooTypeEntry, String fieldName);
+    void write(MethodSpec.Builder methodBuilder, String statementPrefix, Object[] statementPrefixTypes, String fieldCode, OOOTypeEntry oooTypeEntry, String fieldName);
 }

@@ -20,37 +20,37 @@ public class ParcelableListStatementBrew implements IParcelableStatementBrew {
     }
 
     @Override
-    public void read(MethodSpec.Builder methodBuilder, String statementPrefix, String fieldName, String fieldCode, OOOTypeEntry oooTypeEntry) {
+    public void read(MethodSpec.Builder methodBuilder, String statementPrefix, Object[] statementPrefixTypes, String fieldCode, OOOTypeEntry oooTypeEntry, String fieldName) {
         TypeName argumentType = ((OOOListTypeEntry) oooTypeEntry).getArgumentType();
         // java.util.List<#id__ChatBO>
-        if (ElementUtil.isParcelableType(argumentType)) {
-            methodBuilder.addStatement(statementPrefix + fieldCode + " = parcel.createTypedArrayList($T.CREATOR)", argumentType);
+        if (ElementUtil.isParcelableClassType(argumentType)) {
+            methodBuilder.addStatement(statementPrefix + fieldCode + " = parcel.createTypedArrayList($T.CREATOR)", TextUtil.addAll(statementPrefixTypes, argumentType));
         } else { // java.util.List<java.lang.String>
             if (TextUtil.equals(argumentType.toString(), String.class.getCanonicalName())) {
-                methodBuilder.addStatement(statementPrefix + fieldCode + " = parcel.createStringArrayList()");
+                methodBuilder.addStatement(statementPrefix + fieldCode + " = parcel.createStringArrayList()", statementPrefixTypes);
             } else if (TextUtil.equals(argumentType.toString(), RapidOOOConstants.CLASS_NAME_IBINDER)) {
-                methodBuilder.addStatement(statementPrefix + fieldCode + " = parcel.createBinderArrayList()");
+                methodBuilder.addStatement(statementPrefix + fieldCode + " = parcel.createBinderArrayList()", statementPrefixTypes);
             } else {
-                methodBuilder.addStatement("parcel.readList(" + fieldCode + ", $T.class.getClassLoader())", argumentType);
+                methodBuilder.addStatement("parcel.readList(" + fieldCode + ", $T.class.getClassLoader())", TextUtil.addAll(statementPrefixTypes, argumentType));
                 LogUtil.logger("[WARN]Unable parcelable type of list argument: " + argumentType);
             }
         }
     }
 
     @Override
-    public void write(MethodSpec.Builder methodBuilder, String statementPrefix, String fieldName, String fieldCode, OOOTypeEntry oooTypeEntry) {
+    public void write(MethodSpec.Builder methodBuilder, String statementPrefix, Object[] statementPrefixTypes, String fieldCode, OOOTypeEntry oooTypeEntry, String fieldName) {
         TypeName argumentType = ((OOOListTypeEntry) oooTypeEntry).getArgumentType();
         // java.util.List<#id__ChatBO>
-        if (ElementUtil.isParcelableType(argumentType)) {
-            methodBuilder.addStatement(statementPrefix + "dest.writeTypedList(" + fieldCode + ")", argumentType);
+        if (ElementUtil.isParcelableClassType(argumentType)) {
+            methodBuilder.addStatement(statementPrefix + "dest.writeTypedList(" + fieldCode + ")", TextUtil.addAll(statementPrefixTypes, argumentType));
         } else { // java.util.List<java.lang.String>
             if (TextUtil.equals(argumentType.toString(), String.class.getCanonicalName())) {
-                methodBuilder.addStatement(statementPrefix + "dest.writeStringList(" + fieldCode + ")", argumentType);
+                methodBuilder.addStatement(statementPrefix + "dest.writeStringList(" + fieldCode + ")", TextUtil.addAll(statementPrefixTypes, argumentType));
             } else if (TextUtil.equals(argumentType.toString(), RapidOOOConstants.CLASS_NAME_IBINDER)) {
-                methodBuilder.addStatement(statementPrefix + "dest.writeBinderList(" + fieldCode + ")", argumentType);
+                methodBuilder.addStatement(statementPrefix + "dest.writeBinderList(" + fieldCode + ")", TextUtil.addAll(statementPrefixTypes, argumentType));
             } else {
                 LogUtil.logger("[WARN]Unable parcelable type of list argument: " + argumentType);
-                methodBuilder.addStatement(statementPrefix + "dest.writeList(" + fieldCode + ")");
+                methodBuilder.addStatement(statementPrefix + "dest.writeList(" + fieldCode + ")", statementPrefixTypes);
             }
         }
     }

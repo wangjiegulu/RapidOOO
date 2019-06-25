@@ -37,13 +37,13 @@ public class ParcelableBoxPrimitiveStatementBrew implements IParcelableStatement
     }
 
     @Override
-    public void read(MethodSpec.Builder methodBuilder, String statementPrefix, String fieldName, String fieldCode, OOOTypeEntry oooTypeEntry) {
+    public void read(MethodSpec.Builder methodBuilder, String statementPrefix, Object[] statementPrefixTypes, String fieldCode, OOOTypeEntry oooTypeEntry, String fieldName) {
         String name = primitiveMap.get(oooTypeEntry.getTypeName().unbox());
-        methodBuilder.addStatement(statementPrefix + fieldCode + " = (" + name + ") parcel.readValue(" + name + ".class.getClassLoader())");
+        methodBuilder.addStatement(statementPrefix + fieldCode + " = (" + name + ") parcel.readValue(" + name + ".class.getClassLoader())", statementPrefixTypes);
     }
 
     @Override
-    public void write(MethodSpec.Builder methodBuilder, String statementPrefix, String fieldName, String fieldCode, OOOTypeEntry oooTypeEntry) {
-        methodBuilder.addStatement(statementPrefix + "dest.writeValue(" + fieldCode + ")");
+    public void write(MethodSpec.Builder methodBuilder, String statementPrefix, Object[] statementPrefixTypes, String fieldCode, OOOTypeEntry oooTypeEntry, String fieldName) {
+        methodBuilder.addStatement(statementPrefix + "dest.writeValue(" + fieldCode + ")", statementPrefixTypes);
     }
 }

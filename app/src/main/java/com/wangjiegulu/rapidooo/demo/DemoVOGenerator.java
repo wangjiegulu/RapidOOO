@@ -24,7 +24,7 @@ import java.util.List;
                 @OOO(from = UserBO.class, id = "#id__UserVO"),
                 @OOO(from = ChatBO.class, id = "#id__ChatVO"),
                 @OOO(from = MessageBO.class,
-                        excludes = {"fromBO", "chatBO", "chatBOs", "otherChatBOs", "foos", "fooArray"},
+                        excludes = {"fromBO", "chatBO", "chatBOs", "otherChatBOs", "foos", "fooArray", "mapps"},
 //                        parcelable = false,
                         conversions = {
                                 @OOOConversion(

@@ -145,10 +145,10 @@ public class EasyType {
     }
 
     public static boolean isListType(String str){
-        return str.matches("java\\.util\\..*List<.+>");
+        return str.matches("java\\.util\\.[^.]*List<.+>");
     }
     public static boolean isMapType(String str){
-        return str.matches("java\\.util\\..*Map<.+,.+>");
+        return str.matches("java\\.util\\.[^.]*Map<.+,.+>");
     }
     public static boolean isArrayType(String str){
         return str.matches(".+\\[]");

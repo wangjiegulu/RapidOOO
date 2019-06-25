@@ -108,8 +108,8 @@ public class InterfacePartBrew implements PartBrew {
 //                    TypeName fieldTypeName = fieldEntry.getTypeName();
 //                    LogUtil.logger("[fieldTypeName]" + fieldTypeName.getClass() + ", " + fieldTypeName);
                     if(parcelableStatementBrew.match(fieldEntry.getOooTypeEntry())){
-                        parcelableStatementBrew.read(parcelConstructorMethodBuilder, "", fieldName, "this." + fieldName, fieldEntry.getOooTypeEntry());
-                        parcelableStatementBrew.write(writeToParcelMethod, "", fieldName, "this." + fieldName, fieldEntry.getOooTypeEntry());
+                        parcelableStatementBrew.read(parcelConstructorMethodBuilder, "", RapidOOOConstants.EMPTY_ARRAY, "this." + fieldName, fieldEntry.getOooTypeEntry(), fieldName);
+                        parcelableStatementBrew.write(writeToParcelMethod, "", RapidOOOConstants.EMPTY_ARRAY, "this." + fieldName, fieldEntry.getOooTypeEntry(), fieldName);
                         break;
                     }
                 }
@@ -122,8 +122,8 @@ public class InterfacePartBrew implements PartBrew {
                 String fieldName = conversionEntry.getTargetFieldName();
                 for(IParcelableStatementBrew parcelableStatementBrew : ParcelableStatementUtil.parcelableStatementBrews){
                     if(parcelableStatementBrew.match(conversionEntry.getTargetFieldTypeEntry())){
-                        parcelableStatementBrew.read(parcelConstructorMethodBuilder, "", fieldName, "this." + fieldName, conversionEntry.getTargetFieldTypeEntry());
-                        parcelableStatementBrew.write(writeToParcelMethod, "", fieldName, "this." + fieldName, conversionEntry.getTargetFieldTypeEntry());
+                        parcelableStatementBrew.read(parcelConstructorMethodBuilder, "", RapidOOOConstants.EMPTY_ARRAY, "this." + fieldName, conversionEntry.getTargetFieldTypeEntry(), fieldName);
+                        parcelableStatementBrew.write(writeToParcelMethod, "", RapidOOOConstants.EMPTY_ARRAY, "this." + fieldName, conversionEntry.getTargetFieldTypeEntry(), fieldName);
                         break;
                     }
                 }
