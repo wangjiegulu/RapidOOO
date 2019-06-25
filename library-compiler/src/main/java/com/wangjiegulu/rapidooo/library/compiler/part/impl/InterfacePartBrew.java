@@ -34,14 +34,18 @@ import javax.lang.model.type.TypeMirror;
  */
 public class InterfacePartBrew implements PartBrew {
 
-    private List<IParcelableStatementBrew> parcelableStatementBrews = new ArrayList<>();
+    private static List<IParcelableStatementBrew> parcelableStatementBrews = new ArrayList<>();
 
-    public InterfacePartBrew() {
+    static {
         parcelableStatementBrews.add(new ParcelablePrimitiveStatementBrew());
         parcelableStatementBrews.add(new ParcelableBoxPrimitiveStatementBrew());
         parcelableStatementBrews.add(new ParcelableObjectStatementBrew());
         parcelableStatementBrews.add(new ParcelableListStatementBrew());
         parcelableStatementBrews.add(new ParcelableArrayStatementBrew());
+//        parcelableStatementBrews.add(new ParcelableMapStatementBrew());
+    }
+    public InterfacePartBrew() {
+
     }
 
     @Override

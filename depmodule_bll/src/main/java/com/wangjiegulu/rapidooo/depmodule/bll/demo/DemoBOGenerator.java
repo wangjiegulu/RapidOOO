@@ -17,7 +17,7 @@ import com.wangjiegulu.rapidooo.depmodule.dal.xdo.demo.User;
                 @OOO(from = User.class, id = "#id__UserBO"),
                 @OOO(from = Chat.class, id = "#id__ChatBO"),
                 @OOO(from = Message.class,
-                        excludes = {"from", "chat", "chats", "otherChats", "chatMapper", "replyIds", "text", "commentArray"},
+                        excludes = {"from", "chat", "chats", "otherChats", "chatMapper", "replyIds", "text", "commentArray", "scoreMap"},
                         conversions = {
                                 @OOOConversion(
                                         targetFieldName = "textRaw",
@@ -56,8 +56,13 @@ import com.wangjiegulu.rapidooo.depmodule.dal.xdo.demo.User;
                                 ),
                                 @OOOConversion(
                                         targetFieldName = "chatBOMapper",
-                                        targetFieldTypeId = "java.util.Map<java.lang.String, #id__ChatBO>",
+                                        targetFieldTypeId = "java.util.TreeMap<java.lang.String, #id__ChatBO>",
                                         attachFieldName = "chatMapper"
+                                ),
+                                @OOOConversion(
+                                        targetFieldName = "scoreMapper",
+                                        targetFieldTypeId = "java.util.Map<java.lang.String, java.lang.Integer>",
+                                        attachFieldName = "scoreMap"
                                 )
                         }
                 )

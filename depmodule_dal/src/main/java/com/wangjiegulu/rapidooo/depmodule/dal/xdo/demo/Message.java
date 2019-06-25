@@ -28,6 +28,7 @@ public class Message implements Parcelable {
     private List<Chat> chats;
     private Chat[] otherChats;
     private Map<String, Chat> chatMapper;
+    private Map<String, Integer> scoreMap;
 //    private SpannableString haha;
 //    private Bundle bundle;
 //    private PersistableBundle persistableBundle;
@@ -45,6 +46,22 @@ public class Message implements Parcelable {
 
     public Float[] getFloats() {
         return floats;
+    }
+
+    public Map<String, Integer> getScoreMap() {
+        return scoreMap;
+    }
+
+    public void setScoreMap(Map<String, Integer> scoreMap) {
+        this.scoreMap = scoreMap;
+    }
+
+    public Map<String, Chat> getChatMapper() {
+        return chatMapper;
+    }
+
+    public void setChatMapper(Map<String, Chat> chatMapper) {
+        this.chatMapper = chatMapper;
     }
 
     public void setFloats(Float[] floats) {
@@ -83,13 +100,6 @@ public class Message implements Parcelable {
         this.fooArray = fooArray;
     }
 
-    public Map<String, Chat> getChatMapper() {
-        return chatMapper;
-    }
-
-    public void setChatMapper(Map<String, Chat> chatMapper) {
-        this.chatMapper = chatMapper;
-    }
 
     public List<Chat> getChats() {
         return chats;
@@ -215,8 +225,12 @@ public class Message implements Parcelable {
             dest.writeString(entry.getKey());
             dest.writeParcelable(entry.getValue(), flags);
         }
+        dest.writeInt(this.scoreMap.size());
+        for (Map.Entry<String, Integer> entry : this.scoreMap.entrySet()) {
+            dest.writeString(entry.getKey());
+            dest.writeValue(entry.getValue());
+        }
         dest.writeList(this.foos);
-//        dest.writeParcelable(this.fooArray, flags);
         dest.writeArray(this.floats);
         dest.writeFloatArray(this.floatAr);
         dest.writeArray(this.scores);
@@ -242,9 +256,15 @@ public class Message implements Parcelable {
             Chat value = in.readParcelable(Chat.class.getClassLoader());
             this.chatMapper.put(key, value);
         }
+        int scoreMapSize = in.readInt();
+        this.scoreMap = new HashMap<String, Integer>(scoreMapSize);
+        for (int i = 0; i < scoreMapSize; i++) {
+            String key = in.readString();
+            Integer value = (Integer) in.readValue(Integer.class.getClassLoader());
+            this.scoreMap.put(key, value);
+        }
         this.foos = new ArrayList<Foo>();
         in.readList(this.foos, Foo.class.getClassLoader());
-//        this.fooArray = in.readParcelable(Foo[].class.getClassLoader());
         this.floats = (Float[]) in.readArray(Float[].class.getClassLoader());
         this.floatAr = in.createFloatArray();
         this.scores = (Integer[]) in.readArray(Integer[].class.getClassLoader());

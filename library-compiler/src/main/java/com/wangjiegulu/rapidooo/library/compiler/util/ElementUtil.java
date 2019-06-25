@@ -233,7 +233,7 @@ public class ElementUtil {
         return isParcelable(field.asType());
     }
 
-    private static boolean isParcelable(TypeMirror fieldType) {
+    public static boolean isParcelable(TypeMirror fieldType) {
         TypeName typeName = getTypeName(fieldType);
         if (typeName.isPrimitive() || typeName.isBoxedPrimitive()) {
             return true;

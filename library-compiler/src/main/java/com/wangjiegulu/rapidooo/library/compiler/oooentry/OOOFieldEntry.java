@@ -4,6 +4,7 @@ import com.squareup.javapoet.TypeName;
 import com.wangjiegulu.rapidooo.library.compiler.oooentry.type.OOOTypeEntry;
 import com.wangjiegulu.rapidooo.library.compiler.oooentry.type.OOOTypeEntryFactory;
 import com.wangjiegulu.rapidooo.library.compiler.part.statement.contact.ParcelableEntry;
+import com.wangjiegulu.rapidooo.library.compiler.util.EasyType;
 import com.wangjiegulu.rapidooo.library.compiler.util.ElementUtil;
 import com.wangjiegulu.rapidooo.library.compiler.util.LogUtil;
 import com.wangjiegulu.rapidooo.library.compiler.variables.IOOOVariable;
@@ -21,21 +22,31 @@ public class OOOFieldEntry implements IOOOVariable, ParcelableEntry {
     private String simpleName;
     private Modifier[] modifiers;
     private boolean parcelable;
+    private boolean classFound;
 
     private OOOTypeEntry oooTypeEntry;
 
     public OOOFieldEntry(Element field) {
-        typeName = ElementUtil.getTypeName(field);
+        // TODO: 2019-06-25 wangjie optimize: classNotFound
+        try {
+            typeName = ElementUtil.getTypeName(field);
+            classFound = true;
+        } catch (Throwable throwable) {
+            LogUtil.logger("[WARN]" + throwable.getMessage());
+            typeName = EasyType.parseTypeName(field.asType().toString());
+        }
         simpleName = field.getSimpleName().toString();
         Set<Modifier> modifierSet = field.getModifiers();
         modifiers = new Modifier[modifierSet.size()];
         modifierSet.toArray(modifiers);
-        parcelable = ElementUtil.isParcelable(field);
 
-//        oooTypeEntry = new OOOTypeEntry();
-//        oooTypeEntry.parse(typeName);
+        if (classFound) {
+            parcelable = ElementUtil.isParcelable(field.asType());
+        } else {
+            parcelable = false;
+        }
+
         oooTypeEntry = OOOTypeEntryFactory.create(typeName);
-
         LogUtil.logger("---------> " + field + ",       typeName: " + typeName + ",         parcelable: " + parcelable);
     }
 
@@ -58,6 +69,10 @@ public class OOOFieldEntry implements IOOOVariable, ParcelableEntry {
     @Override
     public boolean isParcelable() {
         return parcelable;
+    }
+
+    public boolean isClassFound() {
+        return classFound;
     }
 
     @Override

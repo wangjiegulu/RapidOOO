@@ -3,6 +3,7 @@ package com.wangjiegulu.rapidooo.library.compiler.oooentry.type;
 import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeName;
 
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -11,6 +12,7 @@ import java.util.List;
 public class OOOMapTypeEntry extends OOOTypeEntry {
     private TypeName keyTypeName;
     private TypeName valueTypeName;
+    private TypeName rawType;
 
     @Override
     public void initialize(String idExp) {
@@ -37,6 +39,12 @@ public class OOOMapTypeEntry extends OOOTypeEntry {
                 valueTypeName = tps.get(1);
             }
         }
+
+        if (typeName.toString().matches("java\\.util\\.Map<.+>")) {
+            rawType = TypeName.get(HashMap.class);
+        } else {
+            rawType = ((ParameterizedTypeName) typeName).rawType;
+        }
     }
 
     @Override
@@ -52,5 +60,7 @@ public class OOOMapTypeEntry extends OOOTypeEntry {
         return valueTypeName;
     }
 
-
+    public TypeName getRawType() {
+        return rawType;
+    }
 }
