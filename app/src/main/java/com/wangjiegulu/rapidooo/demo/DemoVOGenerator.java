@@ -40,8 +40,14 @@ import java.util.List;
                                 @OOOConversion(
                                         targetFieldName = "textSp",
                                         targetFieldType = SpannableString.class,
-                                        conversionMethodName = "conversionTextSp",
-                                        inverseConversionMethodName = "inverseConversionTextSp"
+                                        bindMethodName = "bindTextSp",
+                                        inverseBindMethodName = "inverseBindTextSp"
+                                ),
+                                @OOOConversion(
+                                        targetFieldName = "videoPlayer",
+                                        targetFieldType = MediaPlayer.class,
+                                        conversionMethodName = "conversionVideo",
+                                        parcelable = false
                                 ),
                                 @OOOConversion(
                                         targetFieldName = "commentLengthList",
@@ -60,12 +66,6 @@ import java.util.List;
                                         parcelable = false
                                 ),
                                 @OOOConversion(
-                                        targetFieldName = "videoPlayer",
-                                        targetFieldType = MediaPlayer.class,
-                                        bindMethodName = "bindVideo",
-                                        parcelable = false
-                                ),
-                                @OOOConversion(
                                         targetFieldName = "emptyChatVOs",
                                         targetFieldTypeId = "#id__ChatVO[]"
                                 )
@@ -75,12 +75,13 @@ import java.util.List;
 )
 public class DemoVOGenerator {
 
-    public static SpannableString conversionTextSp(String textRaw){
+    public static SpannableString bindTextSp(String textRaw){
+        // convert to SpannableString with `@User` / emoticon / sticker
         return new SpannableString(textRaw);
     }
 
-    public static void inverseConversionTextSp(SpannableString textSp, MessageBO other){
-        other.setTextRaw(textSp.toString());
+    public static void inverseBindTextSp(SpannableString textSp, MessageVO self){
+        self.setTextRaw(textSp.toString());
     }
 
     public static List<Integer> bindCommentLengthList(List<String> comments){
@@ -94,7 +95,7 @@ public class DemoVOGenerator {
             return commentLengthList;
         }
     }
-    public static MediaPlayer bindVideo(MessageVO self, String videoUrl){
+    public static MediaPlayer conversionVideo(MessageVO self, String videoUrl){
         MediaPlayer mediaPlayer = self.getVideoPlayer();
         if(null != mediaPlayer){
             mediaPlayer.stop();
