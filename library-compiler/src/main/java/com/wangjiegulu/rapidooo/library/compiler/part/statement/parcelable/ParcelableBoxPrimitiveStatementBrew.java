@@ -4,7 +4,6 @@ import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeName;
 import com.wangjiegulu.rapidooo.library.compiler.oooentry.type.OOOTypeEntry;
 import com.wangjiegulu.rapidooo.library.compiler.part.statement.contact.IParcelableStatementBrew;
-import com.wangjiegulu.rapidooo.library.compiler.util.LogUtil;
 
 import java.util.HashMap;
 
@@ -28,7 +27,6 @@ public class ParcelableBoxPrimitiveStatementBrew implements IParcelableStatement
     @Override
     public boolean match(OOOTypeEntry typeEntry) {
         TypeName fieldTypeName = typeEntry.getTypeName();
-        LogUtil.logger("fieldTypeName.isBoxedPrimitive(): " + fieldTypeName.isBoxedPrimitive() + ", " + fieldTypeName);
         if(fieldTypeName.isBoxedPrimitive()){
             TypeName _fieldTypeName = fieldTypeName.unbox();
             return primitiveMap.containsKey(_fieldTypeName);

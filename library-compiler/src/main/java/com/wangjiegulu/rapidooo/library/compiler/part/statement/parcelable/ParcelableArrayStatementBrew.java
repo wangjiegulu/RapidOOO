@@ -20,7 +20,6 @@ public class ParcelableArrayStatementBrew implements IParcelableStatementBrew {
     @Override
     public void read(MethodSpec.Builder methodBuilder, String statementPrefix, Object[] statementPrefixTypes, String fieldCode, OOOTypeEntry oooTypeEntry, String fieldName) {
         TypeName arrayItemType = ((OOOArrayTypeEntry) oooTypeEntry).getArrayItemTypeName();
-        // TODO: 2019-06-21 wangjie
         // #id__ChatBO[]
         if (ElementUtil.isParcelableClassType(arrayItemType)) {
             methodBuilder.addStatement(statementPrefix + fieldCode + " = parcel.createTypedArray($T.CREATOR)", TextUtil.addAll(statementPrefixTypes, arrayItemType));

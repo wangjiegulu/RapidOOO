@@ -46,7 +46,7 @@ public class OOOFieldEntry implements IOOOVariable{
         }
 
         oooTypeEntry = OOOTypeEntryFactory.create(typeName);
-        LogUtil.logger("---------> " + field + ",       typeName: " + typeName + ",         parcelable: " + parcelable);
+//        LogUtil.logger("---------> " + field + ",       typeName: " + typeName + ",         parcelable: " + parcelable);
     }
 
     public TypeName getTypeName() {

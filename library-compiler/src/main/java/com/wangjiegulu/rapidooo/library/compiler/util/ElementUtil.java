@@ -287,7 +287,7 @@ public class ElementUtil {
     }
 
     private static boolean isParcelableType(TypeName typeName) {
-        LogUtil.logger("[isParcelableType]typeName: " + typeName);
+//        LogUtil.logger("[isParcelableType]typeName: " + typeName);
         if (typeName instanceof ParameterizedTypeName) {
             for (TypeName tn : ((ParameterizedTypeName) typeName).typeArguments) {
                 if (!isParcelableType(tn)) {
