@@ -2,6 +2,7 @@ package com.wangjiegulu.rapidooo.library.compiler.oooentry.type;
 
 import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeName;
+import com.wangjiegulu.rapidooo.library.compiler.util.ElementUtil;
 
 import java.util.HashMap;
 import java.util.List;
@@ -45,6 +46,10 @@ public class OOOMapTypeEntry extends OOOTypeEntry {
         } else {
             rawType = ((ParameterizedTypeName) typeName).rawType;
         }
+    }
+
+    public boolean isHashMap(){
+        return ElementUtil.isSameType(rawType, HashMap.class);
     }
 
     @Override

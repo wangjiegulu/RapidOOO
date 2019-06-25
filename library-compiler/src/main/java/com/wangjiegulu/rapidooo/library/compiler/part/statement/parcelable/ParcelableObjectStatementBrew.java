@@ -5,29 +5,34 @@ import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeName;
 import com.wangjiegulu.rapidooo.library.compiler.oooentry.type.OOOTypeEntry;
 import com.wangjiegulu.rapidooo.library.compiler.part.statement.contact.IParcelableStatementBrew;
-import com.wangjiegulu.rapidooo.library.compiler.part.statement.contact.ParcelableEntry;
+import com.wangjiegulu.rapidooo.library.compiler.util.ElementUtil;
 
 /**
  * Author: wangjie Email: tiantian.china.2@gmail.com Date: 2019-06-17.
  */
 public class ParcelableObjectStatementBrew implements IParcelableStatementBrew {
     @Override
-    public boolean match(ParcelableEntry parcelableEntry) {
-        TypeName fieldTypeName = parcelableEntry.fieldTypeEntry().getTypeName();
-        if(ClassName.class == fieldTypeName.getClass()){
-            // TODO: 2019-06-21 wangjie 判断不够严谨
-            return parcelableEntry.isParcelable();
+    public boolean match(OOOTypeEntry typeEntry) {
+        TypeName fieldTypeName = typeEntry.getTypeName();
+        return ClassName.class == fieldTypeName.getClass();
+    }
+
+    @Override
+    public void read(MethodSpec.Builder methodBuilder, String statementPrefix, String fieldName, String fieldCode, OOOTypeEntry oooTypeEntry) {
+        if (ElementUtil.isSameType(oooTypeEntry.getTypeName(), String.class)) {
+            methodBuilder.addStatement(statementPrefix + fieldCode + " = parcel.readString()");
+        } else {
+            methodBuilder.addStatement(statementPrefix + fieldCode + " = parcel.readParcelable(" + ClassName.bestGuess(oooTypeEntry.getTypeName().toString()).simpleName() + ".class.getClassLoader())");
         }
-        return false;
     }
 
     @Override
-    public void read(MethodSpec.Builder methodBuilder, String fieldName, OOOTypeEntry oooTypeEntry) {
-        methodBuilder.addStatement("this." + fieldName + " = parcel.readParcelable(" + ClassName.bestGuess(oooTypeEntry.getTypeName().toString()).simpleName() + ".class.getClassLoader())");
-    }
+    public void write(MethodSpec.Builder methodBuilder, String statementPrefix, String fieldName, String fieldCode, OOOTypeEntry oooTypeEntry) {
+        if (ElementUtil.isSameType(oooTypeEntry.getTypeName(), String.class)) {
+            methodBuilder.addStatement(statementPrefix + "dest.writeString(" + fieldCode + ")");
+        } else {
+            methodBuilder.addStatement(statementPrefix + "dest.writeValue(" + fieldCode + ")");
+        }
 
-    @Override
-    public void write(MethodSpec.Builder methodBuilder, String fieldName, OOOTypeEntry oooTypeEntry) {
-        methodBuilder.addStatement("dest.writeValue(this." + fieldName + ")");
     }
 }

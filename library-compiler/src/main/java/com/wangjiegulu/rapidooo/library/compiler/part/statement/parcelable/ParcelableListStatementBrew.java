@@ -6,7 +6,6 @@ import com.wangjiegulu.rapidooo.library.compiler.RapidOOOConstants;
 import com.wangjiegulu.rapidooo.library.compiler.oooentry.type.OOOListTypeEntry;
 import com.wangjiegulu.rapidooo.library.compiler.oooentry.type.OOOTypeEntry;
 import com.wangjiegulu.rapidooo.library.compiler.part.statement.contact.IParcelableStatementBrew;
-import com.wangjiegulu.rapidooo.library.compiler.part.statement.contact.ParcelableEntry;
 import com.wangjiegulu.rapidooo.library.compiler.util.ElementUtil;
 import com.wangjiegulu.rapidooo.library.compiler.util.LogUtil;
 import com.wangjiegulu.rapidooo.library.compiler.util.TextUtil;
@@ -16,42 +15,42 @@ import com.wangjiegulu.rapidooo.library.compiler.util.TextUtil;
  */
 public class ParcelableListStatementBrew implements IParcelableStatementBrew {
     @Override
-    public boolean match(ParcelableEntry parcelableEntry) {
-        return parcelableEntry.fieldTypeEntry().isList();
+    public boolean match(OOOTypeEntry typeEntry) {
+        return typeEntry.isList();
     }
 
     @Override
-    public void read(MethodSpec.Builder methodBuilder, String fieldName, OOOTypeEntry oooTypeEntry) {
+    public void read(MethodSpec.Builder methodBuilder, String statementPrefix, String fieldName, String fieldCode, OOOTypeEntry oooTypeEntry) {
         TypeName argumentType = ((OOOListTypeEntry) oooTypeEntry).getArgumentType();
         // java.util.List<#id__ChatBO>
         if (ElementUtil.isParcelableType(argumentType)) {
-            methodBuilder.addStatement("this." + fieldName + " = parcel.createTypedArrayList($T.CREATOR)", argumentType);
+            methodBuilder.addStatement(statementPrefix + fieldCode + " = parcel.createTypedArrayList($T.CREATOR)", argumentType);
         } else { // java.util.List<java.lang.String>
             if (TextUtil.equals(argumentType.toString(), String.class.getCanonicalName())) {
-                methodBuilder.addStatement("this." + fieldName + " = parcel.createStringArrayList()");
+                methodBuilder.addStatement(statementPrefix + fieldCode + " = parcel.createStringArrayList()");
             } else if (TextUtil.equals(argumentType.toString(), RapidOOOConstants.CLASS_NAME_IBINDER)) {
-                methodBuilder.addStatement("this." + fieldName + " = parcel.createBinderArrayList()");
+                methodBuilder.addStatement(statementPrefix + fieldCode + " = parcel.createBinderArrayList()");
             } else {
-                methodBuilder.addStatement("parcel.readList(this." + fieldName + ", $T.class.getClassLoader())", argumentType);
+                methodBuilder.addStatement("parcel.readList(" + fieldCode + ", $T.class.getClassLoader())", argumentType);
                 LogUtil.logger("[WARN]Unable parcelable type of list argument: " + argumentType);
             }
         }
     }
 
     @Override
-    public void write(MethodSpec.Builder methodBuilder, String fieldName, OOOTypeEntry oooTypeEntry) {
+    public void write(MethodSpec.Builder methodBuilder, String statementPrefix, String fieldName, String fieldCode, OOOTypeEntry oooTypeEntry) {
         TypeName argumentType = ((OOOListTypeEntry) oooTypeEntry).getArgumentType();
         // java.util.List<#id__ChatBO>
         if (ElementUtil.isParcelableType(argumentType)) {
-            methodBuilder.addStatement("dest.writeTypedList(this." + fieldName + ")", argumentType);
+            methodBuilder.addStatement(statementPrefix + "dest.writeTypedList(" + fieldCode + ")", argumentType);
         } else { // java.util.List<java.lang.String>
             if (TextUtil.equals(argumentType.toString(), String.class.getCanonicalName())) {
-                methodBuilder.addStatement("dest.writeStringList(this." + fieldName + ")", argumentType);
+                methodBuilder.addStatement(statementPrefix + "dest.writeStringList(" + fieldCode + ")", argumentType);
             } else if (TextUtil.equals(argumentType.toString(), RapidOOOConstants.CLASS_NAME_IBINDER)) {
-                methodBuilder.addStatement("dest.writeBinderList(this." + fieldName + ")", argumentType);
+                methodBuilder.addStatement(statementPrefix + "dest.writeBinderList(" + fieldCode + ")", argumentType);
             } else {
                 LogUtil.logger("[WARN]Unable parcelable type of list argument: " + argumentType);
-                methodBuilder.addStatement("dest.writeList(this." + fieldName + ")");
+                methodBuilder.addStatement(statementPrefix + "dest.writeList(" + fieldCode + ")");
             }
         }
     }

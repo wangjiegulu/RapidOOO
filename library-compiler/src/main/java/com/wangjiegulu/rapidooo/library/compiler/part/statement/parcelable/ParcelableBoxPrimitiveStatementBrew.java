@@ -4,7 +4,7 @@ import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeName;
 import com.wangjiegulu.rapidooo.library.compiler.oooentry.type.OOOTypeEntry;
 import com.wangjiegulu.rapidooo.library.compiler.part.statement.contact.IParcelableStatementBrew;
-import com.wangjiegulu.rapidooo.library.compiler.part.statement.contact.ParcelableEntry;
+import com.wangjiegulu.rapidooo.library.compiler.util.LogUtil;
 
 import java.util.HashMap;
 
@@ -26,8 +26,9 @@ public class ParcelableBoxPrimitiveStatementBrew implements IParcelableStatement
     }
 
     @Override
-    public boolean match(ParcelableEntry parcelableEntry) {
-        TypeName fieldTypeName = parcelableEntry.fieldTypeEntry().getTypeName();
+    public boolean match(OOOTypeEntry typeEntry) {
+        TypeName fieldTypeName = typeEntry.getTypeName();
+        LogUtil.logger("fieldTypeName.isBoxedPrimitive(): " + fieldTypeName.isBoxedPrimitive() + ", " + fieldTypeName);
         if(fieldTypeName.isBoxedPrimitive()){
             TypeName _fieldTypeName = fieldTypeName.unbox();
             return primitiveMap.containsKey(_fieldTypeName);
@@ -36,13 +37,13 @@ public class ParcelableBoxPrimitiveStatementBrew implements IParcelableStatement
     }
 
     @Override
-    public void read(MethodSpec.Builder methodBuilder, String fieldName, OOOTypeEntry oooTypeEntry) {
+    public void read(MethodSpec.Builder methodBuilder, String statementPrefix, String fieldName, String fieldCode, OOOTypeEntry oooTypeEntry) {
         String name = primitiveMap.get(oooTypeEntry.getTypeName().unbox());
-        methodBuilder.addStatement("this." + fieldName + " = (" + name + ") parcel.readValue(" + name + ".class.getClassLoader())");
+        methodBuilder.addStatement(statementPrefix + fieldCode + " = (" + name + ") parcel.readValue(" + name + ".class.getClassLoader())");
     }
 
     @Override
-    public void write(MethodSpec.Builder methodBuilder, String fieldName, OOOTypeEntry oooTypeEntry) {
-        methodBuilder.addStatement("dest.writeValue(this." + fieldName + ")");
+    public void write(MethodSpec.Builder methodBuilder, String statementPrefix, String fieldName, String fieldCode, OOOTypeEntry oooTypeEntry) {
+        methodBuilder.addStatement(statementPrefix + "dest.writeValue(" + fieldCode + ")");
     }
 }

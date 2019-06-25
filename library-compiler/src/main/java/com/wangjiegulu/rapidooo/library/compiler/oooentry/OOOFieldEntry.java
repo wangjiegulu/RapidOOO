@@ -3,7 +3,6 @@ package com.wangjiegulu.rapidooo.library.compiler.oooentry;
 import com.squareup.javapoet.TypeName;
 import com.wangjiegulu.rapidooo.library.compiler.oooentry.type.OOOTypeEntry;
 import com.wangjiegulu.rapidooo.library.compiler.oooentry.type.OOOTypeEntryFactory;
-import com.wangjiegulu.rapidooo.library.compiler.part.statement.contact.ParcelableEntry;
 import com.wangjiegulu.rapidooo.library.compiler.util.EasyType;
 import com.wangjiegulu.rapidooo.library.compiler.util.ElementUtil;
 import com.wangjiegulu.rapidooo.library.compiler.util.LogUtil;
@@ -17,7 +16,7 @@ import javax.lang.model.element.Modifier;
 /**
  * Author: wangjie Email: tiantian.china.2@gmail.com Date: 2019-06-12.
  */
-public class OOOFieldEntry implements IOOOVariable, ParcelableEntry {
+public class OOOFieldEntry implements IOOOVariable{
     private TypeName typeName;
     private String simpleName;
     private Modifier[] modifiers;
@@ -66,7 +65,6 @@ public class OOOFieldEntry implements IOOOVariable, ParcelableEntry {
         return oooTypeEntry;
     }
 
-    @Override
     public boolean isParcelable() {
         return parcelable;
     }
@@ -80,10 +78,6 @@ public class OOOFieldEntry implements IOOOVariable, ParcelableEntry {
         return simpleName;
     }
 
-    @Override
-    public OOOTypeEntry fieldTypeEntry() {
-        return oooTypeEntry;
-    }
 
     @Override
     public String inputCode() {

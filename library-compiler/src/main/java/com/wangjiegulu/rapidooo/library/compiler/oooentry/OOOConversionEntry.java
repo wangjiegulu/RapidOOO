@@ -9,7 +9,6 @@ import com.wangjiegulu.rapidooo.api.OOOConversion;
 import com.wangjiegulu.rapidooo.library.compiler.exception.RapidOOOCompileException;
 import com.wangjiegulu.rapidooo.library.compiler.oooentry.type.OOOTypeEntry;
 import com.wangjiegulu.rapidooo.library.compiler.oooentry.type.OOOTypeEntryFactory;
-import com.wangjiegulu.rapidooo.library.compiler.part.statement.contact.ParcelableEntry;
 import com.wangjiegulu.rapidooo.library.compiler.util.AnnoUtil;
 import com.wangjiegulu.rapidooo.library.compiler.util.ElementUtil;
 import com.wangjiegulu.rapidooo.library.compiler.util.LogicUtil;
@@ -34,7 +33,7 @@ import javax.lang.model.type.TypeMirror;
 /**
  * Author: wangjie Email: tiantian.china.2@gmail.com Date: 2019-06-12.
  */
-public class OOOConversionEntry implements IOOOVariable, ParcelableEntry {
+public class OOOConversionEntry implements IOOOVariable {
     private OOOEntry oooEntry;
     private OOOConversion oooConversion;
 
@@ -447,7 +446,6 @@ public class OOOConversionEntry implements IOOOVariable, ParcelableEntry {
 //        return oooTargetFieldTypeEntry.getTypeName();
     }
 
-    @Override
     public boolean isParcelable() {
         return parcelable;
     }
@@ -459,11 +457,6 @@ public class OOOConversionEntry implements IOOOVariable, ParcelableEntry {
     @Override
     public String fieldName() {
         return targetFieldName;
-    }
-
-    @Override
-    public OOOTypeEntry fieldTypeEntry() {
-        return oooTargetFieldTypeEntry;
     }
 
     @Override

@@ -1,45 +1,83 @@
 package com.wangjiegulu.rapidooo.library.compiler.part.statement.parcelable;
 
 import com.squareup.javapoet.MethodSpec;
+import com.squareup.javapoet.TypeName;
 import com.wangjiegulu.rapidooo.library.compiler.oooentry.type.OOOMapTypeEntry;
 import com.wangjiegulu.rapidooo.library.compiler.oooentry.type.OOOTypeEntry;
+import com.wangjiegulu.rapidooo.library.compiler.oooentry.type.OOOTypeEntryFactory;
 import com.wangjiegulu.rapidooo.library.compiler.part.statement.contact.IParcelableStatementBrew;
-import com.wangjiegulu.rapidooo.library.compiler.part.statement.contact.ParcelableEntry;
+import com.wangjiegulu.rapidooo.library.compiler.util.ElementUtil;
 
 /**
  * Author: wangjie Email: tiantian.china.2@gmail.com Date: 2019-06-18.
  */
 public class ParcelableMapStatementBrew implements IParcelableStatementBrew {
     @Override
-    public boolean match(ParcelableEntry parcelableEntry) {
-        return parcelableEntry.fieldTypeEntry().isMap();
+    public boolean match(OOOTypeEntry typeEntry) {
+        return typeEntry.isMap();
     }
 
     @Override
-    public void read(MethodSpec.Builder methodBuilder, String fieldName, OOOTypeEntry oooTypeEntry) {
-//        int scoreMapSize = in.readInt();
-//        this.scoreMap = new HashMap<String, Integer>(scoreMapSize);
-//        for (int i = 0; i < scoreMapSize; i++) {
-//            String key = in.readString();
-//            Integer value = (Integer) in.readValue(Integer.class.getClassLoader());
-//            this.scoreMap.put(key, value);
-//        }
-
-        // TODO: 2019-06-25 wangjie
+    public void read(MethodSpec.Builder methodBuilder, String statementPrefix, String fieldName, String fieldCode, OOOTypeEntry oooTypeEntry) {
         OOOMapTypeEntry mapTypeEntry = (OOOMapTypeEntry) oooTypeEntry;
+
+        TypeName keyTypeName = mapTypeEntry.getKeyTypeName();
+        TypeName valueTypeName = mapTypeEntry.getValueTypeName();
 
         String mapSizeFieldName = fieldName + "Size";
         methodBuilder.addCode("int " + mapSizeFieldName + " = parcel.readInt();\n" +
-                        "this." + fieldName + " = new HashMap<>(" + mapSizeFieldName + ");\n" +
-                        "for (int i = 0; i < " + mapSizeFieldName + "; i++) {\n");
-        methodBuilder.addCode("");
-        methodBuilder.addCode("    this." + fieldName + ".put(key, value);\n}\n");
+                fieldCode + " = new $T<$T, $T>(" + (mapTypeEntry.isHashMap() ? mapSizeFieldName : "") + ");\n" +
+                "for (int i = 0; i < " + mapSizeFieldName + "; i++) {\n", mapTypeEntry.getRawType(), keyTypeName, valueTypeName);
+        OOOTypeEntry keyTypeEntry = OOOTypeEntryFactory.create(keyTypeName);
+        OOOTypeEntry valueTypeEntry = OOOTypeEntryFactory.create(valueTypeName);
 
+        boolean keyMatched = false;
+        boolean valueMatched = false;
+        for (IParcelableStatementBrew parcelableStatementBrew : ParcelableStatementUtil.parcelableStatementBrews) {
+            if (!keyMatched && parcelableStatementBrew.match(keyTypeEntry)) {
+                parcelableStatementBrew.read(methodBuilder, "    " + ElementUtil.getSimpleName(keyTypeEntry.getTypeName()) + " ", "", "key", keyTypeEntry);
+                keyMatched = true;
+            }
+            if (!valueMatched && parcelableStatementBrew.match(valueTypeEntry)) {
+                parcelableStatementBrew.read(methodBuilder, "    " + ElementUtil.getSimpleName(valueTypeEntry.getTypeName()) + " ", "", "value", valueTypeEntry);
+                valueMatched = true;
+            }
+            if (keyMatched && valueMatched) {
+                break;
+            }
+        }
+        methodBuilder.addCode("    " + fieldCode + ".put(key, value);\n}\n");
     }
 
 
     @Override
-    public void write(MethodSpec.Builder methodBuilder, String fieldName, OOOTypeEntry oooTypeEntry) {
+    public void write(MethodSpec.Builder methodBuilder, String statementPrefix, String fieldName, String fieldCode, OOOTypeEntry oooTypeEntry) {
+        OOOMapTypeEntry mapTypeEntry = (OOOMapTypeEntry) oooTypeEntry;
 
+        TypeName keyTypeName = mapTypeEntry.getKeyTypeName();
+        TypeName valueTypeName = mapTypeEntry.getValueTypeName();
+
+        methodBuilder.addStatement("dest.writeInt(this." + fieldName + ".size())");
+        methodBuilder.addCode("for (Map.Entry<$T, $T> entry : this." + fieldName + ".entrySet()) {\n", keyTypeName, valueTypeName);
+
+        OOOTypeEntry keyTypeEntry = OOOTypeEntryFactory.create(keyTypeName);
+        OOOTypeEntry valueTypeEntry = OOOTypeEntryFactory.create(valueTypeName);
+
+        boolean keyMatched = false;
+        boolean valueMatched = false;
+        for (IParcelableStatementBrew parcelableStatementBrew : ParcelableStatementUtil.parcelableStatementBrews) {
+            if (!keyMatched && parcelableStatementBrew.match(keyTypeEntry)) {
+                parcelableStatementBrew.write(methodBuilder, "    ", "", "entry.getKey()", keyTypeEntry);
+                keyMatched = true;
+            }
+            if (!valueMatched && parcelableStatementBrew.match(valueTypeEntry)) {
+                parcelableStatementBrew.write(methodBuilder, "    ", "", "entry.getValue()", valueTypeEntry);
+                valueMatched = true;
+            }
+            if (keyMatched && valueMatched) {
+                break;
+            }
+        }
+        methodBuilder.addCode("}\n");
     }
 }

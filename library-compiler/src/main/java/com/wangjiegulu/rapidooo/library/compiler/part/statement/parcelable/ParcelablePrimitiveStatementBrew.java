@@ -4,7 +4,6 @@ import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeName;
 import com.wangjiegulu.rapidooo.library.compiler.oooentry.type.OOOTypeEntry;
 import com.wangjiegulu.rapidooo.library.compiler.part.statement.contact.IParcelableStatementBrew;
-import com.wangjiegulu.rapidooo.library.compiler.part.statement.contact.ParcelableEntry;
 import com.wangjiegulu.rapidooo.library.compiler.util.TextUtil;
 
 import java.util.HashMap;
@@ -27,39 +26,39 @@ public class ParcelablePrimitiveStatementBrew implements IParcelableStatementBre
     }
 
     @Override
-    public boolean match(ParcelableEntry parcelableEntry) {
-        TypeName fieldTypeName = parcelableEntry.fieldTypeEntry().getTypeName();
+    public boolean match(OOOTypeEntry typeEntry) {
+        TypeName fieldTypeName = typeEntry.getTypeName();
         return fieldTypeName.isPrimitive() && primitiveMap.containsKey(fieldTypeName);
     }
 
     @Override
-    public void read(MethodSpec.Builder methodBuilder, String fieldName, OOOTypeEntry oooTypeEntry) {
+    public void read(MethodSpec.Builder methodBuilder, String statementPrefix, String fieldName, String fieldCode, OOOTypeEntry oooTypeEntry) {
         TypeName fieldTypeName = oooTypeEntry.getTypeName();
         String name = primitiveMap.get(fieldTypeName);
         if (TypeName.BOOLEAN == fieldTypeName) {
-            methodBuilder.addStatement("this." + fieldName + " = parcel.readByte() != 0");
+            methodBuilder.addStatement(statementPrefix + fieldCode + " = parcel.readByte() != 0");
         } else if(TypeName.SHORT == fieldTypeName){
-            methodBuilder.addStatement("this." + fieldName + " = (short) parcel.readInt()");
+            methodBuilder.addStatement(statementPrefix + fieldCode + " = (short) parcel.readInt()");
         } else if(TypeName.CHAR == fieldTypeName){
-            methodBuilder.addStatement("this." + fieldName + " = (char) parcel.readInt()");
+            methodBuilder.addStatement(statementPrefix + fieldCode + " = (char) parcel.readInt()");
         } else {
-            methodBuilder.addStatement("this." + fieldName + " = parcel.read" + TextUtil.firstCharUpper(name) + "()");
+            methodBuilder.addStatement(statementPrefix + fieldCode + " = parcel.read" + TextUtil.firstCharUpper(name) + "()");
         }
     }
 
     @Override
-    public void write(MethodSpec.Builder methodBuilder, String fieldName, OOOTypeEntry oooTypeEntry) {
+    public void write(MethodSpec.Builder methodBuilder, String statementPrefix, String fieldName, String fieldCode, OOOTypeEntry oooTypeEntry) {
         TypeName fieldTypeName = oooTypeEntry.getTypeName();
         String name = primitiveMap.get(fieldTypeName);
 
         if (TypeName.SHORT == fieldTypeName ||
                 TypeName.CHAR == fieldTypeName
         ) {
-            methodBuilder.addStatement("dest.writeInt(this." + fieldName + ")");
+            methodBuilder.addStatement(statementPrefix + "dest.writeInt(" + fieldCode + ")");
         } else if (TypeName.BOOLEAN == fieldTypeName) {
-            methodBuilder.addStatement("dest.writeByte(this." + fieldName + " ? (byte) 1 : (byte) 0)");
+            methodBuilder.addStatement(statementPrefix + "dest.writeByte(" + fieldCode + " ? (byte) 1 : (byte) 0)");
         } else {
-            methodBuilder.addStatement("dest.write" + TextUtil.firstCharUpper(name) + "(this." + fieldName + ")");
+            methodBuilder.addStatement(statementPrefix + "dest.write" + TextUtil.firstCharUpper(name) + "(" + fieldCode + ")");
         }
     }
 }

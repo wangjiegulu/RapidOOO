@@ -12,18 +12,12 @@ import com.wangjiegulu.rapidooo.library.compiler.oooentry.OOOEntry;
 import com.wangjiegulu.rapidooo.library.compiler.oooentry.OOOFieldEntry;
 import com.wangjiegulu.rapidooo.library.compiler.part.PartBrew;
 import com.wangjiegulu.rapidooo.library.compiler.part.statement.contact.IParcelableStatementBrew;
-import com.wangjiegulu.rapidooo.library.compiler.part.statement.parcelable.ParcelableArrayStatementBrew;
-import com.wangjiegulu.rapidooo.library.compiler.part.statement.parcelable.ParcelableBoxPrimitiveStatementBrew;
-import com.wangjiegulu.rapidooo.library.compiler.part.statement.parcelable.ParcelableListStatementBrew;
-import com.wangjiegulu.rapidooo.library.compiler.part.statement.parcelable.ParcelableObjectStatementBrew;
-import com.wangjiegulu.rapidooo.library.compiler.part.statement.parcelable.ParcelablePrimitiveStatementBrew;
+import com.wangjiegulu.rapidooo.library.compiler.part.statement.parcelable.ParcelableStatementUtil;
 import com.wangjiegulu.rapidooo.library.compiler.util.EasyType;
 import com.wangjiegulu.rapidooo.library.compiler.util.ElementUtil;
 import com.wangjiegulu.rapidooo.library.compiler.util.LogUtil;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 import javax.lang.model.element.Modifier;
@@ -34,16 +28,6 @@ import javax.lang.model.type.TypeMirror;
  */
 public class InterfacePartBrew implements PartBrew {
 
-    private static List<IParcelableStatementBrew> parcelableStatementBrews = new ArrayList<>();
-
-    static {
-        parcelableStatementBrews.add(new ParcelablePrimitiveStatementBrew());
-        parcelableStatementBrews.add(new ParcelableBoxPrimitiveStatementBrew());
-        parcelableStatementBrews.add(new ParcelableObjectStatementBrew());
-        parcelableStatementBrews.add(new ParcelableListStatementBrew());
-        parcelableStatementBrews.add(new ParcelableArrayStatementBrew());
-//        parcelableStatementBrews.add(new ParcelableMapStatementBrew());
-    }
     public InterfacePartBrew() {
 
     }
@@ -120,12 +104,12 @@ public class InterfacePartBrew implements PartBrew {
 
             if(fieldEntry.isParcelable()){
                 String fieldName = fieldEntry.getSimpleName();
-                for(IParcelableStatementBrew parcelableStatementBrew : parcelableStatementBrews){
+                for(IParcelableStatementBrew parcelableStatementBrew : ParcelableStatementUtil.parcelableStatementBrews){
 //                    TypeName fieldTypeName = fieldEntry.getTypeName();
 //                    LogUtil.logger("[fieldTypeName]" + fieldTypeName.getClass() + ", " + fieldTypeName);
-                    if(parcelableStatementBrew.match(fieldEntry)){
-                        parcelableStatementBrew.read(parcelConstructorMethodBuilder, fieldName, fieldEntry.getOooTypeEntry());
-                        parcelableStatementBrew.write(writeToParcelMethod, fieldName, fieldEntry.getOooTypeEntry());
+                    if(parcelableStatementBrew.match(fieldEntry.getOooTypeEntry())){
+                        parcelableStatementBrew.read(parcelConstructorMethodBuilder, "", fieldName, "this." + fieldName, fieldEntry.getOooTypeEntry());
+                        parcelableStatementBrew.write(writeToParcelMethod, "", fieldName, "this." + fieldName, fieldEntry.getOooTypeEntry());
                         break;
                     }
                 }
@@ -136,10 +120,10 @@ public class InterfacePartBrew implements PartBrew {
             OOOConversionEntry conversionEntry = conversionFieldE.getValue();
             if(conversionEntry.isParcelable()){
                 String fieldName = conversionEntry.getTargetFieldName();
-                for(IParcelableStatementBrew parcelableStatementBrew : parcelableStatementBrews){
-                    if(parcelableStatementBrew.match(conversionEntry)){
-                        parcelableStatementBrew.read(parcelConstructorMethodBuilder, fieldName, conversionEntry.getTargetFieldTypeEntry());
-                        parcelableStatementBrew.write(writeToParcelMethod, fieldName, conversionEntry.getTargetFieldTypeEntry());
+                for(IParcelableStatementBrew parcelableStatementBrew : ParcelableStatementUtil.parcelableStatementBrews){
+                    if(parcelableStatementBrew.match(conversionEntry.getTargetFieldTypeEntry())){
+                        parcelableStatementBrew.read(parcelConstructorMethodBuilder, "", fieldName, "this." + fieldName, conversionEntry.getTargetFieldTypeEntry());
+                        parcelableStatementBrew.write(writeToParcelMethod, "", fieldName, "this." + fieldName, conversionEntry.getTargetFieldTypeEntry());
                         break;
                     }
                 }

@@ -107,6 +107,9 @@ public class ElementUtil {
     public static boolean isSameType(TypeName type1, TypeName type2) {
         return equals(type1.toString(), type2.toString());
     }
+    public static boolean isSameType(TypeName type1, Class type2) {
+        return equals(type1.toString(), type2.getCanonicalName());
+    }
 
     public static boolean isSameSimpleType(TypeName type1, TypeName type2) {
         return equals(getSimpleName(type1), getSimpleName(type2));
@@ -229,6 +232,7 @@ public class ElementUtil {
     }
 
     public static boolean isParcelable(Element field) {
+        LogUtil.logger("[isParcelable]: " + field);
         LogUtil.logger("[isParcelable]: " + field + ", " + field.asType());
         return isParcelable(field.asType());
     }
@@ -246,6 +250,7 @@ public class ElementUtil {
             }
         } else if(isAssignable(fieldType, Map.class)){
             List<TypeName> typeParameters = ((ParameterizedTypeName)typeName).typeArguments;
+            LogUtil.logger("[isParcelable] map typeParameters: " + typeParameters);
             if(typeParameters.size() == 2){
                 return isParcelable(GlobalEnvironment.getTypeElement(typeParameters.get(0).toString()))
                         && isParcelable(GlobalEnvironment.getTypeElement(typeParameters.get(1).toString()));

@@ -1,6 +1,7 @@
 package com.wangjiegulu.rapidooo.library.compiler.oooentry.type;
 
 import com.squareup.javapoet.TypeName;
+import com.wangjiegulu.rapidooo.library.compiler.exception.RapidOOOCompileException;
 import com.wangjiegulu.rapidooo.library.compiler.util.EasyType;
 import com.wangjiegulu.rapidooo.library.compiler.util.func.Func1R;
 
@@ -33,7 +34,7 @@ public class OOOTypeEntryFactory {
                 return entry.getValue().call(idExp);
             }
         }
-        return null;
+        throw new RapidOOOCompileException("ERROR! \nInOOOTypeEntry::create, idExp: " + idExp);
     }
 
     public static OOOTypeEntry create(TypeName typeName){
@@ -42,6 +43,6 @@ public class OOOTypeEntryFactory {
                 return entry.getValue().call(typeName);
             }
         }
-        return null;
+        throw new RapidOOOCompileException("ERROR! \nInOOOTypeEntry::create, typeName: " + typeName);
     }
 }
