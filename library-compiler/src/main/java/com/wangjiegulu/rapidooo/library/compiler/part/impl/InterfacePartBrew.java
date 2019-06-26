@@ -62,7 +62,7 @@ public class InterfacePartBrew implements PartBrew {
         }
 
         String targetClassSimpleName = oooEntry.getTargetClassSimpleName();
-        FieldSpec.Builder fieldSpec = FieldSpec.builder(EasyType.bestGuessDeep2(RapidOOOConstants.CLASS_NAME_PARCELABLE + ".Creator<" + targetClassSimpleName + ">"), "CREATOR", Modifier.STATIC, Modifier.PUBLIC)
+        FieldSpec.Builder fieldSpec = FieldSpec.builder(EasyType.parseTypeName(RapidOOOConstants.CLASS_NAME_PARCELABLE + ".Creator<" + targetClassSimpleName + ">"), "CREATOR", Modifier.STATIC, Modifier.PUBLIC)
                 .initializer("new Parcelable.Creator<" + targetClassSimpleName + ">() {\n" +
                         "        @Override\n" +
                         "        public " + targetClassSimpleName + " createFromParcel($T source) {\n" +

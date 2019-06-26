@@ -148,7 +148,7 @@ public class OOOEntry {
                 (AnnoUtil.oooParamIsNotSet(fromSuffix) ? fromSimpleName : fromSimpleName.substring(0, fromSimpleName.length() - fromSuffix.length()))
                         + suffix;
 
-        targetClassType = EasyType.bestGuess(targetClassPackage + "." + targetClassSimpleName);
+        targetClassType = EasyType.parseTypeName(targetClassPackage + "." + targetClassSimpleName);
 
         // All fields need to add to target new Class
         List<? extends Element> eles = fromElement.getEnclosedElements();
