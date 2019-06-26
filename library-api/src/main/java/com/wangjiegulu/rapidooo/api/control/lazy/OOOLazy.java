@@ -44,5 +44,8 @@ public class OOOLazy<T> {
         return result;
     }
 
+    public boolean isInitialized(){
+        return null != instance;
+    }
 
 }

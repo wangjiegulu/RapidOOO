@@ -8,6 +8,7 @@ import com.wangjiegulu.rapidooo.api.OOOConversion;
 import com.wangjiegulu.rapidooo.api.OOOs;
 import com.wangjiegulu.rapidooo.api.control.OOOLazyControlDelegate;
 import com.wangjiegulu.rapidooo.api.control.OOONewThreadControlDelegate;
+import com.wangjiegulu.rapidooo.api.control.lazy.OOOLazy;
 import com.wangjiegulu.rapidooo.depmodule.bll.demo.ChatBO;
 import com.wangjiegulu.rapidooo.depmodule.bll.demo.MessageBO;
 import com.wangjiegulu.rapidooo.depmodule.bll.demo.UserBO;
@@ -125,15 +126,15 @@ public class DemoVOGenerator {
     }
 
     public static MediaPlayer conversionLazyVideo(MessageVO self, String videoUrl){
-        MediaPlayer mediaPlayer = self.getVideoPlayer();
-        if(null != mediaPlayer){
-            mediaPlayer.stop();
-            mediaPlayer.release();
+        OOOLazy<MediaPlayer> lazyMediaPlayer = self.getLazyVideoPlayer();
+        if(lazyMediaPlayer.isInitialized()){
+            lazyMediaPlayer.get().stop();
+            lazyMediaPlayer.get().release();
         }
         if(null == videoUrl){
-            return mediaPlayer;
+            return null;
         }
-        mediaPlayer = new MediaPlayer();
+        MediaPlayer mediaPlayer = new MediaPlayer();
         try {
             mediaPlayer.setDataSource(videoUrl);
         } catch (IOException e) {
