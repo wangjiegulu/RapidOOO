@@ -49,29 +49,19 @@ public class ToMethodObjectStatementBrew implements IToMethodStatementBrew {
 
             OOOEntry temp = OOOSEntry.queryTypeById(conversionEntry.getTargetFieldTypeId());
 
+//            toFromMethod.addStatement(
+//                    fromParamName + "." + getterSetterMethodNames.getSetterMethodName() + "(" + conversionEntry.fieldName() + ".to" + temp.getFromSimpleName() + "())",
+//                    conversionEntry.getConversionMethodClassType()
+//            );
+
             toFromMethod.addStatement(
-                    fromParamName + "." + getterSetterMethodNames.getSetterMethodName() + "(" + conversionEntry.fieldName() + ".to" + temp.getFromSimpleName() + "())",
+                    fromParamName + "." + getterSetterMethodNames.getSetterMethodName() + "(null == " + conversionEntry.fieldName() + " ? null : " + conversionEntry.fieldName() + ".to" + temp.getFromSimpleName() + "())",
                     conversionEntry.getConversionMethodClassType()
             );
+
         } else { // String.class
             toFromMethod.addStatement(fromParamName + "." + getterSetterMethodNames.getSetterMethodName() + "(" + conversionEntry.getTargetFieldName() + ")");
         }
     }
 
-//    private void buildConversionStatement(MethodSpec.Builder toFromMethod, OOOConversionEntry conversionEntry) {
-//        if (conversionEntry.isInverseConversionMethodSet()) {
-//            toFromMethod.addComment(conversionEntry.getTargetFieldName() + ", " + conversionEntry.getControlMode().getDesc() + ", " + this.getClass().getSimpleName());
-//
-//            String paramsStr = TextUtil.joinHashMap(conversionEntry.getInverseConversionTargetParamFields(), ", ", new Func1R<IOOOVariable, String>() {
-//                @Override
-//                public String call(IOOOVariable ioooTargetVariable) {
-//                    return ioooTargetVariable.inputCode();
-//                }
-//            });
-//            toFromMethod.addStatement(
-//                    "$T." + conversionEntry.getInverseConversionMethodName() + "(" + paramsStr + ")",
-//                    conversionEntry.getConversionMethodClassType()
-//            );
-//        }
-//    }
 }

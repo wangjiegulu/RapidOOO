@@ -57,11 +57,11 @@ public class ToMethodListStatementBrew implements IToMethodStatementBrew {
             String attachFieldName = conversionEntry.getAttachFieldName() + "_";
             toFromMethod.addStatement("List<$T> " + attachFieldName, temp.getFromTypeName());
             toFromMethod.addCode(
-                    "if(null == " + conversionEntry.getTargetFieldName() + "){\n" +
+                    "if(null == this." + conversionEntry.getTargetFieldName() + "){\n" +
                             "  " + attachFieldName + " = null;\n" +
                             "} else {\n" +
                             "  " + attachFieldName + " = new $T<>();\n" +
-                            "  for($T item : " + conversionEntry.getTargetFieldName() + "){\n" +
+                            "  for($T item : this." + conversionEntry.getTargetFieldName() + "){\n" +
                             "    " + attachFieldName + ".add(item.to$T());\n" +
                             "  }\n" +
                             "}\n" +
