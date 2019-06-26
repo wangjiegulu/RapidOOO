@@ -52,4 +52,22 @@ public class PoetUtil {
                 .returns(void.class)
                 .addStatement("this." + fieldName + " = " + fieldName);
     }
+
+    /**
+     * Default extra getter method for Boolean field.
+     *
+     * public boolean getBot(boolean defaultValue) {
+     *   return null == isBot ? defaultValue : isBot;
+     * }
+     * @param fieldName
+     * @param getterSetterMethodNames
+     * @return
+     */
+    public static MethodSpec.Builder obtainExtraBooleanGetterMethodsBuilder(String fieldName, GetterSetterMethodNames getterSetterMethodNames) {
+        return MethodSpec.methodBuilder(getterSetterMethodNames.getGetterMethodName())
+                .addModifiers(Modifier.PUBLIC)
+                .addParameter(boolean.class, "defaultValue")
+                .returns(boolean.class)
+                .addStatement("return null == " + fieldName + " ? defaultValue : " + fieldName);
+    }
 }

@@ -5,14 +5,15 @@ import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeSpec;
 import com.wangjiegulu.rapidooo.api.OOOControlMode;
 import com.wangjiegulu.rapidooo.library.compiler.entry.GetterSetterMethodNames;
-import com.wangjiegulu.rapidooo.library.compiler.util.PoetUtil;
-import com.wangjiegulu.rapidooo.library.compiler.util.TextUtil;
-import com.wangjiegulu.rapidooo.library.compiler.util.func.Func1R;
-import com.wangjiegulu.rapidooo.library.compiler.variables.IOOOVariable;
 import com.wangjiegulu.rapidooo.library.compiler.oooentry.OOOConversionEntry;
 import com.wangjiegulu.rapidooo.library.compiler.oooentry.OOOEntry;
 import com.wangjiegulu.rapidooo.library.compiler.oooentry.OOOFieldEntry;
 import com.wangjiegulu.rapidooo.library.compiler.part.PartBrew;
+import com.wangjiegulu.rapidooo.library.compiler.util.ElementUtil;
+import com.wangjiegulu.rapidooo.library.compiler.util.PoetUtil;
+import com.wangjiegulu.rapidooo.library.compiler.util.TextUtil;
+import com.wangjiegulu.rapidooo.library.compiler.util.func.Func1R;
+import com.wangjiegulu.rapidooo.library.compiler.variables.IOOOVariable;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -75,6 +76,11 @@ public class FieldAndGetterSetterPartBrew implements PartBrew {
             }
             result.addMethod(setterMethodBuilder.build());
 
+            // Default extra getter method for Boolean field
+            if(ElementUtil.isSameType(fieldEntry.getTypeName(), Boolean.class)){
+                result.addMethod(PoetUtil.obtainExtraBooleanGetterMethodsBuilder(fieldEntry.getSimpleName(), getterSetterMethodNames).build());
+            }
+
         }
     }
 
@@ -117,6 +123,11 @@ public class FieldAndGetterSetterPartBrew implements PartBrew {
             }
             result.addMethod(setterMethodBuilder.build());
 
+            // Default extra getter method for Boolean field
+            if(ElementUtil.isSameType(conversionEntry.getTargetFieldType(), Boolean.class)){
+                result.addMethod(PoetUtil.obtainExtraBooleanGetterMethodsBuilder(conversionEntry.getTargetFieldName(), getterSetterMethodNames).build());
+            }
         }
     }
+
 }
