@@ -1,7 +1,7 @@
 package com.wangjiegulu.rapidooo.library.compiler.util;
 
 import com.wangjiegulu.rapidooo.library.compiler.exception.RapidOOOCompileException;
-import com.wangjiegulu.rapidooo.library.compiler.util.func.Func1R;
+import com.wangjiegulu.rapidooo.api.func.Func1R;
 
 import java.util.ArrayList;
 import java.util.List;

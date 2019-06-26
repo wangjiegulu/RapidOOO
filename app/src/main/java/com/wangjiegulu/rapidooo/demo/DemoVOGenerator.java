@@ -6,6 +6,8 @@ import android.text.SpannableString;
 import com.wangjiegulu.rapidooo.api.OOO;
 import com.wangjiegulu.rapidooo.api.OOOConversion;
 import com.wangjiegulu.rapidooo.api.OOOs;
+import com.wangjiegulu.rapidooo.api.control.OOOLazyControlDelegate;
+import com.wangjiegulu.rapidooo.api.control.OOONewThreadControlDelegate;
 import com.wangjiegulu.rapidooo.depmodule.bll.demo.ChatBO;
 import com.wangjiegulu.rapidooo.depmodule.bll.demo.MessageBO;
 import com.wangjiegulu.rapidooo.depmodule.bll.demo.UserBO;
@@ -40,6 +42,7 @@ import java.util.List;
                                 @OOOConversion(
                                         targetFieldName = "textSp",
                                         targetFieldType = SpannableString.class,
+                                        controlDelegate = OOONewThreadControlDelegate.class,
                                         bindMethodName = "bindTextSp",
                                         inverseBindMethodName = "inverseBindTextSp"
                                 ),
@@ -47,6 +50,14 @@ import java.util.List;
                                         targetFieldName = "videoPlayer",
                                         targetFieldType = MediaPlayer.class,
                                         conversionMethodName = "conversionVideo",
+                                        controlDelegate = OOONewThreadControlDelegate.class,
+                                        parcelable = false
+                                ),
+                                @OOOConversion(
+                                        targetFieldName = "lazyVideoPlayer",
+                                        targetFieldType = MediaPlayer.class,
+                                        conversionMethodName = "conversionLazyVideo",
+                                        controlDelegate = OOOLazyControlDelegate.class,
                                         parcelable = false
                                 ),
                                 @OOOConversion(
@@ -96,6 +107,24 @@ public class DemoVOGenerator {
         }
     }
     public static MediaPlayer conversionVideo(MessageVO self, String videoUrl){
+        MediaPlayer mediaPlayer = self.getVideoPlayer();
+        if(null != mediaPlayer){
+            mediaPlayer.stop();
+            mediaPlayer.release();
+        }
+        if(null == videoUrl){
+            return mediaPlayer;
+        }
+        mediaPlayer = new MediaPlayer();
+        try {
+            mediaPlayer.setDataSource(videoUrl);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return mediaPlayer;
+    }
+
+    public static MediaPlayer conversionLazyVideo(MessageVO self, String videoUrl){
         MediaPlayer mediaPlayer = self.getVideoPlayer();
         if(null != mediaPlayer){
             mediaPlayer.stop();

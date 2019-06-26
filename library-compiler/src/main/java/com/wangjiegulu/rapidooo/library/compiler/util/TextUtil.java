@@ -1,6 +1,6 @@
 package com.wangjiegulu.rapidooo.library.compiler.util;
 
-import com.wangjiegulu.rapidooo.library.compiler.util.func.Func1R;
+import com.wangjiegulu.rapidooo.api.func.Func1R;
 
 import java.lang.reflect.Array;
 import java.util.Collection;

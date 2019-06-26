@@ -14,7 +14,7 @@ import com.wangjiegulu.rapidooo.library.compiler.util.EasyType;
 import com.wangjiegulu.rapidooo.library.compiler.util.ElementUtil;
 import com.wangjiegulu.rapidooo.library.compiler.util.LogUtil;
 import com.wangjiegulu.rapidooo.library.compiler.util.TextUtil;
-import com.wangjiegulu.rapidooo.library.compiler.util.func.Func0R;
+import com.wangjiegulu.rapidooo.api.func.Func0R;
 
 import java.io.Serializable;
 import java.util.ArrayList;

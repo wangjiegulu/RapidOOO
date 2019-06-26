@@ -1,6 +1,8 @@
 package com.wangjiegulu.rapidooo.api;
 
 
+import com.wangjiegulu.rapidooo.api.control.OOOControlDelegate;
+
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -33,4 +35,5 @@ public @interface OOOConversion {
 
     // properties
     boolean parcelable() default true;
+    Class<? extends OOOControlDelegate> controlDelegate() default OOOControlDelegate.class;
 }

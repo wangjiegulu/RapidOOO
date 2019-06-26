@@ -6,6 +6,10 @@ import com.google.auto.common.MoreTypes;
 import com.squareup.javapoet.TypeName;
 import com.wangjiegulu.rapidooo.api.OOOControlMode;
 import com.wangjiegulu.rapidooo.api.OOOConversion;
+import com.wangjiegulu.rapidooo.api.control.OOOControlDelegate;
+import com.wangjiegulu.rapidooo.api.func.Func0R;
+import com.wangjiegulu.rapidooo.library.compiler.control.ControlDelegateSpec;
+import com.wangjiegulu.rapidooo.library.compiler.control.ControlDelegateUtil;
 import com.wangjiegulu.rapidooo.library.compiler.exception.RapidOOOCompileException;
 import com.wangjiegulu.rapidooo.library.compiler.oooentry.type.OOOTypeEntry;
 import com.wangjiegulu.rapidooo.library.compiler.oooentry.type.OOOTypeEntryFactory;
@@ -13,7 +17,6 @@ import com.wangjiegulu.rapidooo.library.compiler.util.AnnoUtil;
 import com.wangjiegulu.rapidooo.library.compiler.util.ElementUtil;
 import com.wangjiegulu.rapidooo.library.compiler.util.LogicUtil;
 import com.wangjiegulu.rapidooo.library.compiler.util.TextUtil;
-import com.wangjiegulu.rapidooo.library.compiler.util.func.Func0R;
 import com.wangjiegulu.rapidooo.library.compiler.variables.IOOOVariable;
 import com.wangjiegulu.rapidooo.library.compiler.variables.impl.OtherFieldVariable;
 import com.wangjiegulu.rapidooo.library.compiler.variables.impl.OtherObjectVariable;
@@ -40,7 +43,8 @@ public class OOOConversionEntry implements IOOOVariable {
     private String targetFieldName;
     //    private TypeName targetFieldType;
     private String targetFieldTypeId;
-    private OOOTypeEntry oooTargetFieldTypeEntry;
+    private OOOTypeEntry oooTargetFieldTypeEntry; // OOOLazy<MediaPlayer>       /       MediaPlayer
+    private OOOTypeEntry oooTargetFieldArgTypeEntry; // MediaPlayer             /       MediaPlayer
 
     // attach
     private String attachFieldName;
@@ -66,6 +70,7 @@ public class OOOConversionEntry implements IOOOVariable {
     private OOOControlMode controlMode;
 
     private boolean parcelable;
+    private TypeName controlDelegateTypeName;
 
     public OOOConversionEntry(OOOEntry oooEntry, final OOOConversion oooConversion) {
         this.oooEntry = oooEntry;
@@ -82,6 +87,12 @@ public class OOOConversionEntry implements IOOOVariable {
         targetFieldTypeId = oooConversion.targetFieldTypeId();
 
         parcelable = oooConversion.parcelable();
+        controlDelegateTypeName = ElementUtil.getTypeName(AnnoUtil.getType(new Func0R<Object>() {
+            @Override
+            public Object call() {
+                return oooConversion.controlDelegate();
+            }
+        }));
 
         // attach mode
         attachFieldName = oooConversion.attachFieldName();
@@ -124,15 +135,23 @@ public class OOOConversionEntry implements IOOOVariable {
 
     public OOOConversionEntry prepare() {
         if (!AnnoUtil.oooParamIsNotSet(targetFieldTypeId)) { // 设置了 type id，则从缓存中查询
-//            oooTargetFieldTypeEntry.parse(this, targetFieldTypeId);
             oooTargetFieldTypeEntry = OOOTypeEntryFactory.create(targetFieldTypeId);
+            oooTargetFieldArgTypeEntry = oooTargetFieldTypeEntry;
         } else {
-            oooTargetFieldTypeEntry = OOOTypeEntryFactory.create(ElementUtil.getTypeName(AnnoUtil.getType(new Func0R<Object>() {
+            TypeName typeName = ElementUtil.getTypeName(AnnoUtil.getType(new Func0R<Object>() {
                 @Override
                 public Object call() {
                     return oooConversion.targetFieldType();
                 }
-            })));
+            }));
+            oooTargetFieldArgTypeEntry = OOOTypeEntryFactory.create(typeName);
+            oooTargetFieldTypeEntry = oooTargetFieldArgTypeEntry;
+            for(ControlDelegateSpec controlDelegateSpec : ControlDelegateUtil.controlDelegateSpecs){
+                if(controlDelegateSpec.match(controlDelegateTypeName)){
+                    oooTargetFieldTypeEntry = OOOTypeEntryFactory.create(controlDelegateSpec.convertTargetTypeName(typeName));
+                    break;
+                }
+            }
         }
         return this;
     }
@@ -182,7 +201,7 @@ public class OOOConversionEntry implements IOOOVariable {
 
     private void parseBindMode() {
         if (isBindMethodSet()) {
-            TypeName targetFieldType = oooTargetFieldTypeEntry.getTypeName();
+            TypeName targetFieldType = oooTargetFieldArgTypeEntry.getTypeName();
             // 检查 bind method 是否存在
             ExecutableElement method = findPublicStaticMethodInClass(bindMethodClass, bindMethodName, targetFieldType);
             if (null == method) {
@@ -204,7 +223,7 @@ public class OOOConversionEntry implements IOOOVariable {
 
     private void parseConversionMode() {
         if (isConversionMethodSet()) {
-            TypeName targetFieldType = oooTargetFieldTypeEntry.getTypeName();
+            TypeName targetFieldType = oooTargetFieldArgTypeEntry.getTypeName();
             // 检查 conversion method 是否存在
             ExecutableElement method = findPublicStaticMethodInClass(conversionMethodClass, conversionMethodName, targetFieldType);
             if (null == method) {
@@ -375,7 +394,6 @@ public class OOOConversionEntry implements IOOOVariable {
         return inverseBindMethodName;
     }
 
-
     public String getConversionMethodName() {
         return conversionMethodName;
     }
@@ -448,6 +466,18 @@ public class OOOConversionEntry implements IOOOVariable {
 
     public boolean isParcelable() {
         return parcelable;
+    }
+
+    public TypeName getControlDelegateTypeName() {
+        return controlDelegateTypeName;
+    }
+
+    public OOOTypeEntry getOooTargetFieldArgTypeEntry() {
+        return oooTargetFieldArgTypeEntry;
+    }
+
+    public boolean isControlDelegateSet(){
+        return !ElementUtil.isSameType(controlDelegateTypeName, OOOControlDelegate.class);
     }
 
     public String getAttachFieldName() {

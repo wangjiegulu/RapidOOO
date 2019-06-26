@@ -28,10 +28,10 @@ import javax.lang.model.element.Modifier;
 public class FromMethodPartBrew implements PartBrew {
     private List<IFromMethodStatementBrew> statementBrews = new ArrayList<>();
     public FromMethodPartBrew() {
-        statementBrews.add(new FromMethodObjectStatementBrew());
         statementBrews.add(new FromMethodListStatementBrew());
         statementBrews.add(new FromMethodArrayStatementBrew());
         statementBrews.add(new FromMethodMapStatementBrew());
+        statementBrews.add(new FromMethodObjectStatementBrew());
     }
 
     @Override

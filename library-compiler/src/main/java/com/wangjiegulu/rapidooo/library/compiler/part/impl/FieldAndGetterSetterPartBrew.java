@@ -9,10 +9,10 @@ import com.wangjiegulu.rapidooo.library.compiler.oooentry.OOOConversionEntry;
 import com.wangjiegulu.rapidooo.library.compiler.oooentry.OOOEntry;
 import com.wangjiegulu.rapidooo.library.compiler.oooentry.OOOFieldEntry;
 import com.wangjiegulu.rapidooo.library.compiler.part.PartBrew;
+import com.wangjiegulu.rapidooo.library.compiler.part.statement.util.ControlModeMethodStatementUtil;
 import com.wangjiegulu.rapidooo.library.compiler.util.ElementUtil;
 import com.wangjiegulu.rapidooo.library.compiler.util.PoetUtil;
 import com.wangjiegulu.rapidooo.library.compiler.util.TextUtil;
-import com.wangjiegulu.rapidooo.library.compiler.util.func.Func1R;
 import com.wangjiegulu.rapidooo.library.compiler.variables.IOOOVariable;
 
 import java.util.HashMap;
@@ -56,20 +56,7 @@ public class FieldAndGetterSetterPartBrew implements PartBrew {
                         IOOOVariable targetVariable = variableE.getValue();
                         // 该字段被某个 conversion 的 bind 方法作为参数使用到，则需要绑定
                         if(TextUtil.equals(fieldEntry.getSimpleName(), targetVariable.fieldName())){
-
-                            String paramsStr = TextUtil.joinHashMap(conversionEntry.getBindTargetParamFields(), ", ", new Func1R<IOOOVariable, String>() {
-                                @Override
-                                public String call(IOOOVariable ioooTargetVariable) {
-                                    return ioooTargetVariable.inputCode();
-                                }
-                            });
-
-                            setterMethodBuilder.addComment(conversionEntry.getTargetFieldName() + ", " + conversionEntry.getControlMode().getDesc());
-
-                            setterMethodBuilder.addStatement(
-                                    "this." + conversionEntry.getTargetFieldName() + " = $T." + conversionEntry.getBindMethodName() + "(" + paramsStr + ")",
-                                    conversionEntry.getBindMethodClassType()
-                            );
+                            ControlModeMethodStatementUtil.buildBindStatement(oooEntry, conversionEntry, setterMethodBuilder, this.getClass().getSimpleName());
                         }
                     }
                 }
@@ -106,18 +93,7 @@ public class FieldAndGetterSetterPartBrew implements PartBrew {
                     IOOOVariable targetVariable = variableE.getValue();
                     // 该字段被某个 conversion 的 bind 方法作为参数使用到，则需要绑定
                     if(TextUtil.equals(conversionEntry.getTargetFieldName(), targetVariable.fieldName())){
-
-                        String paramsStr = TextUtil.joinHashMap(_ce.getInverseBindTargetParamFields(), ", ", new Func1R<IOOOVariable, String>() {
-                            @Override
-                            public String call(IOOOVariable ioooTargetVariable) {
-                                return ioooTargetVariable.inputCode();
-                            }
-                        });
-
-                        setterMethodBuilder.addStatement(
-                                "$T." + _ce.getInverseBindMethodName() + "(" + paramsStr + ")",
-                                _ce.getBindMethodClassType()
-                        );
+                        ControlModeMethodStatementUtil.buildInverseBindStatement(oooEntry, conversionEntry, setterMethodBuilder, this.getClass().getSimpleName());
                     }
                 }
             }

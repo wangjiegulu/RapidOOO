@@ -9,6 +9,7 @@ import com.wangjiegulu.rapidooo.library.compiler.oooentry.OOOConversionEntry;
 import com.wangjiegulu.rapidooo.library.compiler.oooentry.OOOEntry;
 import com.wangjiegulu.rapidooo.library.compiler.oooentry.OOOSEntry;
 import com.wangjiegulu.rapidooo.library.compiler.part.statement.contact.IFromMethodStatementBrew;
+import com.wangjiegulu.rapidooo.library.compiler.part.statement.util.ControlModeMethodStatementUtil;
 import com.wangjiegulu.rapidooo.library.compiler.util.ElementUtil;
 import com.wangjiegulu.rapidooo.library.compiler.util.PoetUtil;
 import com.wangjiegulu.rapidooo.library.compiler.util.TextUtil;
@@ -30,10 +31,10 @@ public class FromMethodArrayStatementBrew implements IFromMethodStatementBrew {
                 buildAttachStatement(oooEntry, conversionEntry, fromMethodSpec);
                 break;
             case BIND:
-                FromMethodStatementUtil.buildBindStatement(oooEntry, conversionEntry, fromMethodSpec, this.getClass().getSimpleName());
+                ControlModeMethodStatementUtil.buildBindStatement(oooEntry, conversionEntry, fromMethodSpec, this.getClass().getSimpleName());
                 break;
             case CONVERSION:
-                FromMethodStatementUtil.buildConversionStatement(oooEntry, conversionEntry, fromMethodSpec, this.getClass().getSimpleName());
+                ControlModeMethodStatementUtil.buildConversionStatement(oooEntry, conversionEntry, fromMethodSpec, this.getClass().getSimpleName());
                 break;
             default:
                 break;

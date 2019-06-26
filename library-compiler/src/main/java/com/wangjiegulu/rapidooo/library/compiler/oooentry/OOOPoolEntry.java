@@ -9,7 +9,7 @@ import com.wangjiegulu.rapidooo.library.compiler.exception.RapidOOOCompileExcept
 import com.wangjiegulu.rapidooo.library.compiler.util.AnnoUtil;
 import com.wangjiegulu.rapidooo.library.compiler.util.ElementUtil;
 import com.wangjiegulu.rapidooo.library.compiler.util.TextUtil;
-import com.wangjiegulu.rapidooo.library.compiler.util.func.Func0R;
+import com.wangjiegulu.rapidooo.api.func.Func0R;
 
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;

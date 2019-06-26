@@ -3,7 +3,7 @@ package com.wangjiegulu.rapidooo.library.compiler.oooentry.type;
 import com.squareup.javapoet.TypeName;
 import com.wangjiegulu.rapidooo.library.compiler.exception.RapidOOOCompileException;
 import com.wangjiegulu.rapidooo.library.compiler.util.EasyType;
-import com.wangjiegulu.rapidooo.library.compiler.util.func.Func1R;
+import com.wangjiegulu.rapidooo.api.func.Func1R;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;

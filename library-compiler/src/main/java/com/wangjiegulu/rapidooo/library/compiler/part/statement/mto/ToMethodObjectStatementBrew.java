@@ -8,6 +8,7 @@ import com.wangjiegulu.rapidooo.library.compiler.oooentry.OOOConversionEntry;
 import com.wangjiegulu.rapidooo.library.compiler.oooentry.OOOEntry;
 import com.wangjiegulu.rapidooo.library.compiler.oooentry.OOOSEntry;
 import com.wangjiegulu.rapidooo.library.compiler.part.statement.contact.IToMethodStatementBrew;
+import com.wangjiegulu.rapidooo.library.compiler.part.statement.util.ControlModeMethodStatementUtil;
 import com.wangjiegulu.rapidooo.library.compiler.util.PoetUtil;
 import com.wangjiegulu.rapidooo.library.compiler.util.TextUtil;
 
@@ -32,7 +33,7 @@ public class ToMethodObjectStatementBrew implements IToMethodStatementBrew {
                 // ignore
                 break;
             case CONVERSION:
-                ToMethodStatementUtil.buildConversionStatement(toFromMethod, conversionEntry, this.getClass().getSimpleName());
+                ControlModeMethodStatementUtil.buildInverseConversionStatement(oooEntry, conversionEntry, toFromMethod, this.getClass().getSimpleName());
                 break;
             default:
                 break;

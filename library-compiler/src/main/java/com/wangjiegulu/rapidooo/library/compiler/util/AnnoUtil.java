@@ -2,7 +2,7 @@ package com.wangjiegulu.rapidooo.library.compiler.util;
 
 import com.wangjiegulu.rapidooo.api.OOOConstants;
 import com.wangjiegulu.rapidooo.library.compiler.exception.RapidOOOCompileException;
-import com.wangjiegulu.rapidooo.library.compiler.util.func.Func0R;
+import com.wangjiegulu.rapidooo.api.func.Func0R;
 
 import javax.lang.model.type.MirroredTypeException;
 import javax.lang.model.type.TypeMirror;

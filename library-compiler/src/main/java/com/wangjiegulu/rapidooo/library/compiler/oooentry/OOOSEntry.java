@@ -8,7 +8,7 @@ import com.wangjiegulu.rapidooo.library.compiler.util.ElementUtil;
 import com.wangjiegulu.rapidooo.library.compiler.util.GlobalEnvironment;
 import com.wangjiegulu.rapidooo.library.compiler.util.LogUtil;
 import com.wangjiegulu.rapidooo.library.compiler.util.TextUtil;
-import com.wangjiegulu.rapidooo.library.compiler.util.func.Func1R;
+import com.wangjiegulu.rapidooo.api.func.Func1R;
 
 import java.util.ArrayList;
 import java.util.Arrays;
