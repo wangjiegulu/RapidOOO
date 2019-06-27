@@ -61,7 +61,6 @@ public class PoetUtil {
      * }
      * @param fieldName
      * @param getterSetterMethodNames
-     * @return
      */
     public static MethodSpec.Builder obtainExtraBooleanGetterMethodsBuilder(String fieldName, GetterSetterMethodNames getterSetterMethodNames) {
         return MethodSpec.methodBuilder(getterSetterMethodNames.getGetterMethodName())
