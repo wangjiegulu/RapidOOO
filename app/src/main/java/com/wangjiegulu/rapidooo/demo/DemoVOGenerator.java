@@ -7,6 +7,7 @@ import com.wangjiegulu.rapidooo.api.OOO;
 import com.wangjiegulu.rapidooo.api.OOOConversion;
 import com.wangjiegulu.rapidooo.api.OOOs;
 import com.wangjiegulu.rapidooo.api.control.OOOLazyControlDelegate;
+import com.wangjiegulu.rapidooo.api.control.OOOLazySyncControlDelegate;
 import com.wangjiegulu.rapidooo.api.control.OOONewThreadControlDelegate;
 import com.wangjiegulu.rapidooo.api.control.lazy.OOOLazy;
 import com.wangjiegulu.rapidooo.depmodule.bll.demo.ChatBO;
@@ -72,7 +73,8 @@ import java.util.List;
                                 @OOOConversion(
                                         targetFieldName = "commentLengthList",
                                         targetFieldTypeId = "java.util.List<java.lang.Integer>",
-                                        bindMethodName = "bindCommentLengthList"
+                                        bindMethodName = "bindCommentLengthList",
+                                        controlDelegate = OOOLazySyncControlDelegate.class
                                 ),
                                 @OOOConversion(
                                         targetFieldName = "chatVOs",

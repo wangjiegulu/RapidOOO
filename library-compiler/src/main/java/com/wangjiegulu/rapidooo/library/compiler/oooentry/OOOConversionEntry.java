@@ -4,8 +4,8 @@ import com.google.auto.common.MoreElements;
 import com.google.auto.common.MoreTypes;
 
 import com.squareup.javapoet.TypeName;
-import com.wangjiegulu.rapidooo.api.OOOFieldMode;
 import com.wangjiegulu.rapidooo.api.OOOConversion;
+import com.wangjiegulu.rapidooo.api.OOOFieldMode;
 import com.wangjiegulu.rapidooo.api.control.OOOControlDelegate;
 import com.wangjiegulu.rapidooo.api.func.Func0R;
 import com.wangjiegulu.rapidooo.library.compiler.control.ControlDelegateSpec;
@@ -135,8 +135,7 @@ public class OOOConversionEntry implements IOOOVariable {
 
     public OOOConversionEntry prepare() {
         if (!AnnoUtil.oooParamIsNotSet(targetFieldTypeId)) { // 设置了 type id，则从缓存中查询
-            oooTargetFieldTypeEntry = OOOTypeEntryFactory.create(targetFieldTypeId);
-            oooTargetFieldArgTypeEntry = oooTargetFieldTypeEntry;
+            oooTargetFieldArgTypeEntry = OOOTypeEntryFactory.create(targetFieldTypeId);
         } else {
             TypeName typeName = ElementUtil.getTypeName(AnnoUtil.getType(new Func0R<Object>() {
                 @Override
@@ -145,12 +144,12 @@ public class OOOConversionEntry implements IOOOVariable {
                 }
             }));
             oooTargetFieldArgTypeEntry = OOOTypeEntryFactory.create(typeName);
-            oooTargetFieldTypeEntry = oooTargetFieldArgTypeEntry;
-            for(ControlDelegateSpec controlDelegateSpec : ControlDelegateUtil.controlDelegateSpecs){
-                if(controlDelegateSpec.match(controlDelegateTypeName)){
-                    oooTargetFieldTypeEntry = OOOTypeEntryFactory.create(controlDelegateSpec.convertTargetTypeName(typeName));
-                    break;
-                }
+        }
+        oooTargetFieldTypeEntry = oooTargetFieldArgTypeEntry;
+        for(ControlDelegateSpec controlDelegateSpec : ControlDelegateUtil.controlDelegateSpecs){
+            if(controlDelegateSpec.match(controlDelegateTypeName)){
+                oooTargetFieldTypeEntry = OOOTypeEntryFactory.create(controlDelegateSpec.convertTargetTypeName(oooTargetFieldArgTypeEntry.getTypeName()));
+                break;
             }
         }
         return this;
