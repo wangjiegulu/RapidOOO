@@ -146,8 +146,9 @@ public class OOOEntry {
 
         targetClassPackage = ooosEntry.getOooGenerator().getGeneratorClassEl().getEnclosingElement().toString();
         // eg. replace "BO" when generate VO
+
         targetClassSimpleName =
-                (AnnoUtil.oooParamIsNotSet(fromSuffix) ? fromSimpleName : fromSimpleName.substring(0, fromSimpleName.length() - fromSuffix.length()))
+                (AnnoUtil.oooParamIsNotSet(fromSuffix) ? fromSimpleName : replaceEndSuffix(fromSimpleName, fromSuffix))
                         + suffix;
 
         targetClassType = EasyType.parseTypeName(targetClassPackage + "." + targetClassSimpleName);
@@ -192,6 +193,13 @@ public class OOOEntry {
         }
 
 
+    }
+
+    private String replaceEndSuffix(String name, String end) {
+        if(name.endsWith(end)){
+            return name.substring(0, name.length() - end.length());
+        }
+        throw new RapidOOOCompileException("Class name[" + name + "] is not ends with " + end + "\nIn " + ooosEntry.getOooGenerator().getGeneratorClassType());
     }
 
     public OOOEntry prepare() {
