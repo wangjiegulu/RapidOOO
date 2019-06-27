@@ -235,8 +235,6 @@ public class ElementUtil {
     }
 
     public static boolean isParcelable(Element field) {
-        LogUtil.logger("[isParcelable]: " + field);
-        LogUtil.logger("[isParcelable]: " + field + ", " + field.asType());
         return isParcelable(field.asType());
     }
 

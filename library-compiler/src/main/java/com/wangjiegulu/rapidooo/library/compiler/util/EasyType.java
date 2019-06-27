@@ -35,9 +35,9 @@ public class EasyType {
         for(int i = 0; i < arrayHeight; i++){
             resultTypeName = ArrayTypeName.of(resultTypeName);
         }
-        if(arrayHeight > 0){
-            LogUtil.logger("OOOTypeEntry, array ------>" + resultTypeName);
-        }
+//        if(arrayHeight > 0){
+//            LogUtil.logger("OOOTypeEntry, array ------>" + resultTypeName);
+//        }
         return resultTypeName;
     }
     private static TypeName parseInnerTypeName(String idExp) {
