@@ -7,6 +7,7 @@ import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.TypeName;
 import com.wangjiegulu.rapidooo.api.OOO;
 import com.wangjiegulu.rapidooo.api.OOOConversion;
+import com.wangjiegulu.rapidooo.api.control.OOOControlDelegate;
 import com.wangjiegulu.rapidooo.library.compiler.RapidOOOConstants;
 import com.wangjiegulu.rapidooo.library.compiler.exception.RapidOOOCompileException;
 import com.wangjiegulu.rapidooo.library.compiler.util.AnnoUtil;
@@ -69,6 +70,7 @@ public class OOOEntry {
     private HashMap<String, OOOFieldEntry> allContinuingFields = new LinkedHashMap<>();
 
     private HashMap<String, TypeMirror> supportedInterfaces = new LinkedHashMap<>();
+
     /**
      * 显式配置
      */
@@ -155,6 +157,9 @@ public class OOOEntry {
         for (Element field : eles) {
             if (ElementKind.FIELD == field.getKind()) {
                 if (MoreElements.hasModifiers(Modifier.STATIC).apply(field)) {
+                    continue;
+                }
+                if(ElementUtil.isSubType(field.asType(), OOOControlDelegate.class)){
                     continue;
                 }
                 String fieldName = field.getSimpleName().toString();

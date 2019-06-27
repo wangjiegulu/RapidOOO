@@ -27,19 +27,17 @@ public class ControlModeMethodStatementUtil {
             if (conversionEntry.isControlDelegateSet()) {
                 TypeName targetFieldArgType = conversionEntry.getOooTargetFieldArgTypeEntry().getTypeName();
                 TypeName targetFieldType = conversionEntry.getTargetFieldTypeEntry().getTypeName();
-                methodBuilder.addCode("new $T<$T>().invoke(new $T<$T>() {\n" +
+                methodBuilder.addCode(conversionEntry.getControlDelegateFieldName() + ".invoke(new $T<$T>() {\n" +
                                 "  @Override\n" +
                                 "  public $T call() {\n" +
                                 "    return $T." + conversionEntry.getBindMethodName() + "(" + paramsStr + ")" + ";\n" +
                                 "  }\n" +
                                 "}, new $T<$T>() {\n" +
                                 "  @Override\n" +
-                                "  public void call($T o) {\n" +
-                                "    " + oooEntry.getTargetClassSimpleName() + ".this." + conversionEntry.getTargetFieldName() + " = o;\n" +
+                                "  public void call($T value) {\n" +
+                                "    " + oooEntry.getTargetClassSimpleName() + ".this." + conversionEntry.getTargetFieldName() + " = value;\n" +
                                 "  }\n" +
                                 "});\n",
-                        conversionEntry.getControlDelegateTypeName(),
-                        targetFieldArgType,
                         Func0R.class,
                         targetFieldArgType,
                         targetFieldArgType,
@@ -89,19 +87,17 @@ public class ControlModeMethodStatementUtil {
                 // TODO: 2019-06-26 wangjie new ControlDelegate
                 TypeName targetFieldArgType = conversionEntry.getOooTargetFieldArgTypeEntry().getTypeName();
                 TypeName targetFieldType = conversionEntry.getTargetFieldTypeEntry().getTypeName();
-                methodBuilder.addCode("new $T<$T>().invoke(new $T<$T>() {\n" +
+                methodBuilder.addCode(conversionEntry.getControlDelegateFieldName() + ".invoke(new $T<$T>() {\n" +
                                 "  @Override\n" +
                                 "  public $T call() {\n" +
                                 "    return $T." + conversionEntry.getConversionMethodName() + "(" + paramsStr + ")" + ";\n" +
                                 "  }\n" +
                                 "}, new $T<$T>() {\n" +
                                 "  @Override\n" +
-                                "  public void call($T o) {\n" +
-                                "    " + oooEntry.getTargetClassSimpleName() + ".this." + conversionEntry.getTargetFieldName() + " = o;\n" +
+                                "  public void call($T value) {\n" +
+                                "    " + oooEntry.getTargetClassSimpleName() + ".this." + conversionEntry.getTargetFieldName() + " = value;\n" +
                                 "  }\n" +
                                 "});\n",
-                        conversionEntry.getControlDelegateTypeName(),
-                        targetFieldArgType,
                         Func0R.class,
                         targetFieldArgType,
                         targetFieldArgType,

@@ -45,7 +45,15 @@ import java.util.List;
                                         targetFieldType = SpannableString.class,
                                         controlDelegate = OOONewThreadControlDelegate.class,
                                         bindMethodName = "bindTextSp",
-                                        inverseBindMethodName = "inverseBindTextSp"
+                                        inverseBindMethodName = "inverseBindTextSp",
+                                        parcelable = false
+                                ),
+                                @OOOConversion(
+                                        targetFieldName = "contentSp",
+                                        targetFieldType = SpannableString.class,
+                                        bindMethodName = "bindContentSp",
+                                        inverseBindMethodName = "inverseBindContentSp",
+                                        parcelable = false
                                 ),
                                 @OOOConversion(
                                         targetFieldName = "videoPlayer",
@@ -91,10 +99,17 @@ public class DemoVOGenerator {
         // convert to SpannableString with `@User` / emoticon / sticker
         return new SpannableString(textRaw);
     }
-
     public static void inverseBindTextSp(SpannableString textSp, MessageVO self){
         self.setTextRaw(textSp.toString());
     }
+    public static SpannableString bindContentSp(String textRaw){
+        // convert to SpannableString with `@User` / emoticon / sticker
+        return new SpannableString(textRaw);
+    }
+    public static void inverseBindContentSp(SpannableString contentSp, MessageVO self){
+        self.setTextRaw(contentSp.toString());
+    }
+
 
     public static List<Integer> bindCommentLengthList(List<String> comments){
         if(null == comments){

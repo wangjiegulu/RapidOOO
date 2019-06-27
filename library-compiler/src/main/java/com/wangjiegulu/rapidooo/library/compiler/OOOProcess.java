@@ -7,6 +7,7 @@ import com.wangjiegulu.rapidooo.library.compiler.oooentry.OOOEntry;
 import com.wangjiegulu.rapidooo.library.compiler.oooentry.OOOGenerator;
 import com.wangjiegulu.rapidooo.library.compiler.oooentry.OOOSEntry;
 import com.wangjiegulu.rapidooo.library.compiler.part.PartBrew;
+import com.wangjiegulu.rapidooo.library.compiler.part.impl.ControlDelegatePartBrew;
 import com.wangjiegulu.rapidooo.library.compiler.part.impl.CreateMethodPartBrew;
 import com.wangjiegulu.rapidooo.library.compiler.part.impl.DefaultConstructorMethodPartBrew;
 import com.wangjiegulu.rapidooo.library.compiler.part.impl.FieldAndGetterSetterPartBrew;
@@ -42,6 +43,7 @@ public class OOOProcess {
     public OOOProcess() {
         partBrews.add(new InterfacePartBrew());
         partBrews.add(new DefaultConstructorMethodPartBrew());
+        partBrews.add(new ControlDelegatePartBrew());
         partBrews.add(new FieldAndGetterSetterPartBrew());
         partBrews.add(new FromMethodPartBrew());
         partBrews.add(new CreateMethodPartBrew());

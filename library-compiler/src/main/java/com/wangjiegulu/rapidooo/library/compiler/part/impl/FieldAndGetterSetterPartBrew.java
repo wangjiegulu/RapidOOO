@@ -31,32 +31,32 @@ public class FieldAndGetterSetterPartBrew implements PartBrew {
     }
 
     private void buildAllContinuingFields(OOOEntry oooEntry, TypeSpec.Builder result) {
-        for (Map.Entry<String, OOOFieldEntry> fieldE : oooEntry.getAllContinuingFields().entrySet()){
-            OOOFieldEntry fieldEntry = fieldE.getValue();
+        for (Map.Entry<String, OOOFieldEntry> fieldE : oooEntry.getAllContinuingFields().entrySet()) {
+            OOOFieldEntry xFieldEntry = fieldE.getValue();
 
-            FieldSpec.Builder fieldSpecBuilder = FieldSpec.builder(fieldEntry.getTypeName(), fieldEntry.getSimpleName(), fieldEntry.getModifiers())
+            FieldSpec.Builder fieldSpecBuilder = FieldSpec.builder(xFieldEntry.getTypeName(), xFieldEntry.getSimpleName(), xFieldEntry.getModifiers())
                     .addJavadoc("Field name: {@link $T#$L}\n",
                             oooEntry.getFromTypeName(),
-                            fieldEntry.getSimpleName()
+                            xFieldEntry.getSimpleName()
                     );
             result.addField(fieldSpecBuilder.build());
 
-            GetterSetterMethodNames getterSetterMethodNames = PoetUtil.generateGetterSetterMethodName(fieldEntry.getSimpleName(), fieldEntry.getTypeName());
+            GetterSetterMethodNames getterSetterMethodNames = PoetUtil.generateGetterSetterMethodName(xFieldEntry.getSimpleName(), xFieldEntry.getTypeName());
             // add getter method
-            result.addMethod(PoetUtil.obtainGetterMethodsBuilder(fieldEntry.getSimpleName(), fieldEntry.getTypeName(), getterSetterMethodNames).build());
+            result.addMethod(PoetUtil.obtainGetterMethodsBuilder(xFieldEntry.getSimpleName(), xFieldEntry.getTypeName(), getterSetterMethodNames).build());
             // add setter method
-            MethodSpec.Builder setterMethodBuilder = PoetUtil.obtainSetterMethodsBuilderDefault(fieldEntry.getSimpleName(), fieldEntry.getTypeName(), getterSetterMethodNames);
+            MethodSpec.Builder setterMethodBuilder = PoetUtil.obtainSetterMethodsBuilderDefault(xFieldEntry.getSimpleName(), xFieldEntry.getTypeName(), getterSetterMethodNames);
 
             // 数据 setter 绑定关联
-            for(HashMap.Entry<String, OOOConversionEntry> ce : oooEntry.getConversions().entrySet()){
-                OOOConversionEntry conversionEntry = ce.getValue();
+            for (HashMap.Entry<String, OOOConversionEntry> compareCE : oooEntry.getConversions().entrySet()) {
+                OOOConversionEntry compareConversionEntry = compareCE.getValue();
                 // 只有 bind mode 才需要关联
-                if(OOOControlMode.BIND == conversionEntry.getControlMode()){
-                    for(Map.Entry<String, IOOOVariable> variableE : conversionEntry.getBindTargetParamFields().entrySet()){
-                        IOOOVariable targetVariable = variableE.getValue();
+                if (OOOControlMode.BIND == compareConversionEntry.getControlMode()) {
+                    for (Map.Entry<String, IOOOVariable> bindMethodParamE : compareConversionEntry.getBindTargetParamFields().entrySet()) {
+                        IOOOVariable bindMethodParam = bindMethodParamE.getValue();
                         // 该字段被某个 conversion 的 bind 方法作为参数使用到，则需要绑定
-                        if(TextUtil.equals(fieldEntry.getSimpleName(), targetVariable.fieldName())){
-                            ControlModeMethodStatementUtil.buildBindStatement(oooEntry, conversionEntry, setterMethodBuilder, this.getClass().getSimpleName());
+                        if (TextUtil.equals(xFieldEntry.getSimpleName(), bindMethodParam.fieldName())) {
+                            ControlModeMethodStatementUtil.buildBindStatement(oooEntry, compareConversionEntry, setterMethodBuilder, this.getClass().getSimpleName());
                         }
                     }
                 }
@@ -64,44 +64,59 @@ public class FieldAndGetterSetterPartBrew implements PartBrew {
             result.addMethod(setterMethodBuilder.build());
 
             // Default extra getter method for Boolean field
-            if(ElementUtil.isSameType(fieldEntry.getTypeName(), Boolean.class)){
-                result.addMethod(PoetUtil.obtainExtraBooleanGetterMethodsBuilder(fieldEntry.getSimpleName(), getterSetterMethodNames).build());
+            if (ElementUtil.isSameType(xFieldEntry.getTypeName(), Boolean.class)) {
+                result.addMethod(PoetUtil.obtainExtraBooleanGetterMethodsBuilder(xFieldEntry.getSimpleName(), getterSetterMethodNames).build());
             }
 
         }
     }
 
     private void buildConversionsFields(OOOEntry oooEntry, TypeSpec.Builder result) {
-        for (Map.Entry<String, OOOConversionEntry> conversionFieldE : oooEntry.getConversions().entrySet()){
-            OOOConversionEntry conversionEntry = conversionFieldE.getValue();
-            FieldSpec.Builder fieldSpecBuilder = FieldSpec.builder(conversionEntry.getTargetFieldType(), conversionEntry.getTargetFieldName(), Modifier.PRIVATE)
+        for (Map.Entry<String, OOOConversionEntry> conversionFieldE : oooEntry.getConversions().entrySet()) {
+            OOOConversionEntry xConversionEntry = conversionFieldE.getValue();
+            FieldSpec.Builder fieldSpecBuilder = FieldSpec.builder(xConversionEntry.getTargetFieldType(), xConversionEntry.getTargetFieldName(), Modifier.PRIVATE)
                     .addJavadoc("Field name conversion : {@link $T}\n",
                             oooEntry.getOoosEntry().getOooGenerator().getGeneratorClassType()
                     );
             result.addField(fieldSpecBuilder.build());
 
-            GetterSetterMethodNames getterSetterMethodNames = PoetUtil.generateGetterSetterMethodName(conversionEntry.getTargetFieldName(), conversionEntry.getTargetFieldType());
+            GetterSetterMethodNames getterSetterMethodNames = PoetUtil.generateGetterSetterMethodName(xConversionEntry.getTargetFieldName(), xConversionEntry.getTargetFieldType());
             // add getter method
-            result.addMethod(PoetUtil.obtainGetterMethodsBuilder(conversionEntry.getTargetFieldName(), conversionEntry.getTargetFieldType(), getterSetterMethodNames).build());
+            result.addMethod(PoetUtil.obtainGetterMethodsBuilder(xConversionEntry.getTargetFieldName(), xConversionEntry.getTargetFieldType(), getterSetterMethodNames).build());
             // add setter method
-            MethodSpec.Builder setterMethodBuilder = PoetUtil.obtainSetterMethodsBuilderDefault(conversionEntry.getTargetFieldName(), conversionEntry.getTargetFieldType(), getterSetterMethodNames);
+            MethodSpec.Builder setterMethodBuilder = PoetUtil.obtainSetterMethodsBuilderDefault(xConversionEntry.getTargetFieldName(), xConversionEntry.getTargetFieldType(), getterSetterMethodNames);
 
             // 数据 setter 绑定关联
-            for(HashMap.Entry<String, OOOConversionEntry> ce : oooEntry.getConversions().entrySet()){
-                OOOConversionEntry _ce = ce.getValue();
-                for(Map.Entry<String, IOOOVariable> variableE : _ce.getInverseBindTargetParamFields().entrySet()){
-                    IOOOVariable targetVariable = variableE.getValue();
-                    // 该字段被某个 conversion 的 bind 方法作为参数使用到，则需要绑定
-                    if(TextUtil.equals(conversionEntry.getTargetFieldName(), targetVariable.fieldName())){
-                        ControlModeMethodStatementUtil.buildInverseBindStatement(oooEntry, conversionEntry, setterMethodBuilder, this.getClass().getSimpleName());
+            for (HashMap.Entry<String, OOOConversionEntry> compareCE : oooEntry.getConversions().entrySet()) {
+                OOOConversionEntry compareConversionEntry = compareCE.getValue();
+
+                // 只有 bind mode 才需要关联
+                if (OOOControlMode.BIND == compareConversionEntry.getControlMode()) {
+                    for (Map.Entry<String, IOOOVariable> bindMethodParamE : compareConversionEntry.getInverseBindTargetParamFields().entrySet()) {
+                        IOOOVariable bindMethodParam = bindMethodParamE.getValue();
+                        // 该字段被某个 conversion 的 bind 方法作为参数使用到，则需要绑定
+                        if (TextUtil.equals(xConversionEntry.getTargetFieldName(), bindMethodParam.fieldName())) {
+                            ControlModeMethodStatementUtil.buildInverseBindStatement(oooEntry, compareConversionEntry, setterMethodBuilder, this.getClass().getSimpleName());
+                        }
+                    }
+
+                    for (Map.Entry<String, IOOOVariable> bindMethodParamE : compareConversionEntry.getBindTargetParamFields().entrySet()) {
+                        IOOOVariable bindMethodParam = bindMethodParamE.getValue();
+                        // 该字段被某个 conversion 的 bind 方法作为参数使用到，则需要绑定
+                        if (TextUtil.equals(xConversionEntry.getTargetFieldName(), bindMethodParam.fieldName())) {
+                            ControlModeMethodStatementUtil.buildBindStatement(oooEntry, compareConversionEntry, setterMethodBuilder, this.getClass().getSimpleName());
+                        }
                     }
                 }
+
             }
+
+
             result.addMethod(setterMethodBuilder.build());
 
             // Default extra getter method for Boolean field
-            if(ElementUtil.isSameType(conversionEntry.getTargetFieldType(), Boolean.class)){
-                result.addMethod(PoetUtil.obtainExtraBooleanGetterMethodsBuilder(conversionEntry.getTargetFieldName(), getterSetterMethodNames).build());
+            if (ElementUtil.isSameType(xConversionEntry.getTargetFieldType(), Boolean.class)) {
+                result.addMethod(PoetUtil.obtainExtraBooleanGetterMethodsBuilder(xConversionEntry.getTargetFieldName(), getterSetterMethodNames).build());
             }
         }
     }

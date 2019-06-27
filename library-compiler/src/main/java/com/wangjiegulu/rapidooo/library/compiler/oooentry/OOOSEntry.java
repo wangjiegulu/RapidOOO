@@ -3,12 +3,12 @@ package com.wangjiegulu.rapidooo.library.compiler.oooentry;
 import com.wangjiegulu.rapidooo.api.OOO;
 import com.wangjiegulu.rapidooo.api.OOOIgnore;
 import com.wangjiegulu.rapidooo.api.OOOs;
+import com.wangjiegulu.rapidooo.api.func.Func1R;
 import com.wangjiegulu.rapidooo.library.compiler.exception.RapidOOOCompileException;
 import com.wangjiegulu.rapidooo.library.compiler.util.ElementUtil;
 import com.wangjiegulu.rapidooo.library.compiler.util.GlobalEnvironment;
 import com.wangjiegulu.rapidooo.library.compiler.util.LogUtil;
 import com.wangjiegulu.rapidooo.library.compiler.util.TextUtil;
-import com.wangjiegulu.rapidooo.api.func.Func1R;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Map;
 
 import javax.lang.model.element.Element;
+import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.PackageElement;
 
 /**
@@ -44,7 +45,7 @@ public class OOOSEntry {
         ooosPackages = Arrays.asList(ooosAnno.ooosPackages());
 
         // 添加使用 @OOO 显式的配置
-        for(OOO ooo : ooosAnno.ooos()){
+        for (OOO ooo : ooosAnno.ooos()) {
             OOOEntry oooEntry = new OOOEntry(this, ooo);
             ooos.add(oooEntry);
         }
@@ -67,15 +68,18 @@ public class OOOSEntry {
                         LogUtil.logger("Ignore `From Class` [" + oooClassElement.toString() + "](@OOOIgnore).");
                         continue;
                     }
+                    if (oooClassElement.getKind() != ElementKind.CLASS) {
+                        continue;
+                    }
 
                     final String qualifiedName = ElementUtil.getName(oooClassElement.asType()).toString();
 
-                    if(TextUtil.pickFirst(ooos, new Func1R<OOOEntry, Boolean>() {
+                    if (TextUtil.pickFirst(ooos, new Func1R<OOOEntry, Boolean>() {
                         @Override
                         public Boolean call(OOOEntry oooEntry) {
                             return TextUtil.equals(ElementUtil.getName(oooEntry.getFrom()).toString(), qualifiedName);
                         }
-                    }) == null){ // 显式设置过，则增加
+                    }) == null) { // 显式设置过，则增加
                         ooos.add(new OOOEntry(this, oooClassElement));
                     }
                 }
@@ -83,15 +87,15 @@ public class OOOSEntry {
         }
     }
 
-    public OOOSEntry prepare(){
-        for(OOOEntry oooEE : ooos){
+    public OOOSEntry prepare() {
+        for (OOOEntry oooEE : ooos) {
             oooEE.prepare();
         }
         return this;
     }
 
-    public void parse(){
-        for(OOOEntry oooEE : ooos){
+    public void parse() {
+        for (OOOEntry oooEE : ooos) {
             oooEE.parse();
         }
     }
@@ -122,8 +126,8 @@ public class OOOSEntry {
     }
 
     public static OOOEntry queryTypeByName(String name) {
-        for(Map.Entry<String, OOOEntry> ee : allTypeIds.entrySet()){
-            if(TextUtil.equals(ee.getValue().getTargetClassType().toString(), name)){
+        for (Map.Entry<String, OOOEntry> ee : allTypeIds.entrySet()) {
+            if (TextUtil.equals(ee.getValue().getTargetClassType().toString(), name)) {
                 return ee.getValue();
             }
         }
@@ -131,7 +135,7 @@ public class OOOSEntry {
     }
 
     public void addTypeIds(String id, OOOEntry oooEntry) {
-        if(allTypeIds.containsKey(id)){
+        if (allTypeIds.containsKey(id)) {
             throw new RapidOOOCompileException("[" + oooGenerator.getGeneratorClassEl().getSimpleName() + "]id[" + "] is already exist in " + oooEntry.getFromClassName().simpleName() + ".");
         }
         this.allTypeIds.put(id, oooEntry);

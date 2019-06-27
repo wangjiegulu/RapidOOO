@@ -25,6 +25,11 @@ import com.wangjiegulu.rapidooo.depmodule.dal.xdo.demo.User;
                                         attachFieldName = "text"
                                 ),
                                 @OOOConversion(
+                                        targetFieldName = "textLength",
+                                        targetFieldType = int.class,
+                                        bindMethodName = "bindTextLength"
+                                ),
+                                @OOOConversion(
                                         targetFieldName = "fromBO",
                                         targetFieldTypeId = "#id__UserBO",
                                         attachFieldName = "from"
@@ -69,4 +74,7 @@ import com.wangjiegulu.rapidooo.depmodule.dal.xdo.demo.User;
         }
 )
 public class DemoBOGenerator {
+    public static int bindTextLength(String textRaw){
+        return null == textRaw ? 0 : textRaw.length();
+    }
 }

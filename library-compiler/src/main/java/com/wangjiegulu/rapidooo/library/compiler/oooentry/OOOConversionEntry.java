@@ -479,6 +479,9 @@ public class OOOConversionEntry implements IOOOVariable {
     public boolean isControlDelegateSet(){
         return !ElementUtil.isSameType(controlDelegateTypeName, OOOControlDelegate.class);
     }
+    public String getControlDelegateFieldName(){
+        return targetFieldName + "_controlDelegate";
+    }
 
     public String getAttachFieldName() {
         return attachFieldName;

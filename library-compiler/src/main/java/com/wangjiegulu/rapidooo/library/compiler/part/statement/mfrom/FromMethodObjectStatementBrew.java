@@ -45,7 +45,7 @@ public class FromMethodObjectStatementBrew implements IFromMethodStatementBrew {
     }
 
     private void buildAttachStatement(OOOEntry oooEntry, OOOConversionEntry conversionEntry, MethodSpec.Builder fromMethodSpec) {
-        LogUtil.logger("conversionEntry:  " + conversionEntry.getTargetFieldName() + ", " + conversionEntry.getTargetFieldType());
+//        LogUtil.logger("conversionEntry:  " + conversionEntry.getTargetFieldName() + ", " + conversionEntry.getTargetFieldType());
         fromMethodSpec.addComment(conversionEntry.getTargetFieldName() + ", " + conversionEntry.getControlMode().getDesc() + ", " + this.getClass().getSimpleName());
         // #id_ChatBO
         if(conversionEntry.getTargetFieldTypeEntry().isRefId()){
