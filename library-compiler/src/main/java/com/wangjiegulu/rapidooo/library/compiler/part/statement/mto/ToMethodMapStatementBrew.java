@@ -2,7 +2,7 @@ package com.wangjiegulu.rapidooo.library.compiler.part.statement.mto;
 
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeName;
-import com.wangjiegulu.rapidooo.api.OOOControlMode;
+import com.wangjiegulu.rapidooo.api.OOOFieldMode;
 import com.wangjiegulu.rapidooo.library.compiler.entry.GetterSetterMethodNames;
 import com.wangjiegulu.rapidooo.library.compiler.exception.RapidOOOCompileException;
 import com.wangjiegulu.rapidooo.library.compiler.oooentry.OOOConversionEntry;
@@ -12,7 +12,7 @@ import com.wangjiegulu.rapidooo.library.compiler.oooentry.OOOSEntry;
 import com.wangjiegulu.rapidooo.library.compiler.oooentry.type.OOOMapTypeEntry;
 import com.wangjiegulu.rapidooo.library.compiler.oooentry.type.OOOTypeEntry;
 import com.wangjiegulu.rapidooo.library.compiler.part.statement.contact.IToMethodStatementBrew;
-import com.wangjiegulu.rapidooo.library.compiler.part.statement.util.ControlModeMethodStatementUtil;
+import com.wangjiegulu.rapidooo.library.compiler.part.statement.util.FieldModeMethodStatementUtil;
 import com.wangjiegulu.rapidooo.library.compiler.util.ElementUtil;
 import com.wangjiegulu.rapidooo.library.compiler.util.PoetUtil;
 import com.wangjiegulu.rapidooo.library.compiler.util.TextUtil;
@@ -34,8 +34,8 @@ public class ToMethodMapStatementBrew implements IToMethodStatementBrew {
     public void buildStatement(OOOEntry oooEntry, OOOConversionEntry conversionEntry, MethodSpec.Builder toFromMethod) {
         String fromParamName = TextUtil.firstCharLower(oooEntry.getFromSimpleName());
         // 只有 conversion mode 才需要转换
-        OOOControlMode controlMode = conversionEntry.getControlMode();
-        switch (controlMode) {
+        OOOFieldMode fieldMode = conversionEntry.getFieldMode();
+        switch (fieldMode) {
             case ATTACH:
                 buildAttachStatement(oooEntry, fromParamName, toFromMethod, conversionEntry);
                 break;
@@ -43,7 +43,7 @@ public class ToMethodMapStatementBrew implements IToMethodStatementBrew {
                 // ignore
                 break;
             case CONVERSION:
-                ControlModeMethodStatementUtil.buildInverseConversionStatement(oooEntry, conversionEntry, toFromMethod, this.getClass().getSimpleName());
+                FieldModeMethodStatementUtil.buildInverseConversionStatement(oooEntry, conversionEntry, toFromMethod, this.getClass().getSimpleName());
                 break;
             default:
                 break;
@@ -51,7 +51,7 @@ public class ToMethodMapStatementBrew implements IToMethodStatementBrew {
     }
 
     private void buildAttachStatement(OOOEntry oooEntry, String fromParamName, MethodSpec.Builder toFromMethod, OOOConversionEntry conversionEntry) {
-        toFromMethod.addComment(conversionEntry.getTargetFieldName() + ", " + conversionEntry.getControlMode().getDesc() + ", " + this.getClass().getSimpleName());
+        toFromMethod.addComment(conversionEntry.getTargetFieldName() + ", " + conversionEntry.getFieldMode().getDesc() + ", " + this.getClass().getSimpleName());
 
         GetterSetterMethodNames getterSetterMethodNames = PoetUtil.generateGetterSetterMethodName(conversionEntry.getAttachFieldName(), conversionEntry.getAttachFieldType());
 

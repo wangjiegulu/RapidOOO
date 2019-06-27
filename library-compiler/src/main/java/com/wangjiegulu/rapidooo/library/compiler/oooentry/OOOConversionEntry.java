@@ -4,7 +4,7 @@ import com.google.auto.common.MoreElements;
 import com.google.auto.common.MoreTypes;
 
 import com.squareup.javapoet.TypeName;
-import com.wangjiegulu.rapidooo.api.OOOControlMode;
+import com.wangjiegulu.rapidooo.api.OOOFieldMode;
 import com.wangjiegulu.rapidooo.api.OOOConversion;
 import com.wangjiegulu.rapidooo.api.control.OOOControlDelegate;
 import com.wangjiegulu.rapidooo.api.func.Func0R;
@@ -67,7 +67,7 @@ public class OOOConversionEntry implements IOOOVariable {
     private HashMap<String, IOOOVariable> conversionTargetParamFields = new LinkedHashMap<>();
     private HashMap<String, IOOOVariable> inverseConversionTargetParamFields = new LinkedHashMap<>();
 
-    private OOOControlMode controlMode;
+    private OOOFieldMode fieldMode;
 
     private boolean parcelable;
     private TypeName controlDelegateTypeName;
@@ -157,7 +157,7 @@ public class OOOConversionEntry implements IOOOVariable {
     }
 
     public void parse() {
-        parseControlMode();
+        parseFieldMode();
     }
 
     private void init() {
@@ -165,9 +165,9 @@ public class OOOConversionEntry implements IOOOVariable {
     }
 
     /**
-     * 解析 control mode 的类型，并做好校验工作
+     * 解析 field mode 的类型，并做好校验工作
      */
-    private void parseControlMode() {
+    private void parseFieldMode() {
         boolean attachSet = !AnnoUtil.oooParamIsNotSet(attachFieldName);
         boolean bindSet = !AnnoUtil.oooParamIsNotSet(bindMethodName) || !AnnoUtil.oooParamIsNotSet(inverseBindMethodName);
         boolean conversionSet = !AnnoUtil.oooParamIsNotSet(conversionMethodName) || !AnnoUtil.oooParamIsNotSet(inverseConversionMethodName);
@@ -175,19 +175,19 @@ public class OOOConversionEntry implements IOOOVariable {
             throw new RapidOOOCompileException("Can not be set ATTACH or BIND or CONVERSION at the same time.");
         }
         if (bindSet) {
-            controlMode = OOOControlMode.BIND;
+            fieldMode = OOOFieldMode.BIND;
             parseBindMode();
         } else if (conversionSet) {
-            controlMode = OOOControlMode.CONVERSION;
+            fieldMode = OOOFieldMode.CONVERSION;
             parseConversionMode();
         } else if (attachSet) {
-            controlMode = OOOControlMode.ATTACH;
+            fieldMode = OOOFieldMode.ATTACH;
             if (AnnoUtil.oooParamIsNotSet(attachFieldName)) {
                 attachFieldName = targetFieldName;
             }
             parseAttachMode();
         } else {
-            controlMode = OOOControlMode.NONE;
+            fieldMode = OOOFieldMode.NONE;
         }
 
     }
@@ -410,8 +410,8 @@ public class OOOConversionEntry implements IOOOVariable {
         return conversionMethodClassType;
     }
 
-    public OOOControlMode getControlMode() {
-        return controlMode;
+    public OOOFieldMode getFieldMode() {
+        return fieldMode;
     }
 
     public OOOTypeEntry getTargetFieldTypeEntry() {

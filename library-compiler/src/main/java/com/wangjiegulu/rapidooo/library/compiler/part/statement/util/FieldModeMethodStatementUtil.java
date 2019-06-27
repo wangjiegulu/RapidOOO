@@ -13,10 +13,10 @@ import com.wangjiegulu.rapidooo.library.compiler.variables.IOOOVariable;
 /**
  * Author: wangjie Email: tiantian.china.2@gmail.com Date: 2019-06-21.
  */
-public class ControlModeMethodStatementUtil {
+public class FieldModeMethodStatementUtil {
     public static void buildBindStatement(OOOEntry oooEntry, OOOConversionEntry conversionEntry, MethodSpec.Builder methodBuilder, String tag) {
         if (conversionEntry.isBindMethodSet()) {
-            methodBuilder.addComment(conversionEntry.getTargetFieldName() + ", " + conversionEntry.getControlMode().getDesc() + ", " + tag);
+            methodBuilder.addComment(conversionEntry.getTargetFieldName() + ", " + conversionEntry.getFieldMode().getDesc() + ", " + tag);
             String paramsStr = TextUtil.joinHashMap(conversionEntry.getBindTargetParamFields(), ", ", new Func1R<IOOOVariable, String>() {
                 @Override
                 public String call(IOOOVariable ioooTargetVariable) {
@@ -57,7 +57,7 @@ public class ControlModeMethodStatementUtil {
 
     public static void buildInverseBindStatement(OOOEntry oooEntry, OOOConversionEntry conversionEntry, MethodSpec.Builder methodBuilder, String tag) {
         if(conversionEntry.isInverseBindMethodSet()){
-            methodBuilder.addComment(conversionEntry.getTargetFieldName() + ", " + conversionEntry.getControlMode().getDesc() + ", " + tag);
+            methodBuilder.addComment(conversionEntry.getTargetFieldName() + ", " + conversionEntry.getFieldMode().getDesc() + ", " + tag);
             String paramsStr = TextUtil.joinHashMap(conversionEntry.getInverseBindTargetParamFields(), ", ", new Func1R<IOOOVariable, String>() {
                 @Override
                 public String call(IOOOVariable ioooTargetVariable) {
@@ -74,7 +74,7 @@ public class ControlModeMethodStatementUtil {
 
     public static void buildConversionStatement(OOOEntry oooEntry, OOOConversionEntry conversionEntry, MethodSpec.Builder methodBuilder, String tag) {
         if (conversionEntry.isConversionMethodSet()) {
-            methodBuilder.addComment(conversionEntry.getTargetFieldName() + ", " + conversionEntry.getControlMode().getDesc() + ", " + tag);
+            methodBuilder.addComment(conversionEntry.getTargetFieldName() + ", " + conversionEntry.getFieldMode().getDesc() + ", " + tag);
             String paramsStr = TextUtil.joinHashMap(conversionEntry.getConversionTargetParamFields(), ", ", new Func1R<IOOOVariable, String>() {
                 @Override
                 public String call(IOOOVariable ioooTargetVariable) {
@@ -117,7 +117,7 @@ public class ControlModeMethodStatementUtil {
 
     public static void buildInverseConversionStatement(OOOEntry oooEntry, OOOConversionEntry conversionEntry, MethodSpec.Builder toFromMethod, String tag) {
         if (conversionEntry.isInverseConversionMethodSet()) {
-            toFromMethod.addComment(conversionEntry.getTargetFieldName() + ", " + conversionEntry.getControlMode().getDesc() + ", " + tag);
+            toFromMethod.addComment(conversionEntry.getTargetFieldName() + ", " + conversionEntry.getFieldMode().getDesc() + ", " + tag);
             String paramsStr = TextUtil.joinHashMap(conversionEntry.getInverseConversionTargetParamFields(), ", ", new Func1R<IOOOVariable, String>() {
                 @Override
                 public String call(IOOOVariable ioooTargetVariable) {

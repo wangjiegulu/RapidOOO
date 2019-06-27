@@ -1,14 +1,13 @@
 package com.wangjiegulu.rapidooo.library.compiler.part.statement.mfrom;
 
 import com.squareup.javapoet.MethodSpec;
-import com.wangjiegulu.rapidooo.api.OOOControlMode;
+import com.wangjiegulu.rapidooo.api.OOOFieldMode;
 import com.wangjiegulu.rapidooo.library.compiler.entry.GetterSetterMethodNames;
 import com.wangjiegulu.rapidooo.library.compiler.oooentry.OOOConversionEntry;
 import com.wangjiegulu.rapidooo.library.compiler.oooentry.OOOEntry;
 import com.wangjiegulu.rapidooo.library.compiler.oooentry.OOOSEntry;
 import com.wangjiegulu.rapidooo.library.compiler.part.statement.contact.IFromMethodStatementBrew;
-import com.wangjiegulu.rapidooo.library.compiler.part.statement.util.ControlModeMethodStatementUtil;
-import com.wangjiegulu.rapidooo.library.compiler.util.LogUtil;
+import com.wangjiegulu.rapidooo.library.compiler.part.statement.util.FieldModeMethodStatementUtil;
 import com.wangjiegulu.rapidooo.library.compiler.util.PoetUtil;
 import com.wangjiegulu.rapidooo.library.compiler.util.TextUtil;
 
@@ -28,16 +27,16 @@ public class FromMethodObjectStatementBrew implements IFromMethodStatementBrew {
 
     @Override
     public void buildStatement(OOOEntry oooEntry, OOOConversionEntry conversionEntry, MethodSpec.Builder fromMethodSpec) {
-        OOOControlMode controlMode = conversionEntry.getControlMode();
-        switch (controlMode) {
+        OOOFieldMode fieldMode = conversionEntry.getFieldMode();
+        switch (fieldMode) {
             case ATTACH:
                 buildAttachStatement(oooEntry, conversionEntry, fromMethodSpec);
                 break;
             case BIND:
-                ControlModeMethodStatementUtil.buildBindStatement(oooEntry, conversionEntry, fromMethodSpec, this.getClass().getSimpleName());
+                FieldModeMethodStatementUtil.buildBindStatement(oooEntry, conversionEntry, fromMethodSpec, this.getClass().getSimpleName());
                 break;
             case CONVERSION:
-                ControlModeMethodStatementUtil.buildConversionStatement(oooEntry, conversionEntry, fromMethodSpec, this.getClass().getSimpleName());
+                FieldModeMethodStatementUtil.buildConversionStatement(oooEntry, conversionEntry, fromMethodSpec, this.getClass().getSimpleName());
                 break;
             default:
                 break;
@@ -46,7 +45,7 @@ public class FromMethodObjectStatementBrew implements IFromMethodStatementBrew {
 
     private void buildAttachStatement(OOOEntry oooEntry, OOOConversionEntry conversionEntry, MethodSpec.Builder fromMethodSpec) {
 //        LogUtil.logger("conversionEntry:  " + conversionEntry.getTargetFieldName() + ", " + conversionEntry.getTargetFieldType());
-        fromMethodSpec.addComment(conversionEntry.getTargetFieldName() + ", " + conversionEntry.getControlMode().getDesc() + ", " + this.getClass().getSimpleName());
+        fromMethodSpec.addComment(conversionEntry.getTargetFieldName() + ", " + conversionEntry.getFieldMode().getDesc() + ", " + this.getClass().getSimpleName());
         // #id_ChatBO
         if(conversionEntry.getTargetFieldTypeEntry().isRefId()){
             String fromParamName = TextUtil.firstCharLower(oooEntry.getFromSimpleName());

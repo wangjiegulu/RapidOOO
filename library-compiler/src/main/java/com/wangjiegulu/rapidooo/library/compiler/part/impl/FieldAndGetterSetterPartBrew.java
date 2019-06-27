@@ -3,13 +3,13 @@ package com.wangjiegulu.rapidooo.library.compiler.part.impl;
 import com.squareup.javapoet.FieldSpec;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeSpec;
-import com.wangjiegulu.rapidooo.api.OOOControlMode;
+import com.wangjiegulu.rapidooo.api.OOOFieldMode;
 import com.wangjiegulu.rapidooo.library.compiler.entry.GetterSetterMethodNames;
 import com.wangjiegulu.rapidooo.library.compiler.oooentry.OOOConversionEntry;
 import com.wangjiegulu.rapidooo.library.compiler.oooentry.OOOEntry;
 import com.wangjiegulu.rapidooo.library.compiler.oooentry.OOOFieldEntry;
 import com.wangjiegulu.rapidooo.library.compiler.part.PartBrew;
-import com.wangjiegulu.rapidooo.library.compiler.part.statement.util.ControlModeMethodStatementUtil;
+import com.wangjiegulu.rapidooo.library.compiler.part.statement.util.FieldModeMethodStatementUtil;
 import com.wangjiegulu.rapidooo.library.compiler.util.ElementUtil;
 import com.wangjiegulu.rapidooo.library.compiler.util.PoetUtil;
 import com.wangjiegulu.rapidooo.library.compiler.util.TextUtil;
@@ -51,12 +51,12 @@ public class FieldAndGetterSetterPartBrew implements PartBrew {
             for (HashMap.Entry<String, OOOConversionEntry> compareCE : oooEntry.getConversions().entrySet()) {
                 OOOConversionEntry compareConversionEntry = compareCE.getValue();
                 // 只有 bind mode 才需要关联
-                if (OOOControlMode.BIND == compareConversionEntry.getControlMode()) {
+                if (OOOFieldMode.BIND == compareConversionEntry.getFieldMode()) {
                     for (Map.Entry<String, IOOOVariable> bindMethodParamE : compareConversionEntry.getBindTargetParamFields().entrySet()) {
                         IOOOVariable bindMethodParam = bindMethodParamE.getValue();
                         // 该字段被某个 conversion 的 bind 方法作为参数使用到，则需要绑定
                         if (TextUtil.equals(xFieldEntry.getSimpleName(), bindMethodParam.fieldName())) {
-                            ControlModeMethodStatementUtil.buildBindStatement(oooEntry, compareConversionEntry, setterMethodBuilder, this.getClass().getSimpleName());
+                            FieldModeMethodStatementUtil.buildBindStatement(oooEntry, compareConversionEntry, setterMethodBuilder, this.getClass().getSimpleName());
                         }
                     }
                 }
@@ -91,12 +91,12 @@ public class FieldAndGetterSetterPartBrew implements PartBrew {
                 OOOConversionEntry compareConversionEntry = compareCE.getValue();
 
                 // 只有 bind mode 才需要关联
-                if (OOOControlMode.BIND == compareConversionEntry.getControlMode()) {
+                if (OOOFieldMode.BIND == compareConversionEntry.getFieldMode()) {
                     for (Map.Entry<String, IOOOVariable> bindMethodParamE : compareConversionEntry.getInverseBindTargetParamFields().entrySet()) {
                         IOOOVariable bindMethodParam = bindMethodParamE.getValue();
                         // 该字段被某个 conversion 的 bind 方法作为参数使用到，则需要绑定
                         if (TextUtil.equals(xConversionEntry.getTargetFieldName(), bindMethodParam.fieldName())) {
-                            ControlModeMethodStatementUtil.buildInverseBindStatement(oooEntry, compareConversionEntry, setterMethodBuilder, this.getClass().getSimpleName());
+                            FieldModeMethodStatementUtil.buildInverseBindStatement(oooEntry, compareConversionEntry, setterMethodBuilder, this.getClass().getSimpleName());
                         }
                     }
 
@@ -104,7 +104,7 @@ public class FieldAndGetterSetterPartBrew implements PartBrew {
                         IOOOVariable bindMethodParam = bindMethodParamE.getValue();
                         // 该字段被某个 conversion 的 bind 方法作为参数使用到，则需要绑定
                         if (TextUtil.equals(xConversionEntry.getTargetFieldName(), bindMethodParam.fieldName())) {
-                            ControlModeMethodStatementUtil.buildBindStatement(oooEntry, compareConversionEntry, setterMethodBuilder, this.getClass().getSimpleName());
+                            FieldModeMethodStatementUtil.buildBindStatement(oooEntry, compareConversionEntry, setterMethodBuilder, this.getClass().getSimpleName());
                         }
                     }
                 }
