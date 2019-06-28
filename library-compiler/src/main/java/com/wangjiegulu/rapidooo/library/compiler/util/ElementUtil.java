@@ -240,19 +240,19 @@ public class ElementUtil {
 
     public static boolean isParcelable(TypeMirror fieldType) {
 //        try {
-//            TypeName typeName = getTypeName(fieldType);
-//            if (typeName.isPrimitive() || typeName.isBoxedPrimitive()) {
+//            TypeName fullTypeEntry = getFullTypeEntry(fieldType);
+//            if (fullTypeEntry.isPrimitive() || fullTypeEntry.isBoxedPrimitive()) {
 //                return true;
 //            }
 //            LogUtil.logger("[isParcelable]" + fieldType + ", " + fieldType.getKind());
 //
 //            if (isAssignable(fieldType, List.class)) {
-//                List<TypeName> typeParameters = ((ParameterizedTypeName) typeName).typeArguments;
+//                List<TypeName> typeParameters = ((ParameterizedTypeName) fullTypeEntry).typeArguments;
 //                if (typeParameters.size() == 1) {
 //                    return isParcelable(GlobalEnvironment.getTypeElement(typeParameters.get(0).toString()));
 //                }
 //            } else if (isAssignable(fieldType, Map.class)) {
-//                List<TypeName> typeParameters = ((ParameterizedTypeName) typeName).typeArguments;
+//                List<TypeName> typeParameters = ((ParameterizedTypeName) fullTypeEntry).typeArguments;
 //                LogUtil.logger("[isParcelable] map typeParameters: " + typeParameters);
 //                LogUtil.logger("[isParcelable] map typeParameter[0]: " + GlobalEnvironment.getTypeElement(typeParameters.get(0).toString()));
 //                LogUtil.logger("[isParcelable] map typeParameter[1]: " + GlobalEnvironment.getTypeElement(typeParameters.get(1).toString()));
@@ -285,7 +285,7 @@ public class ElementUtil {
     }
 
     private static boolean isParcelableType(TypeName typeName) {
-//        LogUtil.logger("[isParcelableType]typeName: " + typeName);
+//        LogUtil.logger("[isParcelableType]fullTypeEntry: " + fullTypeEntry);
         if (typeName instanceof ParameterizedTypeName) {
             for (TypeName tn : ((ParameterizedTypeName) typeName).typeArguments) {
                 if (!isParcelableType(tn)) {

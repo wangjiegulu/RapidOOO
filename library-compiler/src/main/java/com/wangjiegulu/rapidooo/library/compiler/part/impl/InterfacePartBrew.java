@@ -105,7 +105,7 @@ public class InterfacePartBrew implements PartBrew {
             if(fieldEntry.isParcelable()){
                 String fieldName = fieldEntry.getSimpleName();
                 for(IParcelableStatementBrew parcelableStatementBrew : ParcelableStatementUtil.parcelableStatementBrews){
-//                    TypeName fieldTypeName = fieldEntry.getTypeName();
+//                    TypeName fieldTypeName = fieldEntry.getFullTypeEntry();
 //                    LogUtil.logger("[fieldTypeName]" + fieldTypeName.getClass() + ", " + fieldTypeName);
                     if(parcelableStatementBrew.match(fieldEntry.getOooTypeEntry())){
                         parcelableStatementBrew.read(parcelConstructorMethodBuilder, "", RapidOOOConstants.EMPTY_ARRAY, "this." + fieldName, fieldEntry.getOooTypeEntry(), fieldName);

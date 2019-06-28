@@ -36,10 +36,10 @@ public class OOOListTypeEntry extends OOOTypeEntry {
                 argumentType = tps.get(0);
             }
 
-//            if (typeName.toString().matches("java\\.util\\.List<.+>")) {
+//            if (fullTypeEntry.toString().matches("java\\.util\\.List<.+>")) {
 //                instanceType = TypeName.get(ArrayList.class);
 //            } else {
-//                instanceType = ((ParameterizedTypeName) typeName).rawType;
+//                instanceType = ((ParameterizedTypeName) fullTypeEntry).rawType;
 //            }
         }
 

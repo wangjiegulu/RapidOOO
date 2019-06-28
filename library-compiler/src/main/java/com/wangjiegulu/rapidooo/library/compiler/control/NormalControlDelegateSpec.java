@@ -1,20 +1,20 @@
 package com.wangjiegulu.rapidooo.library.compiler.control;
 
-import com.squareup.javapoet.TypeName;
-import com.wangjiegulu.rapidooo.api.control.OOOControlDelegate;
-import com.wangjiegulu.rapidooo.library.compiler.util.ElementUtil;
+import com.wangjiegulu.rapidooo.library.compiler.oooentry.type.OOOTypeEntry;
 
 /**
  * Author: wangjie Email: tiantian.china.2@gmail.com Date: 2019-06-26.
  */
-public class NormalControlDelegateSpec implements ControlDelegateSpec{
-    @Override
-    public boolean match(TypeName controlDelegateTypeName) {
-        return !ElementUtil.isSameType(controlDelegateTypeName, OOOControlDelegate.class);
+public class NormalControlDelegateSpec extends ControlDelegateSpec{
+
+    public NormalControlDelegateSpec(OOOTypeEntry argTypeEntry) {
+        super(argTypeEntry);
     }
 
     @Override
-    public TypeName convertTargetTypeName(TypeName typeName) {
-        return typeName;
+    protected OOOTypeEntry convertTargetTypeEntry() {
+        return argTypeEntry;
     }
+
+
 }

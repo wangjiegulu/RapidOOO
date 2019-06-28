@@ -43,6 +43,6 @@ public class OOOTypeEntryFactory {
                 return entry.getValue().call(typeName);
             }
         }
-        throw new RapidOOOCompileException("ERROR! \nInOOOTypeEntry::create, typeName: " + typeName);
+        throw new RapidOOOCompileException("ERROR! \nInOOOTypeEntry::create, fullTypeEntry: " + typeName);
     }
 }

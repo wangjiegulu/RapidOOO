@@ -44,7 +44,7 @@ import java.util.List;
                                 @OOOConversion(
                                         targetFieldName = "textSp",
                                         targetFieldType = SpannableString.class,
-                                        controlDelegate = OOONewThreadControlDelegate.class,
+                                        controlDelegate = OOOLazySyncControlDelegate.class,
                                         bindMethodName = "bindTextSp",
                                         inverseBindMethodName = "inverseBindTextSp",
                                         parcelable = false
@@ -73,8 +73,7 @@ import java.util.List;
                                 @OOOConversion(
                                         targetFieldName = "commentLengthList",
                                         targetFieldTypeId = "java.util.List<java.lang.Integer>",
-                                        bindMethodName = "bindCommentLengthList",
-                                        controlDelegate = OOOLazySyncControlDelegate.class
+                                        bindMethodName = "bindCommentLengthList"
                                 ),
                                 @OOOConversion(
                                         targetFieldName = "chatVOs",
@@ -101,8 +100,10 @@ public class DemoVOGenerator {
         // convert to SpannableString with `@User` / emoticon / sticker
         return new SpannableString(textRaw);
     }
-    public static void inverseBindTextSp(SpannableString textSp, MessageVO self){
-        self.setTextRaw(textSp.toString());
+
+    // TODO: 2019-06-27 wangjie
+    public static void inverseBindTextSp(OOOLazy<SpannableString> textSp, MessageVO self){
+        self.setTextRaw(textSp.get().toString());
     }
     public static SpannableString bindContentSp(String textRaw){
         // convert to SpannableString with `@User` / emoticon / sticker

@@ -8,6 +8,7 @@ import com.wangjiegulu.rapidooo.api.OOOConversion;
 import com.wangjiegulu.rapidooo.api.OOOFieldMode;
 import com.wangjiegulu.rapidooo.api.control.OOOControlDelegate;
 import com.wangjiegulu.rapidooo.api.func.Func0R;
+import com.wangjiegulu.rapidooo.api.func.Func1R;
 import com.wangjiegulu.rapidooo.library.compiler.control.ControlDelegateSpec;
 import com.wangjiegulu.rapidooo.library.compiler.control.ControlDelegateUtil;
 import com.wangjiegulu.rapidooo.library.compiler.exception.RapidOOOCompileException;
@@ -41,15 +42,14 @@ public class OOOConversionEntry implements IOOOVariable {
     private OOOConversion oooConversion;
 
     private String targetFieldName;
-    //    private TypeName targetFieldType;
     private String targetFieldTypeId;
-    private OOOTypeEntry oooTargetFieldTypeEntry; // OOOLazy<MediaPlayer>       /       MediaPlayer
-    private OOOTypeEntry oooTargetFieldArgTypeEntry; // MediaPlayer             /       MediaPlayer
+    //    private OOOTypeEntry oooTargetFieldTypeEntry; // OOOLazy<MediaPlayer>       /       MediaPlayer
+//    private OOOTypeEntry oooTargetFieldArgTypeEntry; // MediaPlayer             /       MediaPlayer
+    private ControlDelegateSpec controlDelegateSpec;
 
     // attach
     private String attachFieldName;
     private OOOFieldEntry oooAttachFieldEntry;
-//    private String attachFieldType; // as some as targetFieldType
 
     // bind
     private TypeName bindMethodClassType;
@@ -77,13 +77,6 @@ public class OOOConversionEntry implements IOOOVariable {
         this.oooConversion = oooConversion;
 
         targetFieldName = oooConversion.targetFieldName();
-//        oooTargetFieldTypeEntry = new OOOTypeEntry();
-//        oooTargetFieldTypeEntry.parse(ElementUtil.getTypeName(AnnoUtil.getType(new Func0R<Object>() {
-//            @Override
-//            public Object call() {
-//                return oooConversion.targetFieldType();
-//            }
-//        })));
         targetFieldTypeId = oooConversion.targetFieldTypeId();
 
         parcelable = oooConversion.parcelable();
@@ -134,6 +127,7 @@ public class OOOConversionEntry implements IOOOVariable {
     }
 
     public OOOConversionEntry prepare() {
+        OOOTypeEntry oooTargetFieldArgTypeEntry;
         if (!AnnoUtil.oooParamIsNotSet(targetFieldTypeId)) { // 设置了 type id，则从缓存中查询
             oooTargetFieldArgTypeEntry = OOOTypeEntryFactory.create(targetFieldTypeId);
         } else {
@@ -145,12 +139,15 @@ public class OOOConversionEntry implements IOOOVariable {
             }));
             oooTargetFieldArgTypeEntry = OOOTypeEntryFactory.create(typeName);
         }
-        oooTargetFieldTypeEntry = oooTargetFieldArgTypeEntry;
-        for(ControlDelegateSpec controlDelegateSpec : ControlDelegateUtil.controlDelegateSpecs){
-            if(controlDelegateSpec.match(controlDelegateTypeName)){
-                oooTargetFieldTypeEntry = OOOTypeEntryFactory.create(controlDelegateSpec.convertTargetTypeName(oooTargetFieldArgTypeEntry.getTypeName()));
+        for (Map.Entry<Func1R<TypeName, Boolean>, Func1R<OOOTypeEntry, ControlDelegateSpec>> controlDelegateSpecEntry
+                : ControlDelegateUtil.controlDelegateSpecs.entrySet()) {
+            if (controlDelegateSpecEntry.getKey().call(controlDelegateTypeName)) {
+                this.controlDelegateSpec = controlDelegateSpecEntry.getValue().call(oooTargetFieldArgTypeEntry);
                 break;
             }
+        }
+        if (null == controlDelegateSpec) {
+            throw new RapidOOOCompileException("No control delegate matched for " + controlDelegateTypeName + ".\nIn" + oooEntry.getOoosEntry().getOooGenerator().getGeneratorClassType());
         }
         return this;
     }
@@ -193,14 +190,11 @@ public class OOOConversionEntry implements IOOOVariable {
 
     private void parseAttachMode() {
         oooAttachFieldEntry = LogicUtil.checkNullCondition(oooEntry.searchFromField(attachFieldName), "Field[" + attachFieldName + "] is not exist in " + oooEntry.getFromTypeName() + " class.");
-//        TypeName attachTypeName = oooAttachFieldEntry.fieldTypeEntry().getTypeName();
-//        TypeName targetTypeName = oooTargetFieldTypeEntry.getTypeName();
-
     }
 
     private void parseBindMode() {
         if (isBindMethodSet()) {
-            TypeName targetFieldType = oooTargetFieldArgTypeEntry.getTypeName();
+            TypeName targetFieldType = controlDelegateSpec.getArgTypeEntry().getTypeName();
             // 检查 bind method 是否存在
             ExecutableElement method = findPublicStaticMethodInClass(bindMethodClass, bindMethodName, targetFieldType);
             if (null == method) {
@@ -222,7 +216,7 @@ public class OOOConversionEntry implements IOOOVariable {
 
     private void parseConversionMode() {
         if (isConversionMethodSet()) {
-            TypeName targetFieldType = oooTargetFieldArgTypeEntry.getTypeName();
+            TypeName targetFieldType = controlDelegateSpec.getArgTypeEntry().getTypeName();
             // 检查 conversion method 是否存在
             ExecutableElement method = findPublicStaticMethodInClass(conversionMethodClass, conversionMethodName, targetFieldType);
             if (null == method) {
@@ -378,7 +372,7 @@ public class OOOConversionEntry implements IOOOVariable {
     }
 
     public TypeName getTargetFieldType() {
-        return oooTargetFieldTypeEntry.getTypeName();
+        return controlDelegateSpec.getFullTypeEntry().getTypeName();
     }
 
     public String getTargetFieldTypeId() {
@@ -414,7 +408,7 @@ public class OOOConversionEntry implements IOOOVariable {
     }
 
     public OOOTypeEntry getTargetFieldTypeEntry() {
-        return oooTargetFieldTypeEntry;
+        return controlDelegateSpec.getFullTypeEntry();
     }
 
     public OOOFieldEntry getAttachFieldEntry() {
@@ -460,7 +454,7 @@ public class OOOConversionEntry implements IOOOVariable {
     public TypeName getAttachFieldType() {
         // attach 属性类型与 target 一样
         return oooAttachFieldEntry.getTypeName();
-//        return oooTargetFieldTypeEntry.getTypeName();
+//        return oooTargetFieldTypeEntry.getFullTypeEntry();
     }
 
     public boolean isParcelable() {
@@ -472,13 +466,14 @@ public class OOOConversionEntry implements IOOOVariable {
     }
 
     public OOOTypeEntry getOooTargetFieldArgTypeEntry() {
-        return oooTargetFieldArgTypeEntry;
+        return controlDelegateSpec.getArgTypeEntry();
     }
 
-    public boolean isControlDelegateSet(){
+    public boolean isControlDelegateSet() {
         return !ElementUtil.isSameType(controlDelegateTypeName, OOOControlDelegate.class);
     }
-    public String getControlDelegateFieldName(){
+
+    public String getControlDelegateFieldName() {
         return targetFieldName + "_controlDelegate";
     }
 
