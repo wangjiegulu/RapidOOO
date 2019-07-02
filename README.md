@@ -1,5 +1,10 @@
 # RapidOOO
 
+[![Build Status](https://travis-ci.org/wangjiegulu/RapidOOO.svg?branch=master)](https://travis-ci.org/wangjiegulu/RapidOOO) [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.github.wangjiegulu/rapidooo-api/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.github.wangjiegulu/rapidooo-api) [![](https://img.shields.io/badge/license-Apache%202-orange.svg)](http://www.apache.org/licenses/LICENSE-2.0) ![API](https://img.shields.io/badge/API-1%2B-brightgreen.svg?style=flat)
+
+[![](https://img.shields.io/badge/blog-Wang%20Jie-228377.svg)](https://blog.wangjiegulu.com) [![](https://img.shields.io/badge/twitter-@wangjiegulu-blue.svg)](https://twitter.com/wangjiegulu)
+
+
 ## 什么是 RapidOOO
 
 我们在领域驱动设计中经常会在不同层级之间传递数据，例如 `VO`, `PO`, `DO`, `DTO`, `BO`等。Android 的开发中也经常会遇到这些情况，比如在 [Android-CleanArchitecture](https://github.com/android10/Android-CleanArchitecture) 的 [UserModelDataMapper::transform](https://github.com/android10/Android-CleanArchitecture/blob/master/presentation/src/main/java/com/fernandocejas/android10/sample/presentation/mapper/UserModelDataMapper.java#L42), [UserEntityDataMapper::transform](https://github.com/android10/Android-CleanArchitecture/blob/master/data/src/main/java/com/fernandocejas/android10/sample/data/entity/mapper/UserEntityDataMapper.java#L42) 等。手工地进行拷贝转换的过程不但繁琐，而且错误的风险比较大，在新增、删除字段时也增加了维护的成本。[Dozer](http://dozer.sourceforge.net/documentation/about.html) 可以很好地解决这个问题，但是在 Android 上可能就不太适用了。
