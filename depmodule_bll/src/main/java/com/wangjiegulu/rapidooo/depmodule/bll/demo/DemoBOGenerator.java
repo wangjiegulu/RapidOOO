@@ -11,7 +11,6 @@ import com.wangjiegulu.rapidooo.depmodule.dal.xdo.demo.User;
  * Author: wangjie Email: tiantian.china.2@gmail.com Date: 2019-06-17.
  */
 @OOOs(
-        fromSuffix = "",
         suffix = "BO",
         ooos = {
                 @OOO(from = User.class, id = "#id__UserBO"),

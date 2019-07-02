@@ -9,6 +9,7 @@ import com.wangjiegulu.rapidooo.api.OOOFieldMode;
 import com.wangjiegulu.rapidooo.api.control.OOOControlDelegate;
 import com.wangjiegulu.rapidooo.api.func.Func0R;
 import com.wangjiegulu.rapidooo.api.func.Func1R;
+import com.wangjiegulu.rapidooo.library.compiler.RapidOOOConstants;
 import com.wangjiegulu.rapidooo.library.compiler.control.ControlDelegateSpec;
 import com.wangjiegulu.rapidooo.library.compiler.control.ControlDelegateUtil;
 import com.wangjiegulu.rapidooo.library.compiler.exception.RapidOOOCompileException;
@@ -243,7 +244,7 @@ public class OOOConversionEntry implements IOOOVariable {
         HashMap<String, IOOOVariable> variableElements = new LinkedHashMap<>();
         for (VariableElement ve : method.getParameters()) {
             if (
-                    TextUtil.equals(ve.getSimpleName().toString(), "self")
+                    TextUtil.equals(ve.getSimpleName().toString(), RapidOOOConstants.METHOD_PARAM_NAME_SELF)
                             &&
                             // TODO: 2019-06-13 wangjie validate class type simple name here, need optimize
                             TextUtil.equals(ve.asType().toString(), oooEntry.getTargetClassSimpleName())
@@ -270,7 +271,7 @@ public class OOOConversionEntry implements IOOOVariable {
         HashMap<String, IOOOVariable> variableElements = new LinkedHashMap<>();
         for (VariableElement ve : method.getParameters()) {
             if (
-                    TextUtil.equals(ve.getSimpleName().toString(), "self")
+                    TextUtil.equals(ve.getSimpleName().toString(), RapidOOOConstants.METHOD_PARAM_NAME_SELF)
                             &&
                             // TODO: 2019-06-13 wangjie validate class type simple name here, need optimize
                             TextUtil.equals(MoreTypes.asTypeElement(ve.asType()).getSimpleName().toString(), oooEntry.getTargetClassSimpleName())
@@ -278,7 +279,7 @@ public class OOOConversionEntry implements IOOOVariable {
                 SelfObjectVariable selfObjectVariable = new SelfObjectVariable(ve.getSimpleName().toString());
                 variableElements.put(selfObjectVariable.fieldName(), selfObjectVariable);
             } else if (
-                    TextUtil.equals(ve.getSimpleName().toString(), "other")
+                    TextUtil.equals(ve.getSimpleName().toString(), RapidOOOConstants.METHOD_PARAM_NAME_OTHER)
                             &&
                             // TODO: 2019-06-13 wangjie validate class type simple name here, need optimize
                             TextUtil.equals(MoreTypes.asTypeElement(ve.asType()).getSimpleName().toString(), oooEntry.getFromSimpleName())
@@ -454,7 +455,6 @@ public class OOOConversionEntry implements IOOOVariable {
     public TypeName getAttachFieldType() {
         // attach 属性类型与 target 一样
         return oooAttachFieldEntry.getTypeName();
-//        return oooTargetFieldTypeEntry.getFullTypeEntry();
     }
 
     public boolean isParcelable() {

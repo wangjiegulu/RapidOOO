@@ -13,4 +13,7 @@ public interface RapidOOOConstants {
     String CLASS_NAME_SIZEF = "android.util.SizeF";
 
     Object[] EMPTY_ARRAY = new Object[0];
+
+    String METHOD_PARAM_NAME_SELF = "self";
+    String METHOD_PARAM_NAME_OTHER = "other";
 }
