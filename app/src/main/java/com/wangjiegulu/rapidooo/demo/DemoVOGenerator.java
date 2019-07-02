@@ -155,6 +155,7 @@ public class DemoVOGenerator {
         MediaPlayer mediaPlayer = new MediaPlayer();
         try {
             mediaPlayer.setDataSource(videoUrl);
+            mediaPlayer.prepareAsync();
         } catch (IOException e) {
             e.printStackTrace();
         }
